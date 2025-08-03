@@ -2,7 +2,7 @@
 # /// script
 # dependencies = ["loguru"]
 # ///
-# this_file: playwrightauthor/utils/logger.py
+# this_file: src/playwrightauthor/utils/logger.py
 
 """Project-wide Loguru configuration."""
 

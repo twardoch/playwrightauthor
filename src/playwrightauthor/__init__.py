@@ -6,6 +6,6 @@
 
 """Public re-exports for library consumers."""
 
-from .author import Browser, AsyncBrowser
+from .author import AsyncBrowser, Browser
 
 __all__ = ["Browser", "AsyncBrowser"]

@@ -11,11 +11,12 @@ Just connects to existing Chrome and uses existing tabs where you're already log
 """
 
 import asyncio
-from playwright.async_api import async_playwright
+
+import fire
 from loguru import logger
+from playwright.async_api import async_playwright
 from rich.console import Console
 from rich.pretty import pprint
-import fire
 
 
 async def scrape_google_docs(

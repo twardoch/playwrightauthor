@@ -35,7 +35,10 @@ playwrightauthor = "playwrightauthor.cli:main"
 
 [tool.hatch.version]
 source = "vcs"
-write-to = "src/playwrightauthor/_version.py"
+
+[tool.hatch.version.raw-options]
+version_scheme = "guess-next-dev"
+write_to = "src/playwrightauthor/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/playwrightauthor"]

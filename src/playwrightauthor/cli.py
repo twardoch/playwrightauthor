@@ -6,9 +6,11 @@
 
 """Fire-powered command-line interface for utility tasks."""
 
+import shutil
+
 import fire
 from rich.console import Console
-import shutil
+
 from .browser_manager import ensure_browser
 from .exceptions import BrowserManagerError
 from .utils.logger import configure as configure_logger

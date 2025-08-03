@@ -1,6 +1,7 @@
 # this_file: tests/test_author.py
 import pytest
-from playwrightauthor import Browser, AsyncBrowser
+
+from playwrightauthor import AsyncBrowser, Browser
 
 
 @pytest.mark.skip(
