@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from .browser_manager import ensure_browser
 from .config import get_config
+from .connection import async_connect_with_retry, connect_with_retry
 from .lazy_imports import get_async_playwright, get_sync_playwright
 from .state_manager import get_state_manager
 from .utils.logger import configure as configure_logger
@@ -45,24 +46,33 @@ class Browser:
         self.browser: PlaywrightBrowser | None = None
 
     def __enter__(self) -> PlaywrightBrowser:
-        self.logger.info(f"Starting sync browser session with profile '{self.profile}'...")
+        self.logger.info(
+            f"Starting sync browser session with profile '{self.profile}'..."
+        )
         ensure_browser(self.verbose, profile=self.profile)
-        
+
         # Use lazy loading for Playwright
         sync_playwright = get_sync_playwright()
         self.playwright = sync_playwright.start()
-        
-        # Connect to browser using configured port
+
+        # Connect to browser using configured port with health checks and retry logic
         debug_port = self.config.browser.debug_port
-        self.browser = self.playwright.chromium.connect_over_cdp(
-            f"http://localhost:{debug_port}"
+        max_retries = self.config.network.retry_attempts
+        retry_delay = self.config.network.retry_delay
+
+        self.browser = connect_with_retry(
+            self.playwright.chromium,
+            debug_port,
+            max_retries=max_retries,
+            retry_delay=retry_delay,
+            timeout=self.config.browser.timeout // 1000,  # Convert ms to seconds
         )
-        
+
         # Update profile last used time
         profile_data = self.state_manager.get_profile(self.profile)
         profile_data["last_used"] = datetime.now().isoformat()
         self.state_manager.set_profile(self.profile, profile_data)
-        
+
         self.logger.info("Sync browser session started.")
         return self.browser
 
@@ -72,7 +82,7 @@ class Browser:
         if self.playwright:
             self.playwright.stop()
         self.logger.info("Sync browser session closed.")
-    
+
     def _get_timestamp(self) -> str:
         """Get current timestamp in ISO format."""
         return datetime.now().isoformat()
@@ -101,12 +111,32 @@ class AsyncBrowser:
         self.browser: AsyncPlaywrightBrowser | None = None
 
     async def __aenter__(self) -> AsyncPlaywrightBrowser:
-        self.logger.info("Starting async browser session...")
-        ensure_browser(self.verbose)
-        self.playwright = await async_playwright().start()
-        self.browser = await self.playwright.chromium.connect_over_cdp(
-            f"http://localhost:{_DEBUGGING_PORT}"
+        self.logger.info(
+            f"Starting async browser session with profile '{self.profile}'..."
         )
+        ensure_browser(self.verbose, profile=self.profile)
+
+        # Use lazy loading for Playwright
+        async_playwright = get_async_playwright()
+        self.playwright = await async_playwright.start()
+
+        # Connect to browser using configured port with health checks and retry logic
+        debug_port = self.config.browser.debug_port
+        max_retries = self.config.network.retry_attempts
+        retry_delay = self.config.network.retry_delay
+
+        self.browser = await async_connect_with_retry(
+            self.playwright.chromium,
+            debug_port,
+            max_retries=max_retries,
+            retry_delay=retry_delay,
+            timeout=self.config.browser.timeout // 1000,  # Convert ms to seconds
+        )
+
+        # Update profile last used time
+        profile_data = self.state_manager.get_profile(self.profile)
+        profile_data["last_used"] = datetime.now().isoformat()
+        self.state_manager.set_profile(self.profile, profile_data)
         self.logger.info("Async browser session started.")
         return self.browser
 

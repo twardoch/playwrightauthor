@@ -30,7 +30,9 @@ from .utils.logger import configure as configure_logger
 from .utils.paths import install_dir
 
 
-def ensure_browser(verbose: bool = False, max_retries: int | None = None, profile: str = "default") -> tuple[str, str]:
+def ensure_browser(
+    verbose: bool = False, max_retries: int | None = None, profile: str = "default"
+) -> tuple[str, str]:
     """
     Ensures a Chrome for Testing instance is running with remote debugging.
 
@@ -48,24 +50,22 @@ def ensure_browser(verbose: bool = False, max_retries: int | None = None, profil
     console = Console()
     logger = configure_logger(verbose)
     start_time = time.time()
-    
+
     # Load configuration
     config = get_config()
     debug_port = config.browser.debug_port
-    
+
     # Use configured retry attempts if not specified
     if max_retries is None:
         max_retries = config.network.retry_attempts
-        
+
     # Get state manager for profile handling
-    state_manager = get_state_manager()
+    get_state_manager()
 
     try:
         # Check if Chrome is already running with debug port
         if get_chrome_process(debug_port):
-            logger.info(
-                f"Chrome is already running in debug mode on port {debug_port}"
-            )
+            logger.info(f"Chrome is already running in debug mode on port {debug_port}")
             browser_path = find_chrome_executable(logger)
             data_dir = install_dir()
             if not browser_path:

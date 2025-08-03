@@ -4,8 +4,8 @@ import os
 import platform
 import subprocess
 import sys
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 from ..utils.paths import install_dir
 
@@ -38,8 +38,7 @@ def _get_windows_chrome_paths() -> Generator[Path, None, None]:
         Path(program_files) / "Chromium" / "Application" / "chrome.exe",
     ]
 
-    for path in chrome_paths:
-        yield path
+    yield from chrome_paths
 
     # Try to find Chrome via registry (using where command as fallback)
     try:
@@ -156,8 +155,7 @@ def _get_macos_chrome_paths() -> Generator[Path, None, None]:
         Path("/opt/homebrew/bin/chromium"),
     ]
 
-    for brew_path in homebrew_paths:
-        yield brew_path
+    yield from homebrew_paths
 
 
 def find_chrome_executable(logger=None, use_cache: bool = True) -> Path | None:
@@ -175,6 +173,7 @@ def find_chrome_executable(logger=None, use_cache: bool = True) -> Path | None:
     if use_cache:
         try:
             from ..state_manager import get_state_manager
+
             state_manager = get_state_manager()
             cached_path = state_manager.get_chrome_path()
             if cached_path and cached_path.exists():
@@ -274,13 +273,14 @@ def get_chrome_version(chrome_path: Path, logger=None) -> str | None:
 
 def _cache_chrome_path(path: Path, logger=None) -> None:
     """Cache the Chrome executable path for future use.
-    
+
     Args:
         path: Path to Chrome executable
         logger: Optional logger
     """
     try:
         from ..state_manager import get_state_manager
+
         state_manager = get_state_manager()
         state_manager.set_chrome_path(path)
         if logger:

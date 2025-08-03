@@ -1,12 +1,10 @@
 # this_file: tests/test_integration.py
 
 import asyncio
-import os
-import platform
 import sys
 import time
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -64,9 +62,9 @@ class TestBrowserIntegration:
             with Browser(verbose=False) as browser:
                 # Create multiple pages
                 pages = []
-                for i in range(3):
+                for _i in range(3):
                     page = browser.new_page()
-                    page.goto(f"https://httpbin.org/uuid")
+                    page.goto("https://httpbin.org/uuid")
                     pages.append(page)
 
                 # Verify all pages are open
@@ -148,7 +146,7 @@ class TestAsyncBrowserIntegration:
     async def _create_and_navigate_page(self, browser, index):
         """Helper to create and navigate a page."""
         page = await browser.new_page()
-        await page.goto(f"https://httpbin.org/uuid")
+        await page.goto("https://httpbin.org/uuid")
         content = await page.content()
         await page.close()
         return len(content) > 0
@@ -268,7 +266,7 @@ class TestEndToEndScenarios:
     def test_browser_restart_resilience(self):
         """Test that browser can be restarted multiple times."""
         try:
-            for i in range(3):
+            for _i in range(3):
                 with Browser(verbose=False) as browser:
                     page = browser.new_page()
                     page.goto("https://example.com")
@@ -313,7 +311,7 @@ class TestErrorHandlingIntegration:
 
         # Should handle missing Chrome gracefully
         with pytest.raises(Exception) as exc_info:
-            with Browser(verbose=True) as browser:
+            with Browser(verbose=True):
                 pass
 
         # Should get a meaningful error
