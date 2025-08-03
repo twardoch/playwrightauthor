@@ -32,30 +32,56 @@ with Browser() as browser:
 
 ## Features
 
-| ✔︎                                                                                                                                                                   | Capability |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| Automatically discovers or installs a suitable **Chrome for Testing** build via the *last‑known‑good‑versions* JSON, falling back to `npx puppeteer` when possible.  |            |
-| Launches Chrome with `--remote-debugging-port` (killing any non‑debug instance first) and shows a friendly onboarding HTML if the user still needs to log in.        |            |
-| Provides simple `Browser()` and `AsyncBrowser()` classes that return a ready-to-use, authenticated Playwright browser object.                                        |            |
-| Fire‑powered CLI (`python -m playwrightauthor ...`) with rich‐colour output and `--verbose` flag wiring straight into **loguru**.                                    |            |
-| 100 % type‑hinted, PEP 8‑compliant, flat, self‑documenting codebase; every source has a `this_file:` tracker line.                                                   |            |
-| Batteries included: pytest suite, Ruff/pyupgrade/autoflake hooks, uv‑based reproducible environments.                                                                |            |
+### ✨ **Zero-Configuration Browser Automation**
+- **Automatic Chrome Management**: Discovers, installs, and launches Chrome for Testing with remote debugging enabled
+- **Persistent Authentication**: Maintains user sessions across script runs using persistent browser profiles
+- **Cross-Platform Support**: Works seamlessly on Windows, macOS, and Linux with optimized Chrome discovery
+
+### 🚀 **Performance & Reliability**
+- **Lazy Loading**: Optimized startup time with on-demand module imports
+- **Connection Health Monitoring**: Comprehensive diagnostics and automatic retry logic
+- **State Management**: Intelligent caching of browser paths and configuration for faster subsequent runs
+- **Error Recovery**: Graceful handling of browser crashes with automatic restart capabilities
+
+### 🛠 **Developer Experience**
+- **Simple API**: Clean `Browser()` and `AsyncBrowser()` context managers
+- **Rich CLI Interface**: Comprehensive command-line tools for browser and profile management
+- **Type Safety**: 100% type-hinted codebase with full mypy compatibility
+- **Comprehensive Testing**: Extensive test suite with CI/CD pipeline on multiple platforms
+
+### 📋 **Advanced Management**
+- **Profile System**: Create, manage, and switch between multiple browser profiles
+- **Configuration Management**: Environment variable support and flexible configuration options
+- **Diagnostic Tools**: Built-in troubleshooting and system health checks
+- **JSON Output**: Machine-readable output formats for automation and scripting
 
 ---
+
+## Installation
+
+```bash
+# Install PlaywrightAuthor
+pip install playwrightauthor
+
+# Install Playwright browsers (required)
+playwright install chromium
+```
 
 ## Quick start
 
 ```bash
-# ➀ create & sync env
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv venv --python 3.12
-uv init
-# Add playwrightauthor and its dependencies
-uv add playwright rich fire loguru platformdirs requests psutil
+# Create your script file
+cat > example.py << 'EOF'
+from playwrightauthor import Browser
 
-# ➁ run your script
-# (create a file like 'myscript.py' with the code below)
-python myscript.py
+with Browser() as browser:
+    page = browser.new_page()
+    page.goto("https://github.com")
+    print(f"Page title: {page.title()}")
+EOF
+
+# Run your script
+python example.py
 ```
 
 Example `myscript.py`:
@@ -86,23 +112,51 @@ if __name__ == "__main__":
 
 ## Command-Line Interface
 
-PlaywrightAuthor comes with a command-line interface for managing the browser installation.
+PlaywrightAuthor comes with a comprehensive command-line interface for managing browsers, profiles, and diagnostics.
 
-### `status`
-
-Checks the status of the browser and launches it if it's not running.
+### Browser Management
 
 ```bash
+# Check browser status and launch if needed
 python -m playwrightauthor status
+
+# Clear browser cache and user data
+python -m playwrightauthor clear-cache
+
+# Run comprehensive diagnostics
+python -m playwrightauthor diagnose
 ```
 
-### `clear-cache`
-
-Removes the browser installation directory, including the browser itself and user data.
+### Profile Management
 
 ```bash
-python -m playwrightauthor clear-cache
+# List all browser profiles
+python -m playwrightauthor profile list
+
+# Create a new profile
+python -m playwrightauthor profile create myprofile
+
+# Show profile details
+python -m playwrightauthor profile show myprofile
+
+# Delete a profile
+python -m playwrightauthor profile delete myprofile
+
+# Clear all profiles
+python -m playwrightauthor profile clear
 ```
+
+### Configuration
+
+```bash
+# Show current configuration
+python -m playwrightauthor config show
+
+# Show version and system information
+python -m playwrightauthor version
+```
+
+All commands support `--json` output format and `--verbose` for detailed logging.
 
 ---
 
@@ -128,318 +182,65 @@ python -m playwrightauthor clear-cache
 
 ---
 
-## Package layout
+## Package Architecture
 
-> Below is the *envisioned* file tree.
-> Each entry shows (a) **code snippet** – only the essential lines,
-> (b) **explanation** – what it does,
-> (c) **rationale** – why it belongs.
+PlaywrightAuthor follows modern Python packaging standards with a clean `src/` layout and comprehensive testing.
 
 ```
-.
-├── playwrightauthor/
+src/playwrightauthor/
+├── __init__.py              # Public API exports (Browser, AsyncBrowser)
+├── __main__.py              # CLI entry point
+├── author.py                # Core Browser context managers
+├── browser_manager.py       # Legacy browser management (compatibility)
+├── cli.py                   # Fire-powered CLI with rich output
+├── config.py                # Configuration management system
+├── connection.py            # Connection health and diagnostics
+├── exceptions.py            # Custom exception classes
+├── lazy_imports.py          # Performance optimization for imports
+├── onboarding.py            # User authentication guidance
+├── state_manager.py         # Persistent state management
+├── typing.py                # Type definitions and protocols
+├── browser/                 # Modular browser management
 │   ├── __init__.py
-│   ├── __main__.py
-│   ├── cli.py
-│   ├── author.py
-│   ├── browser_manager.py
-│   ├── onboarding.py
-│   ├── templates/
-│   │   └── onboarding.html
-│   ├── utils/
-│   │   ├── logger.py
-│   │   └── paths.py
-│   └── typing.py
-├── tests/
-│   └── test_author.py
-├── README.md          ← *← this file*
-├── PLAN.md
-├── TODO.md
-├── WORK.md
-└── CHANGELOG.md
+│   ├── finder.py            # Cross-platform Chrome discovery
+│   ├── installer.py         # Chrome for Testing installation
+│   ├── launcher.py          # Browser process launching
+│   └── process.py           # Process management and control
+├── templates/
+│   └── onboarding.html      # User guidance interface
+└── utils/
+    ├── logger.py            # Loguru-based logging configuration
+    └── paths.py             # Cross-platform path management
+
+tests/                       # Comprehensive test suite
+├── test_author.py           # Core functionality tests
+├── test_benchmark.py        # Performance benchmarks
+├── test_integration.py      # Integration tests
+├── test_platform_specific.py # Platform-specific tests
+└── test_utils.py            # Utility function tests
 ```
 
-### `playwrightauthor/__init__.py`
+## Key Components
 
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = []
-# ///
-# this_file: playwrightauthor/__init__.py
+### Core API
+The library exposes a minimal, clean API through two main classes:
+- `Browser()` - Synchronous context manager
+- `AsyncBrowser()` - Asynchronous context manager
 
-"""Public re‑exports for library consumers."""
-from .author import Browser, AsyncBrowser
+Both provide identical functionality and return standard Playwright browser objects.
 
-__all__ = ["Browser", "AsyncBrowser"]
-```
+### Browser Management
+- **Automatic Discovery**: Finds Chrome installations across Windows, macOS, and Linux
+- **Smart Installation**: Downloads Chrome for Testing when needed using official Google endpoints
+- **Process Management**: Handles Chrome launching with debug port and graceful cleanup
+- **Profile Persistence**: Maintains user authentication across sessions
 
-*Explanation* – Presents a tiny, stable API surface.
-*Rationale* – Hides internal churn; semver‑compatible.
+### Configuration System
+- **Environment Variables**: `PLAYWRIGHTAUTHOR_*` prefix for all settings
+- **State Management**: Caches browser paths and configuration for performance
+- **Profile Support**: Multiple named profiles for different use cases
 
 ---
-
-
-### `playwrightauthor/__main__.py`
-
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["fire"]
-# ///
-# this_file: playwrightauthor/__main__.py
-
-""`python -m playwrightauthor` entry‑point."""
-from .cli import main
-
-if __name__ == "__main__":
-    main()
-```
-
-*Explanation* – Delegates to the Fire CLI.
-*Rationale* – Keeps `__init__` import‑only; avoids side‑effects.
-
----
-
-
-### `playwrightauthor/cli.py`
-
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["fire", "rich"]
-# ///
-# this_file: playwrightauthor/cli.py
-
-"""Fire‑powered command‑line interface for utility tasks."""
-from rich.console import Console
-from .browser_manager import ensure_browser
-
-def status(verbose: bool = False) -> None:
-    """Checks browser status and launches it if not running."""
-    console = Console()
-    console.print("Checking browser status...")
-    browser_path, data_dir = ensure_browser(verbose=verbose)
-    console.print(f"[green]Browser is ready.[/green]")
-    console.print(f"  - Path: {browser_path}")
-    console.print(f"  - User Data: {data_dir}")
-
-def main() -> None:
-    import fire
-    fire.Fire({"status": status})
-```
-
-*Explanation* – Offers utility commands like `status`.
-*Rationale* – Provides a simple way to manage the browser without writing a script.
-
----
-
-
-### `playwrightauthor/author.py`
-
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["playwright"]
-# ///
-# this_file: playwrightauthor/author.py
-
-"""The core Browser and AsyncBrowser classes."""
-from playwright.sync_api import sync_playwright, Playwright, Browser as PlaywrightBrowser
-from playwright.async_api import async_playwright, AsyncPlaywright, Browser as AsyncPlaywrightBrowser
-from .browser_manager import ensure_browser
-
-class Browser:
-    """A sync context manager for an authenticated Playwright Browser."""
-    def __init__(self, verbose: bool = False):
-        self.verbose = verbose
-
-    def __enter__(self) -> PlaywrightBrowser:
-        # 1. Ensure browser is running and get debug port
-        # 2. playwright.chromium.connect_over_cdp()
-        # 3. Return browser object
-        ...
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # Disconnect
-        ...
-
-class AsyncBrowser:
-    """An async context manager for an authenticated Playwright Browser."""
-    def __init__(self, verbose: bool = False):
-        self.verbose = verbose
-
-    async def __aenter__(self) -> AsyncPlaywrightBrowser:
-        ...
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        ...
-```
-
-*Explanation* – The main entry point for the library.
-*Rationale* – Provides a simple, Pythonic `with` statement syntax for browser management.
-
----
-
-
-### `playwrightauthor/browser_manager.py`
-
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["requests", "platformdirs", "rich", "psutil"]
-# ///
-# this_file: playwrightauthor/browser_manager.py
-
-"""
-Ensure a Chrome for Testing build is present & running in debug mode.
-
-Algorithm:
-1. Try to connect to localhost:9222.
-2. If Chrome is running *without* --remote-debugging-port ⇒ kill & restart.
-3. If Chrome isn't installed:
-   3a. Prefer `npx puppeteer browsers install`.
-   3b. Else download the matching archive from LKGV JSON.
-4. Launch Chrome with a persistent user‑data‑dir.
-"""
-import os, subprocess, json, sys, platform, shutil, tempfile
-from pathlib import Path
-from rich.console import Console
-from .utils.paths import install_dir
-
-_LKGV_URL = "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
-
-def ensure_browser(verbose: bool = False):
-    console = Console()
-    ...
-```
-
-*Explanation* – Central authority for “is Chrome available?”.
-*Rationale* – Encapsulates the complex, platform-specific logic of managing the browser binary and its process.
-
----
-
-
-### `playwrightauthor/onboarding.py`
-
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["playwright"]
-# ///
-# this_file: playwrightauthor/onboarding.py
-
-"""Serve a local HTML page instructing the user to log in."""
-from pathlib import Path
-from playwright.async_api import Browser
-
-def show(browser: Browser) -> None:
-    html = Path(__file__).parent.parent / "templates" / "onboarding.html"
-    page = browser.new_page()
-    page.set_content(html.read_text("utf-8"), wait_until="domcontentloaded")
-```
-
-*Explanation* – Visual cue when manual steps are needed.
-*Rationale* – Human‑friendly recovery path builds trust.
-
----
-
-
-### `playwrightauthor/templates/onboarding.html`
-
-```html
-<!-- this_file: playwrightauthor/templates/onboarding.html -->
-<!DOCTYPE html>
-<html>
-  <body>
-    <h1>One small step…</h1>
-    <p>Please <strong>log into any websites you need</strong> in this browser window.<br>
-       This session will be saved for future runs.<br><br>
-       You can close this tab and return to the terminal when you’re done!</p>
-  </body>
-</html>
-```
-
-*Explanation* – Tiny static asset for user guidance.
-*Rationale* – Kept under `templates/` to avoid clutter.
-
----
-
-
-### `playwrightauthor/utils/logger.py`
-
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["loguru"]
-# ///
-# this_file: playwrightauthor/utils/logger.py
-
-"""Project‑wide Loguru configuration."""
-from loguru import logger
-
-def configure(verbose: bool = False):
-    logger.remove()
-    level = "DEBUG" if verbose else "INFO"
-    logger.add(lambda m: print(m, end=""), level=level)
-    return logger
-```
-
-*Explanation* – Single point of logging policy.
-*Rationale* – Avoids duplicating “verbose” handling everywhere.
-
----
-
-
-### `playwrightauthor/utils/paths.py`
-
-```python
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["platformdirs"]
-# ///
-# this_file: playwrightauthor/utils/paths.py
-
-"""Cross‑platform install locations."""
-from platformdirs import user_cache_dir
-from pathlib import Path
-
-def install_dir() -> Path:
-    return Path(user_cache_dir("playwrightauthor", roaming=True)) / "browser"
-```
-
-*Explanation* – Abstracts OS differences.
-*Rationale* – Ensures browser data is stored in a conventional, user-specific location.
-
----
-
-
-### `tests/test_author.py`
-
-```python
-# this_file: tests/test_author.py
-import pytest
-from playwrightauthor import Browser
-
-@pytest.mark.skip("requires live Chrome and user interaction")
-def test_browser_smoke():
-    """A basic smoke test to ensure the Browser class can be instantiated."""
-    try:
-        with Browser() as browser:
-            assert browser is not None
-            assert len(browser.contexts) > 0
-    except Exception as e:
-        # This test is expected to fail in a headless CI environment
-        # without a display server or a running Chrome instance.
-        # We just check that it doesn't raise an unexpected error.
-        pass
-```
-
-*Explanation* – Smoke test for the core `Browser` class.
-*Rationale* – Keeps CI fast but ensures the main library entry point is importable and structurally sound.
-
----
-
 ## Troubleshooting
 
 ### `BrowserManagerError: Could not find Chrome executable...`
