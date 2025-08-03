@@ -1,0 +1,26 @@
+**TL;DR for PlaywrightAuthor Codebase**
+
+**1. Core Purpose & Value Proposition:**
+PlaywrightAuthor is a Python convenience library built on top of Microsoft Playwright. Its primary goal is to eliminate the boilerplate setup for browser automation. It automatically finds or installs a "Chrome for Testing" instance, manages its process (ensuring it runs in debug mode), handles user authentication by reusing a persistent profile, and provides a ready-to-use, authenticated Playwright `Browser` object within a simple context manager (`with Browser() as browser:`).
+
+**2. Key Architectural Components:**
+*   **Main API (`author.py`):** Exposes the core `Browser()` and `AsyncBrowser()` context managers, which are the main entry points for the user.
+*   **Browser Management (`browser/` & `browser_manager.py`):** This is the technical core of the library. It's a modular system responsible for:
+    *   `finder.py`: Robustly discovering the Chrome executable across macOS, Windows, and Linux, checking over 20 standard and non-standard locations per platform.
+    *   `installer.py`: Downloading the correct Chrome for Testing build using official JSON endpoints, with progress bars and SHA256 validation.
+    *   `launcher.py`: Launching the Chrome process with the remote debugging port (`--remote-debugging-port=9222`).
+    *   `process.py`: Managing the Chrome process, including gracefully killing existing non-debug instances and verifying the new process is ready.
+*   **User Experience (`onboarding.py`, `cli.py`):**
+    *   `onboarding.py`: If the user is not logged into necessary services, it serves a local HTML page (`templates/onboarding.html`) to guide them through the login process.
+    *   `cli.py`: A `fire`-powered command-line interface for status checks (`status`) and cache clearing (`clear-cache`), with `rich` for formatted output.
+*   **Configuration & State (`config.py`, `state_manager.py`):** Handles library configuration (e.g., timeouts, paths) and persists the state of the browser (e.g., installation path, version) to avoid redundant work.
+*   **Utilities (`utils/`):** Cross-platform path management (`paths.py`) and `loguru`-based logging (`logger.py`).
+
+**3. Development & Quality:**
+*   **Workflow:** The project is documentation-driven, using `PLAN.md`, `TODO.md`, and `WORK.md` to guide development. It emphasizes iterative, minimal commits.
+*   **Tooling:** Uses `uv` for environment and dependency management. The build system is `hatch` with `hatch-vcs` for versioning based on git tags.
+*   **CI/CD (`.github/workflows/ci.yml`):** A comprehensive GitHub Actions pipeline tests the library on Ubuntu, Windows, and macOS. It runs linting (`ruff`), type checking (`mypy`), and a full `pytest` suite with coverage reporting to Codecov.
+*   **Code Quality:** The codebase is fully type-hinted. A strict quality pipeline (`ruff`, `autoflake`, `pyupgrade`) is enforced and documented. Every file includes a `this_file:` comment for easy path reference.
+
+**4. Current Status & Roadmap:**
+The project has completed its initial phases focused on robustness, error handling, and cross-platform compatibility. It is now in the "Elegance and Performance" phase, which involves refactoring the architecture (e.g., separating state and config management), optimizing performance (e.g., lazy loading), and adding advanced features like browser profile management. Future phases will focus on improving the CLI, documentation, and user experience.
