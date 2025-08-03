@@ -1,0 +1,19 @@
+- [ ] Refine `browser_manager.py` error handling.
+- [ ] Implement retry mechanism for network requests in `browser_manager.py`.
+- [ ] Add timeout to `subprocess.Popen` in `browser_manager.py`.
+- [ ] Improve process-killing logic in `browser_manager.py`.
+- [ ] Implement login detection in `onboarding.py`.
+- [ ] Improve instructions in `onboarding.html`.
+- [ ] Add unit tests for `utils/`.
+- [ ] Add comprehensive integration tests.
+- [ ] Set up CI/CD pipeline for multi-platform testing.
+- [ ] Test and fix platform-specific bugs.
+- [ ] Refine `_find_chrome_executable` for all platforms.
+- [ ] Refactor `browser_manager.py` into smaller modules.
+- [ ] Optimize browser launch performance.
+- [ ] Benchmark the library to identify performance bottlenecks.
+- [ ] Add more CLI commands (e.g., `clear-cache`).
+- [ ] Improve CLI help messages and error reporting.
+- [ ] Update `README.md` with more detailed instructions and examples.
+- [ ] Improve API documentation.
+- [ ] Add a troubleshooting section to the documentation.
