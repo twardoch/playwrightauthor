@@ -91,7 +91,6 @@ def ensure_browser(
             except ProcessKillError as e:
                 logger.error(f"Failed to kill existing Chrome process: {e}")
                 # Continue anyway - Chrome might still be launchable on a different port
-                pass
 
         # Find or install Chrome executable
         find_start_time = time.time()

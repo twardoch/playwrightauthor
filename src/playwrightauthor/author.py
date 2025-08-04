@@ -45,7 +45,32 @@ class Browser:
         self.playwright: Playwright | None = None
         self.browser: PlaywrightBrowser | None = None
 
-    def __enter__(self) -> PlaywrightBrowser:
+    def __enter__(self) -> "PlaywrightBrowser":
+        """
+        Enter the context manager and return an authenticated Playwright Browser instance.
+
+        This method automatically handles:
+        - Ensuring Chrome for Testing is installed and running
+        - Starting the Playwright sync context
+        - Connecting to the browser with retry logic and health checks
+        - Updating profile usage statistics
+
+        Returns:
+            PlaywrightBrowser: A connected Playwright browser instance ready for automation
+
+        Raises:
+            BrowserManagerError: If browser setup or connection fails
+            NetworkError: If connection to debug port fails
+            TimeoutError: If browser startup exceeds configured timeout
+
+        Example:
+            ```python
+            with Browser(verbose=True) as browser:
+                page = browser.new_page()
+                page.goto("https://github.com")
+                print(page.title())
+            ```
+        """
         self.logger.info(
             f"Starting sync browser session with profile '{self.profile}'..."
         )
@@ -77,6 +102,23 @@ class Browser:
         return self.browser
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Exit the context manager and clean up browser resources.
+
+        This method handles proper cleanup by:
+        - Closing the browser connection gracefully
+        - Stopping the Playwright sync context
+        - Logging session completion
+
+        Args:
+            exc_type: Exception type if an exception was raised, None otherwise
+            exc_val: Exception value if an exception was raised, None otherwise
+            exc_tb: Exception traceback if an exception was raised, None otherwise
+
+        Note:
+            This method is called automatically when exiting the `with` statement,
+            even if an exception occurs during browser automation.
+        """
         if self.browser:
             self.browser.close()
         if self.playwright:
@@ -84,7 +126,16 @@ class Browser:
         self.logger.info("Sync browser session closed.")
 
     def _get_timestamp(self) -> str:
-        """Get current timestamp in ISO format."""
+        """
+        Get current timestamp in ISO 8601 format.
+
+        Returns:
+            str: Current timestamp in ISO format (e.g., "2025-08-04T10:30:45.123456")
+
+        Note:
+            This is used internally for profile usage tracking and logging.
+            The timestamp includes microsecond precision for accurate tracking.
+        """
         return datetime.now().isoformat()
 
 
@@ -110,7 +161,33 @@ class AsyncBrowser:
         self.playwright: AsyncPlaywright | None = None
         self.browser: AsyncPlaywrightBrowser | None = None
 
-    async def __aenter__(self) -> AsyncPlaywrightBrowser:
+    async def __aenter__(self) -> "AsyncPlaywrightBrowser":
+        """
+        Enter the async context manager and return an authenticated Playwright Browser instance.
+
+        This method automatically handles:
+        - Ensuring Chrome for Testing is installed and running
+        - Starting the Playwright async context
+        - Connecting to the browser with async retry logic and health checks
+        - Updating profile usage statistics
+
+        Returns:
+            AsyncPlaywrightBrowser: A connected async Playwright browser instance ready for automation
+
+        Raises:
+            BrowserManagerError: If browser setup or connection fails
+            NetworkError: If connection to debug port fails
+            TimeoutError: If browser startup exceeds configured timeout
+
+        Example:
+            ```python
+            async with AsyncBrowser(verbose=True) as browser:
+                page = await browser.new_page()
+                await page.goto("https://github.com")
+                title = await page.title()
+                print(title)
+            ```
+        """
         self.logger.info(
             f"Starting async browser session with profile '{self.profile}'..."
         )
@@ -141,6 +218,23 @@ class AsyncBrowser:
         return self.browser
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
+        """
+        Exit the async context manager and clean up browser resources.
+
+        This method handles proper cleanup by:
+        - Closing the browser connection gracefully (async)
+        - Stopping the Playwright async context
+        - Logging session completion
+
+        Args:
+            exc_type: Exception type if an exception was raised, None otherwise
+            exc_val: Exception value if an exception was raised, None otherwise
+            exc_tb: Exception traceback if an exception was raised, None otherwise
+
+        Note:
+            This method is called automatically when exiting the `async with` statement,
+            even if an exception occurs during browser automation.
+        """
         if self.browser:
             await self.browser.close()
         if self.playwright:

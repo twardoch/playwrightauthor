@@ -24,6 +24,7 @@ dependencies = [
     "platformdirs",
     "requests",
     "psutil",
+    "prompt_toolkit>=3.0.0",
 ]
 
 [project.urls]

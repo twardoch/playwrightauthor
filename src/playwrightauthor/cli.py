@@ -8,14 +8,13 @@
 
 import json
 import shutil
-from typing import Any
 
 import fire
 from rich.console import Console
 from rich.table import Table
 
 from .browser_manager import ensure_browser
-from .config import get_config, save_config
+from .config import get_config
 from .connection import check_connection_health
 from .exceptions import BrowserManagerError
 from .state_manager import get_state_manager
@@ -251,7 +250,7 @@ class Cli:
             format: Output format (table, json).
         """
         console = Console()
-        logger = configure_logger(verbose)
+        configure_logger(verbose)
         config = get_config()
 
         diagnostics = {
@@ -374,6 +373,59 @@ class Cli:
             )
         except Exception:
             pass
+
+    def repl(self, verbose: bool = False):
+        """
+        Start interactive REPL mode for browser automation.
+
+        The REPL (Read-Eval-Print Loop) provides an interactive Python environment
+        with PlaywrightAuthor pre-loaded and ready for browser automation. Features include:
+
+        - Advanced tab completion for Playwright APIs and CLI commands
+        - Persistent command history across sessions
+        - Rich syntax highlighting and error display
+        - Direct CLI command execution with `!` prefix
+        - Real-time Python code evaluation with browser context
+
+        Args:
+            verbose (bool, optional): Enable verbose logging for debugging. Defaults to False.
+
+        Raises:
+            ImportError: If prompt_toolkit is not installed
+            Exception: If REPL fails to initialize
+
+        Example:
+            ```bash
+            playwrightauthor repl --verbose
+
+            # Inside REPL:
+            >>> browser = Browser()
+            >>> browser.__enter__()  # Start browser
+            >>> page = browser.new_page()
+            >>> page.goto("https://github.com")
+            >>> !status  # Run CLI command
+            ```
+
+        Note:
+            The REPL requires the `prompt_toolkit` package. Install with:
+            `pip install prompt_toolkit`
+        """
+        console = Console()
+
+        try:
+            from .repl import ReplEngine
+
+            console.print("[green]Starting PlaywrightAuthor REPL...[/green]")
+            repl_engine = ReplEngine(verbose=verbose)
+            repl_engine.run()
+
+        except ImportError as e:
+            console.print(f"[red]REPL not available: {e}[/red]")
+            console.print(
+                "[yellow]Try installing prompt_toolkit: pip install prompt_toolkit[/yellow]"
+            )
+        except Exception as e:
+            console.print(f"[red]REPL failed to start: {e}[/red]")
 
 
 def main() -> None:
