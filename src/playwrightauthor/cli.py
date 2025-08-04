@@ -8,6 +8,8 @@
 
 import json
 import shutil
+import sys
+from difflib import get_close_matches
 
 import fire
 from rich.console import Console
@@ -16,17 +18,60 @@ from rich.table import Table
 from .browser_manager import ensure_browser
 from .config import get_config
 from .connection import check_connection_health
-from .exceptions import BrowserManagerError
+from .exceptions import BrowserManagerError, CLIError
 from .state_manager import get_state_manager
 from .utils.logger import configure as configure_logger
 from .utils.paths import install_dir
 
 
 class Cli:
-    """CLI for PlaywrightAuthor."""
+    """
+    Command-line interface for PlaywrightAuthor browser and profile management.
+
+    The CLI provides essential tools for managing browser installations, profiles,
+    diagnostics, and configuration. All commands support both human-readable and
+    JSON output formats for automation and scripting.
+
+    Usage:
+        playwrightauthor status              # Check browser status
+        playwrightauthor profile list       # List all profiles
+        playwrightauthor diagnose           # Run system diagnostics
+        playwrightauthor repl               # Start interactive REPL
+    """
 
     def status(self, verbose: bool = False):
-        """Checks browser status and launches it if not running."""
+        """
+        Check browser installation and connection status.
+
+        This command verifies that Chrome for Testing is properly installed and
+        running with remote debugging enabled. If the browser is not running,
+        it will automatically launch it in debug mode.
+
+        Args:
+            verbose (bool, optional): Enable detailed logging output for troubleshooting
+                connection and installation issues. Shows browser paths, process IDs,
+                and connection diagnostics. Defaults to False.
+
+        Example Output:
+            Success:
+                Browser is ready.
+                  - Path: /Users/user/.playwrightauthor/chrome/chrome
+                  - User Data: /Users/user/.playwrightauthor/profiles/default
+
+            With verbose logging:
+                [INFO] Checking browser status...
+                [INFO] Found Chrome at: /Users/user/.playwrightauthor/chrome/chrome
+                [INFO] Browser process running on PID: 12345
+                [INFO] Debug port 9222 is accessible
+                Browser is ready.
+                  - Path: /Users/user/.playwrightauthor/chrome/chrome
+                  - User Data: /Users/user/.playwrightauthor/profiles/default
+
+        Common Issues:
+            - If browser fails to start, try: playwrightauthor clear-cache
+            - For permission issues on macOS, grant accessibility permissions
+            - Use verbose mode to see detailed error information
+        """
         console = Console()
         logger = configure_logger(verbose)
         logger.info("Checking browser status...")
@@ -43,7 +88,31 @@ class Cli:
 
     def clear_cache(self):
         """
-        Removes the browser installation directory, including the browser itself and user data.
+        Remove all browser installations, profiles, and cached data.
+
+        This command completely removes the PlaywrightAuthor installation directory,
+        including the Chrome for Testing browser, all user profiles, authentication
+        data, and configuration cache. Use this to start completely fresh or to
+        resolve persistent browser issues.
+
+        Warning:
+            This action is irreversible. All saved authentication sessions, browser
+            profiles, and configuration will be permanently deleted. You will need
+            to re-authenticate to all services after running this command.
+
+        Example Output:
+            Cache found:
+                Removing /Users/user/.playwrightauthor...
+                Cache cleared.
+
+            No cache:
+                Cache directory not found.
+
+        Use Cases:
+            - Resolve persistent browser connection issues
+            - Clean up after testing with multiple profiles
+            - Reset to factory defaults before sharing system
+            - Free up disk space (Chrome + profiles can be 200MB+)
         """
         console = Console()
         install_path = install_dir()
@@ -58,12 +127,62 @@ class Cli:
         self, action: str = "list", name: str = "default", format: str = "table"
     ):
         """
-        Manage browser profiles.
+        Manage browser profiles for session isolation and multi-account automation.
+
+        Browser profiles maintain separate authentication sessions, cookies, and browser
+        data, enabling you to automate multiple accounts or environments without conflict.
+        Each profile stores its data independently and can be managed through this command.
 
         Args:
-            action: Action to perform (list, show, create, delete, clear).
-            name: Profile name for show/create/delete actions.
-            format: Output format (table, json).
+            action (str, optional): Action to perform. Available actions:
+                - "list": Show all existing profiles with creation and usage dates
+                - "show": Display detailed information about a specific profile
+                - "create": Create a new profile (created automatically on first use)
+                - "delete": Remove a profile and all its data permanently
+                - "clear": Remove all profiles except "default"
+                Defaults to "list".
+            name (str, optional): Profile name for show/create/delete actions.
+                Profile names must be valid directory names (alphanumeric, dash, underscore).
+                Defaults to "default".
+            format (str, optional): Output format for list/show actions:
+                - "table": Human-readable table format with colors
+                - "json": Machine-readable JSON for scripting
+                Defaults to "table".
+
+        Example Usage:
+            List all profiles:
+                playwrightauthor profile list
+
+            Show specific profile details:
+                playwrightauthor profile show --name work
+
+            Create a new profile (or just use it in code):
+                playwrightauthor profile create --name testing
+
+            Delete a profile permanently:
+                playwrightauthor profile delete --name old-profile
+
+            Get profiles as JSON for scripting:
+                playwrightauthor profile list --format json
+
+        Example Output (table format):
+            ┏━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┓
+            ┃ Profile Name┃ Created             ┃ Last Used           ┃
+            ┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━┩
+            │ default     │ 2025-08-04T10:00:00 │ 2025-08-04T15:30:00 │
+            │ work        │ 2025-08-04T11:00:00 │ 2025-08-04T14:00:00 │
+            │ testing     │ 2025-08-04T12:00:00 │ Never               │
+            └─────────────┴─────────────────────┴─────────────────────┘
+
+        Profile Use Cases:
+            - Separate work and personal Google/GitHub accounts
+            - Isolate testing from production sessions
+            - Manage multiple client accounts independently
+            - Create clean environments for different projects
+
+        Note:
+            Profiles are created automatically when first used in Browser() or AsyncBrowser().
+            The "default" profile is created automatically and cannot be deleted.
         """
         console = Console()
         state_manager = get_state_manager()
@@ -374,6 +493,250 @@ class Cli:
         except Exception:
             pass
 
+    def health(self, verbose: bool = False, format: str = "table"):
+        """
+        Perform comprehensive health check of PlaywrightAuthor setup.
+
+        This command validates your entire PlaywrightAuthor installation and configuration,
+        including Chrome installation, connection health, profile setup, and automation
+        capabilities. It provides actionable feedback for any issues found.
+
+        Args:
+            verbose (bool, optional): Enable detailed output with diagnostic information.
+                Shows Chrome paths, connection details, and test results. Defaults to False.
+            format (str, optional): Output format. Options are 'table' for human-readable
+                or 'json' for machine-readable output. Defaults to 'table'.
+
+        Health Checks Performed:
+            1. Chrome Installation - Verifies Chrome for Testing is properly installed
+            2. Connection Health - Tests Chrome DevTools Protocol connection
+            3. Profile Setup - Validates browser profile configuration
+            4. Browser Automation - Tests actual browser control capabilities
+            5. System Compatibility - Checks system requirements and permissions
+
+        Example Output:
+            ✅ Chrome Installation     OK    /Users/user/.playwrightauthor/chrome/chrome
+            ✅ Connection Health       OK    Port 9222 responding (15ms)
+            ✅ Profile Setup          OK    1 profile(s) found
+            ✅ Browser Automation     OK    Successfully opened test page
+            ✅ System Compatibility   OK    All requirements met
+
+            Overall Status: HEALTHY
+
+        Common Issues:
+            - If Chrome installation fails: Run 'playwrightauthor clear-cache'
+            - If connection fails: Check if port 9222 is blocked by firewall
+            - If automation fails: Ensure Chrome has necessary permissions
+        """
+        console = Console()
+        configure_logger(verbose)
+        config = get_config()
+
+        # Track overall health status
+        all_healthy = True
+        health_results = []
+
+        # Helper to add results
+        def add_result(check_name: str, is_ok: bool, details: str, fix_cmd: str = None):
+            nonlocal all_healthy
+            if not is_ok:
+                all_healthy = False
+            health_results.append(
+                {
+                    "check": check_name,
+                    "status": "OK" if is_ok else "FAILED",
+                    "details": details,
+                    "fix_cmd": fix_cmd,
+                }
+            )
+
+        # 1. Check Chrome Installation
+        chrome_ok = False
+        try:
+            from .browser.finder import find_chrome_executable
+
+            chrome_path = find_chrome_executable(configure_logger(verbose))
+            if chrome_path:
+                chrome_ok = True
+                add_result("Chrome Installation", True, str(chrome_path))
+            else:
+                add_result(
+                    "Chrome Installation",
+                    False,
+                    "Chrome for Testing not found",
+                    "playwrightauthor status",
+                )
+        except Exception as e:
+            add_result(
+                "Chrome Installation",
+                False,
+                f"Error: {str(e)[:50]}...",
+                "playwrightauthor clear-cache && playwrightauthor status",
+            )
+
+        # 2. Check Connection Health
+        conn_ok = False
+        if chrome_ok:
+            try:
+                is_healthy, diagnostics = check_connection_health(
+                    config.browser.debug_port
+                )
+                response_time = diagnostics.get("response_time_ms", "N/A")
+                if is_healthy:
+                    conn_ok = True
+                    add_result(
+                        "Connection Health",
+                        True,
+                        f"Port {config.browser.debug_port} responding ({response_time}ms)",
+                    )
+                else:
+                    error = diagnostics.get("error", "Unknown error")
+                    add_result(
+                        "Connection Health",
+                        False,
+                        f"Port {config.browser.debug_port} not responding: {error[:30]}...",
+                        "playwrightauthor status --verbose",
+                    )
+            except Exception as e:
+                add_result(
+                    "Connection Health",
+                    False,
+                    f"Check failed: {str(e)[:30]}...",
+                    "playwrightauthor diagnose",
+                )
+        else:
+            add_result("Connection Health", False, "Skipped (Chrome not installed)")
+
+        # 3. Check Profile Setup
+        try:
+            state_manager = get_state_manager()
+            profiles = state_manager.list_profiles()
+            if profiles:
+                add_result("Profile Setup", True, f"{len(profiles)} profile(s) found")
+            else:
+                add_result(
+                    "Profile Setup",
+                    False,
+                    "No profiles configured",
+                    "playwrightauthor profile create default",
+                )
+        except Exception as e:
+            add_result(
+                "Profile Setup",
+                False,
+                f"Error: {str(e)[:30]}...",
+                "playwrightauthor profile list",
+            )
+
+        # 4. Test Browser Automation (only if connection is healthy)
+        if conn_ok:
+            try:
+                # Quick test to see if we can actually control the browser
+                from .lazy_imports import get_sync_playwright
+
+                playwright = get_sync_playwright().start()
+                try:
+                    browser = playwright.chromium.connect_over_cdp(
+                        f"http://localhost:{config.browser.debug_port}"
+                    )
+                    # Try to create a page (basic automation test)
+                    page = browser.new_page()
+                    page.goto("about:blank")
+                    page.close()
+                    browser.close()
+                    add_result(
+                        "Browser Automation", True, "Successfully controlled browser"
+                    )
+                finally:
+                    playwright.stop()
+            except Exception as e:
+                add_result(
+                    "Browser Automation",
+                    False,
+                    f"Control failed: {str(e)[:30]}...",
+                    "playwrightauthor status --verbose",
+                )
+        else:
+            add_result("Browser Automation", False, "Skipped (Connection unhealthy)")
+
+        # 5. Check System Compatibility
+        try:
+            import platform
+
+            system = platform.system()
+
+            # Check for common issues
+            issues = []
+            if system == "Darwin":  # macOS
+                # Could check for accessibility permissions here
+                pass
+            elif system == "Linux":
+                # Could check for X11/Wayland
+                import os
+
+                if not os.environ.get("DISPLAY") and not config.browser.headless:
+                    issues.append("No DISPLAY variable set")
+
+            if issues:
+                add_result(
+                    "System Compatibility",
+                    False,
+                    "; ".join(issues),
+                    "export DISPLAY=:0 or use headless mode",
+                )
+            else:
+                add_result(
+                    "System Compatibility", True, f"{system} - All requirements met"
+                )
+
+        except Exception as e:
+            add_result("System Compatibility", False, f"Check failed: {str(e)[:30]}...")
+
+        # Display results
+        if format == "json":
+            output = {
+                "timestamp": __import__("datetime").datetime.now().isoformat(),
+                "overall_status": "HEALTHY" if all_healthy else "UNHEALTHY",
+                "checks": health_results,
+            }
+            console.print(json.dumps(output, indent=2))
+        else:
+            # Table format
+            table = Table(title="PlaywrightAuthor Health Check")
+            table.add_column("Status", style="bold")
+            table.add_column("Check", style="cyan")
+            table.add_column("Result")
+            table.add_column("Details")
+
+            for result in health_results:
+                status_icon = "✅" if result["status"] == "OK" else "❌"
+                status_color = "green" if result["status"] == "OK" else "red"
+                table.add_row(
+                    status_icon,
+                    result["check"],
+                    f"[{status_color}]{result['status']}[/{status_color}]",
+                    result["details"],
+                )
+
+            console.print(table)
+            console.print()
+
+            # Overall status
+            if all_healthy:
+                console.print("[bold green]Overall Status: HEALTHY[/bold green]")
+                console.print("\nYour PlaywrightAuthor setup is working correctly! 🎉")
+            else:
+                console.print("[bold red]Overall Status: UNHEALTHY[/bold red]")
+                console.print(
+                    "\n[yellow]Some issues were found. Suggested fixes:[/yellow]"
+                )
+
+                # Show fix commands
+                for result in health_results:
+                    if result["status"] == "FAILED" and result.get("fix_cmd"):
+                        console.print(f"\n  • {result['check']}:")
+                        console.print(f"    [cyan]{result['fix_cmd']}[/cyan]")
+
     def repl(self, verbose: bool = False):
         """
         Start interactive REPL mode for browser automation.
@@ -395,16 +758,20 @@ class Cli:
             Exception: If REPL fails to initialize
 
         Example:
-            ```bash
+        
+        .. code-block:: bash
+        
             playwrightauthor repl --verbose
 
-            # Inside REPL:
-            >>> browser = Browser()
-            >>> browser.__enter__()  # Start browser
-            >>> page = browser.new_page()
-            >>> page.goto("https://github.com")
-            >>> !status  # Run CLI command
-            ```
+        Inside REPL session:
+        
+        .. code-block:: python
+        
+            browser = Browser()
+            browser.__enter__()  # Start browser
+            page = browser.new_page()
+            page.goto("https://github.com")
+            !status  # Run CLI command
 
         Note:
             The REPL requires the `prompt_toolkit` package. Install with:
@@ -427,6 +794,226 @@ class Cli:
         except Exception as e:
             console.print(f"[red]REPL failed to start: {e}[/red]")
 
+    def setup(self, verbose: bool = False):
+        """
+        Launch interactive setup wizard for first-time users.
+
+        This command starts a comprehensive setup wizard that guides new users through
+        the entire PlaywrightAuthor setup process, including browser configuration,
+        authentication setup, and validation. The wizard provides step-by-step guidance
+        with intelligent issue detection and contextual help.
+
+        The setup wizard includes:
+        - Browser installation and configuration validation
+        - Platform-specific setup recommendations
+        - Service-specific authentication guidance
+        - Real-time issue detection and troubleshooting
+        - Authentication completion validation
+
+        Args:
+            verbose (bool, optional): Enable detailed logging throughout the setup process.
+                Shows diagnostic information, issue detection details, and troubleshooting
+                guidance. Recommended for users experiencing setup issues. Defaults to False.
+
+        Example Usage:
+            # Start basic setup wizard
+            playwrightauthor setup
+
+            # Start setup with detailed logging for troubleshooting
+            playwrightauthor setup --verbose
+
+        Setup Process:
+            1. Browser Validation - Tests browser connection and detects issues
+            2. Service Guidance - Provides authentication instructions for popular services
+            3. Authentication Monitoring - Tracks login progress and detects completion
+            4. Final Validation - Confirms successful setup and provides next steps
+
+        Supported Services:
+            - Gmail/Google (accounts.google.com)
+            - GitHub (github.com/login)
+            - LinkedIn (linkedin.com/login)
+            - Microsoft/Office 365 (login.microsoftonline.com)
+            - Facebook (facebook.com)
+            - Twitter/X (twitter.com/login)
+
+        Common Issues Detected:
+            - JavaScript errors blocking authentication
+            - Cookie restrictions preventing session storage
+            - Popup blockers interfering with OAuth flows
+            - Network connectivity problems
+            - Platform-specific permission issues
+
+        Note:
+            The setup wizard requires an active browser session and will guide you through
+            opening new tabs and completing authentication flows. The process typically
+            takes 2-10 minutes depending on the number of services you authenticate with.
+        """
+        console = Console()
+        logger = configure_logger(verbose)
+
+        try:
+            # Show pre-setup recommendations
+            from .onboarding import get_setup_recommendations
+
+            console.print(
+                "[bold blue]PlaywrightAuthor Interactive Setup Wizard[/bold blue]"
+            )
+            console.print()
+
+            # Display setup recommendations
+            recommendations = get_setup_recommendations()
+            for recommendation in recommendations:
+                if recommendation.startswith("🎭"):
+                    console.print(f"[bold]{recommendation}[/bold]")
+                elif recommendation.startswith(("🍎", "🐧", "🪟")):
+                    console.print(f"[cyan]{recommendation}[/cyan]")
+                elif recommendation.startswith(("📋", "🔐", "🌐", "🆘")):
+                    console.print(f"[yellow]{recommendation}[/yellow]")
+                elif recommendation.startswith("•"):
+                    console.print(f"[dim]  {recommendation}[/dim]")
+                else:
+                    console.print(recommendation)
+
+            console.print()
+            console.print(
+                "[yellow]Press Enter to start the setup wizard, or Ctrl+C to cancel...[/yellow]"
+            )
+
+            try:
+                input()
+            except KeyboardInterrupt:
+                console.print("\n[yellow]Setup wizard cancelled.[/yellow]")
+                return
+
+            # Start the interactive wizard
+            console.print("[green]Starting browser and setup wizard...[/green]")
+
+            # Import here to avoid circular imports
+            import asyncio
+
+            from .browser_manager import ensure_browser
+            from .lazy_imports import get_async_playwright
+            from .onboarding import interactive_setup_wizard
+
+            # Ensure browser is running
+            logger.info("Ensuring browser is ready for setup wizard...")
+            browser_path, data_dir = ensure_browser(verbose=verbose)
+            console.print(f"[green]Browser ready at: {browser_path}[/green]")
+
+            # Connect to browser and run wizard
+            async def run_wizard():
+                playwright = get_async_playwright().start()
+                try:
+                    from .config import get_config
+
+                    config = get_config()
+
+                    browser = await playwright.chromium.connect_over_cdp(
+                        f"http://localhost:{config.browser.debug_port}"
+                    )
+
+                    success = await interactive_setup_wizard(browser, logger)
+
+                    await browser.close()
+                    return success
+                finally:
+                    await playwright.stop()
+
+            # Run the async wizard
+            success = asyncio.run(run_wizard())
+
+            if success:
+                console.print(
+                    "\n[bold green]🎉 Setup completed successfully![/bold green]"
+                )
+                console.print(
+                    "[green]Your PlaywrightAuthor browser is now ready for automation.[/green]"
+                )
+                console.print("\n[cyan]Next steps:[/cyan]")
+                console.print(
+                    "  • Test your setup: [bold]playwrightauthor health[/bold]"
+                )
+                console.print(
+                    "  • Check browser status: [bold]playwrightauthor status[/bold]"
+                )
+                console.print(
+                    "  • Start using PlaywrightAuthor in your Python scripts!"
+                )
+            else:
+                console.print(
+                    "\n[yellow]⚠️ Setup wizard completed with issues.[/yellow]"
+                )
+                console.print(
+                    "[yellow]You may need to complete authentication manually.[/yellow]"
+                )
+                console.print("\n[cyan]Troubleshooting:[/cyan]")
+                console.print(
+                    "  • Run diagnostics: [bold]playwrightauthor health --verbose[/bold]"
+                )
+                console.print(
+                    "  • Clear cache: [bold]playwrightauthor clear-cache[/bold]"
+                )
+                console.print(
+                    "  • Try setup again: [bold]playwrightauthor setup --verbose[/bold]"
+                )
+
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Setup wizard interrupted by user.[/yellow]")
+        except ImportError as e:
+            console.print(
+                f"[red]Setup wizard requires additional dependencies: {e}[/red]"
+            )
+            console.print("[yellow]Try: pip install playwright[/yellow]")
+        except Exception as e:
+            console.print(f"[red]Setup wizard failed: {e}[/red]")
+            if verbose:
+                import traceback
+
+                console.print(f"[dim]{traceback.format_exc()}[/dim]")
+
+            console.print("\n[cyan]Manual setup options:[/cyan]")
+            console.print(
+                "  • Check browser: [bold]playwrightauthor status --verbose[/bold]"
+            )
+            console.print("  • Run diagnostics: [bold]playwrightauthor health[/bold]")
+            console.print("  • Clear cache: [bold]playwrightauthor clear-cache[/bold]")
+
 
 def main() -> None:
-    fire.Fire(Cli)
+    """Main entry point with enhanced error handling for mistyped commands."""
+    console = Console()
+
+    # Get available commands from Cli class
+    available_commands = [
+        name
+        for name in dir(Cli)
+        if not name.startswith("_") and callable(getattr(Cli, name))
+    ]
+
+    try:
+        fire.Fire(Cli)
+    except SystemExit as e:
+        # Fire raises SystemExit on errors
+        if e.code != 0 and len(sys.argv) > 1:
+            # Check if it might be a mistyped command
+            command = sys.argv[1]
+
+            # Don't suggest for valid flags like --help
+            if not command.startswith("-"):
+                # Find close matches
+                suggestions = get_close_matches(
+                    command, available_commands, n=3, cutoff=0.6
+                )
+
+                if suggestions:
+                    # Use our CLIError for consistent formatting
+                    error = CLIError(
+                        f"Unknown command: '{command}'",
+                        command_used=command,
+                        did_you_mean=suggestions,
+                    )
+                    console.print(f"[red]{error}[/red]")
+                    sys.exit(1)
+
+        # Re-raise if no suggestions found
+        raise

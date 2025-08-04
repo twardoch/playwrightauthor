@@ -70,8 +70,13 @@ def ensure_browser(
             data_dir = install_dir()
             if not browser_path:
                 raise BrowserManagerError(
-                    "Could not find Chrome executable even though process is running. "
-                    "This may indicate a corrupted installation."
+                    "Chrome process is running but executable cannot be found. "
+                    "This usually indicates a corrupted or incomplete installation.",
+                    suggestion=(
+                        "Clear the installation cache and reinstall Chrome for Testing. "
+                        "This will download a fresh copy and fix any corruption issues."
+                    ),
+                    command="playwrightauthor clear-cache && playwrightauthor status",
                 )
             logger.info(f"ensure_browser completed in {time.time() - start_time:.2f}s")
             return str(browser_path), str(data_dir)
@@ -114,15 +119,21 @@ def ensure_browser(
                 if not browser_path:
                     raise BrowserInstallationError(
                         "Chrome for Testing installation completed but executable not found. "
-                        "Installation may be corrupted."
+                        "Installation may be corrupted or incomplete.",
+                        suggestion=(
+                            "The installation directory exists but Chrome executable is missing. "
+                            "This often happens due to antivirus software or incomplete downloads."
+                        ),
+                        command="playwrightauthor clear-cache && playwrightauthor status -v",
                     )
                 logger.info(f"Chrome for Testing installed at: {browser_path}")
 
             except (BrowserInstallationError, NetworkError) as e:
-                error_msg = f"Failed to install Chrome for Testing: {e}"
-                logger.error(error_msg)
-                console.print(f"[red]{error_msg}[/red]")
-                raise BrowserManagerError(error_msg) from e
+                logger.error(f"Chrome for Testing installation failed: {e}")
+                # Print the full error with all helpful information
+                console.print(f"[red]{e}[/red]")
+                # Re-raise the specific exception with its enhanced error message
+                raise
 
         # Launch Chrome with retry logic
         data_dir = install_dir()
@@ -135,10 +146,11 @@ def ensure_browser(
             logger.info(f"Chrome launch took {time.time() - launch_start_time:.2f}s")
 
         except (BrowserLaunchError, PATimeoutError) as e:
-            error_msg = f"Failed to launch Chrome: {e}"
-            logger.error(error_msg)
-            console.print(f"[red]{error_msg}[/red]")
-            raise BrowserManagerError(error_msg) from e
+            logger.error(f"Chrome launch failed: {e}")
+            # Print the full error with all helpful information
+            console.print(f"[red]{e}[/red]")
+            # Re-raise the specific exception with its enhanced error message
+            raise
 
         logger.info("Chrome for Testing launched successfully")
         logger.info(f"ensure_browser completed in {time.time() - start_time:.2f}s")
@@ -148,8 +160,33 @@ def ensure_browser(
         # Re-raise our own exceptions
         raise
     except Exception as e:
-        # Catch any unexpected errors and wrap them
-        error_msg = f"Unexpected error in browser management: {e}"
+        # Catch any unexpected errors and wrap them with helpful guidance
+        error_type = type(e).__name__
+        error_msg = f"Unexpected {error_type} in browser management: {str(e)}"
         logger.error(error_msg)
-        console.print(f"[red]{error_msg}[/red]")
-        raise BrowserManagerError(error_msg) from e
+
+        # Provide helpful suggestions based on common error patterns
+        suggestion = (
+            "An unexpected error occurred. This might be a system-specific issue."
+        )
+        command = "playwrightauthor diagnose -v"
+
+        if "permission" in str(e).lower():
+            suggestion = (
+                "Permission denied. You may need elevated privileges or the directory "
+                "might be protected by security software."
+            )
+            command = "sudo playwrightauthor status  # Try with elevated permissions"
+
+        elif "no such file" in str(e).lower() or "not found" in str(e).lower():
+            suggestion = (
+                "Required files are missing. The installation might be incomplete "
+                "or corrupted. Try clearing the cache and reinstalling."
+            )
+            command = "playwrightauthor clear-cache && playwrightauthor status"
+
+        wrapped_error = BrowserManagerError(
+            error_msg, suggestion=suggestion, command=command
+        )
+        console.print(f"[red]{wrapped_error}[/red]")
+        raise wrapped_error from e

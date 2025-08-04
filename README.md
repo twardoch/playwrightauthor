@@ -110,6 +110,594 @@ if __name__ == "__main__":
 
 ---
 
+## Common Patterns
+
+### Authentication Workflow
+
+The most common use case is automating authenticated services. PlaywrightAuthor makes this seamless by maintaining persistent login sessions:
+
+```python
+from playwrightauthor import Browser
+
+# First run: You'll need to manually log in
+with Browser(profile="work") as browser:
+    page = browser.new_page()
+    page.goto("https://mail.google.com")
+    
+    # If not logged in, the page will show the login screen
+    # Complete the login manually in the browser window
+    # PlaywrightAuthor will save the session for future runs
+    
+    print(f"Logged in as: {page.locator('[data-testid=user-email]').inner_text()}")
+
+# Subsequent runs: Automatic authentication
+with Browser(profile="work") as browser:
+    page = browser.new_page() 
+    page.goto("https://mail.google.com")
+    # You're automatically logged in!
+    inbox_count = page.locator('[data-testid=inbox-count]').inner_text()
+    print(f"You have {inbox_count} unread emails")
+```
+
+### Error Handling and Retry Pattern
+
+For production automation, implement robust error handling:
+
+```python
+from playwrightauthor import Browser
+from playwright.sync_api import TimeoutError
+import time
+
+def scrape_with_retry(url, max_retries=3):
+    """Robust scraping with automatic retry and error handling."""
+    
+    for attempt in range(max_retries):
+        try:
+            with Browser(verbose=attempt > 0) as browser:  # Enable logging on retries
+                page = browser.new_page()
+                
+                # Set reasonable timeouts
+                page.set_default_timeout(30000)  # 30 seconds
+                
+                page.goto(url)
+                
+                # Wait for content to load
+                page.wait_for_selector('[data-testid=content]', timeout=10000)
+                
+                title = page.title()
+                content = page.locator('[data-testid=content]').inner_text()
+                
+                return {"title": title, "content": content}
+                
+        except TimeoutError:
+            print(f"Attempt {attempt + 1} timed out, retrying...")
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)  # Exponential backoff
+            continue
+            
+        except Exception as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(2 ** attempt)
+            continue
+    
+    raise Exception(f"Failed to scrape {url} after {max_retries} attempts")
+
+# Usage
+try:
+    data = scrape_with_retry("https://example.com")
+    print(f"Successfully scraped: {data['title']}")
+except Exception as e:
+    print(f"Scraping failed: {e}")
+```
+
+### Profile Management for Multiple Accounts
+
+Use profiles to manage multiple accounts or environments:
+
+```python
+from playwrightauthor import Browser
+
+# Define your environments
+profiles = {
+    "work": "work@company.com",
+    "personal": "me@gmail.com", 
+    "testing": "test@example.com"
+}
+
+def check_email_for_all_accounts():
+    """Check email counts across all accounts."""
+    results = {}
+    
+    for profile_name, email in profiles.items():
+        try:
+            with Browser(profile=profile_name) as browser:
+                page = browser.new_page()
+                page.goto("https://mail.google.com")
+                
+                # Each profile maintains its own authentication
+                unread_count = page.locator('[aria-label="Inbox"]').get_attribute('data-count')
+                results[email] = int(unread_count or 0)
+                
+        except Exception as e:
+            print(f"Failed to check {email}: {e}")
+            results[email] = None
+    
+    return results
+
+# Usage
+email_counts = check_email_for_all_accounts()
+for email, count in email_counts.items():
+    if count is not None:
+        print(f"{email}: {count} unread emails")
+    else:
+        print(f"{email}: Failed to check")
+```
+
+### Interactive Development with REPL
+
+Use the interactive REPL for development and debugging:
+
+```bash
+# Start the interactive REPL
+python -m playwrightauthor repl
+
+# In the REPL, you can interactively explore:
+>>> page = browser.new_page()
+>>> page.goto("https://github.com")
+>>> page.title()
+'GitHub: Let's build from here · GitHub'
+
+>>> # Test selectors interactively
+>>> page.locator('h1').inner_text()
+'Let's build from here'
+
+>>> # Run CLI commands without leaving REPL
+>>> !status
+Browser is ready.
+  - Path: /Users/user/.playwrightauthor/chrome/chrome
+  - User Data: /Users/user/.playwrightauthor/profiles/default
+
+>>> # Switch profiles on the fly
+>>> exit()  # Exit current browser
+>>> browser = Browser(profile="work").__enter__()
+>>> page = browser.new_page()
+>>> page.goto("https://mail.google.com")
+```
+
+### Async for High Performance
+
+Use AsyncBrowser for concurrent operations:
+
+```python
+import asyncio
+from playwrightauthor import AsyncBrowser
+
+async def scrape_multiple_pages(urls):
+    """Scrape multiple pages concurrently."""
+    
+    async def scrape_single_page(url):
+        async with AsyncBrowser() as browser:
+            page = await browser.new_page()
+            await page.goto(url)
+            title = await page.title()
+            return {"url": url, "title": title}
+    
+    # Run up to 5 concurrent scraping tasks
+    semaphore = asyncio.Semaphore(5)
+    
+    async def limited_scrape(url):
+        async with semaphore:
+            return await scrape_single_page(url)
+    
+    tasks = [limited_scrape(url) for url in urls]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    return results
+
+# Usage
+urls = [
+    "https://github.com",
+    "https://stackoverflow.com", 
+    "https://python.org",
+    "https://docs.python.org",
+    "https://pypi.org"
+]
+
+async def main():
+    results = await scrape_multiple_pages(urls)
+    for result in results:
+        if isinstance(result, dict):
+            print(f"{result['url']}: {result['title']}")
+        else:
+            print(f"Error: {result}")
+
+asyncio.run(main())
+```
+
+### Quick Reference
+
+**Most Common Commands:**
+```bash
+# Check if everything is working
+python -m playwrightauthor status
+
+# Start interactive development
+python -m playwrightauthor repl
+
+# Fix connection issues
+python -m playwrightauthor diagnose
+
+# Clean slate (removes all data)
+python -m playwrightauthor clear-cache
+```
+
+**Most Common Code Patterns:**
+```python
+# Basic automation
+with Browser() as browser:
+    page = browser.new_page()
+    page.goto("https://example.com")
+
+# Multiple accounts
+with Browser(profile="work") as browser:
+    # Work automation
+
+# High performance
+async with AsyncBrowser() as browser:
+    # Async automation
+```
+
+---
+
+## Best Practices
+
+### Resource Management and Cleanup
+
+Always use context managers to ensure proper resource cleanup:
+
+```python
+from playwrightauthor import Browser
+
+# ✅ GOOD: Context manager ensures cleanup
+with Browser() as browser:
+    page = browser.new_page()
+    page.goto("https://example.com")
+    # Browser automatically cleaned up
+
+# ❌ BAD: Manual cleanup required
+browser = Browser().__enter__()
+page = browser.new_page()
+page.goto("https://example.com")
+# Memory leak! Browser not cleaned up
+```
+
+**Page Lifecycle Management:**
+```python
+with Browser() as browser:
+    # Create pages as needed
+    page1 = browser.new_page()
+    page2 = browser.new_page()
+    
+    # Close pages when done to free memory
+    page1.close()
+    page2.close()
+    
+    # Or use page context managers
+    page = browser.new_page()
+    try:
+        page.goto("https://example.com")
+        # Work with page
+    finally:
+        page.close()
+```
+
+### Performance Optimization
+
+**For Large-Scale Automation:**
+
+```python
+from playwrightauthor import AsyncBrowser
+import asyncio
+
+async def optimize_for_performance():
+    """High-performance automation patterns."""
+    
+    # Use connection pooling for multiple operations
+    async with AsyncBrowser() as browser:
+        # Reuse browser context across multiple pages
+        context = await browser.new_context(
+            viewport={"width": 1280, "height": 720},
+            user_agent="Your-Bot/1.0"
+        )
+        
+        # Concurrent page processing with rate limiting
+        semaphore = asyncio.Semaphore(5)  # Max 5 concurrent pages
+        
+        async def process_url(url):
+            async with semaphore:
+                page = await context.new_page()
+                try:
+                    await page.goto(url, wait_until="domcontentloaded")
+                    # Process page content
+                    title = await page.title()
+                    return {"url": url, "title": title}
+                finally:
+                    await page.close()
+        
+        # Process multiple URLs concurrently
+        urls = ["https://example1.com", "https://example2.com", "https://example3.com"]
+        results = await asyncio.gather(*[process_url(url) for url in urls])
+        
+        await context.close()
+        return results
+
+# Run the optimized automation
+results = asyncio.run(optimize_for_performance())
+```
+
+**Memory Management:**
+```python
+from playwrightauthor import Browser
+
+def memory_efficient_scraping(urls):
+    """Process many URLs without memory leaks."""
+    
+    results = []
+    with Browser() as browser:
+        # Process in batches to control memory usage
+        batch_size = 10
+        for i in range(0, len(urls), batch_size):
+            batch = urls[i:i + batch_size]
+            
+            for url in batch:
+                page = browser.new_page()
+                try:
+                    page.goto(url, timeout=30000)
+                    results.append({
+                        "url": url,
+                        "title": page.title(),
+                        "status": "success"
+                    })
+                except Exception as e:
+                    results.append({
+                        "url": url, 
+                        "error": str(e),
+                        "status": "failed"
+                    })
+                finally:
+                    page.close()  # Critical: free page memory
+    
+    return results
+```
+
+### Security Considerations
+
+**Profile and Credential Management:**
+
+```python
+from playwrightauthor import Browser
+from pathlib import Path
+import os
+
+def secure_automation_setup():
+    """Security best practices for browser automation."""
+    
+    # Use dedicated profiles for different security contexts
+    profiles = {
+        "production": "prod-automation",
+        "staging": "staging-test", 
+        "development": "dev-local"
+    }
+    
+    environment = os.getenv("ENVIRONMENT", "development")
+    profile_name = profiles.get(environment, "default")
+    
+    # Use environment-specific configuration
+    with Browser(profile=profile_name, verbose=False) as browser:
+        page = browser.new_page()
+        
+        # Set security headers if needed
+        page.set_extra_http_headers({
+            "User-Agent": "Company-Automation/1.0",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+        })
+        
+        # Navigate to secure endpoints
+        page.goto("https://secure-api.company.com")
+        return page.content()
+
+# Environment-based configuration
+def get_secure_config():
+    """Load configuration securely from environment."""
+    return {
+        "timeout": int(os.getenv("AUTOMATION_TIMEOUT", "30000")),
+        "headless": os.getenv("AUTOMATION_HEADLESS", "false").lower() == "true",
+        "profile": os.getenv("AUTOMATION_PROFILE", "default")
+    }
+```
+
+**Sensitive Data Handling:**
+```python
+from playwrightauthor import Browser
+import logging
+
+# Configure logging to avoid sensitive data leaks
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('/var/log/automation.log'),
+        logging.StreamHandler()
+    ]
+)
+
+def secure_login_automation():
+    """Handle authentication securely."""
+    
+    with Browser(profile="secure-profile", verbose=False) as browser:
+        page = browser.new_page()
+        
+        # Navigate to login page
+        page.goto("https://app.example.com/login")
+        
+        # Use environment variables for credentials (never hardcode)
+        username = os.getenv("APP_USERNAME")
+        password = os.getenv("APP_PASSWORD")
+        
+        if not username or not password:
+            raise ValueError("Credentials not found in environment variables")
+        
+        # Fill credentials (never log sensitive data)
+        page.fill('[name="username"]', username)
+        page.fill('[name="password"]', password)
+        
+        # Log non-sensitive information only
+        logging.info("Attempting login for user authentication")
+        
+        page.click('[type="submit"]')
+        page.wait_for_url("**/dashboard")
+        
+        logging.info("Authentication successful")
+        
+        return page
+```
+
+### Configuration Management
+
+**Production Configuration:**
+```python
+from playwrightauthor.config import PlaywrightAuthorConfig, BrowserConfig, NetworkConfig, LoggingConfig
+from pathlib import Path
+
+def create_production_config():
+    """Production-ready configuration."""
+    
+    return PlaywrightAuthorConfig(
+        browser=BrowserConfig(
+            headless=True,  # No UI in production
+            timeout=45000,  # Longer timeout for stability
+            viewport_width=1920,
+            viewport_height=1080,
+            args=[
+                "--no-sandbox",  # Required in containers
+                "--disable-dev-shm-usage",  # Prevent memory issues
+                "--disable-gpu",  # Not needed in headless
+            ]
+        ),
+        network=NetworkConfig(
+            retry_attempts=5,  # More retries for reliability
+            download_timeout=600,  # 10 minutes for large downloads
+            exponential_backoff=True,
+            proxy=os.getenv("HTTPS_PROXY")  # Corporate proxy support
+        ),
+        logging=LoggingConfig(
+            verbose=False,  # Reduce log noise
+            log_level="INFO",
+            log_file=Path("/var/log/playwrightauthor.log"),
+            log_format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"
+        ),
+        enable_lazy_loading=True,  # Faster startup
+        default_profile="production"
+    )
+
+# Apply production configuration
+config = create_production_config()
+from playwrightauthor.config import save_config
+save_config(config)
+```
+
+**Environment Variables Setup:**
+```bash
+# Production environment setup
+export PLAYWRIGHTAUTHOR_HEADLESS=true
+export PLAYWRIGHTAUTHOR_TIMEOUT=45000
+export PLAYWRIGHTAUTHOR_VERBOSE=false
+export PLAYWRIGHTAUTHOR_LOG_LEVEL=INFO
+export PLAYWRIGHTAUTHOR_RETRY_ATTEMPTS=5
+
+# Credentials (never hardcode these)
+export APP_USERNAME=your-automation-user
+export APP_PASSWORD=secure-password-from-secrets-manager
+
+# Network configuration
+export HTTPS_PROXY=http://proxy.company.com:8080
+export PLAYWRIGHTAUTHOR_PROXY=http://proxy.company.com:8080
+```
+
+### Error Handling Best Practices
+
+**Comprehensive Error Handling:**
+```python
+from playwrightauthor import Browser
+from playwright.sync_api import TimeoutError, Error as PlaywrightError
+import logging
+import time
+
+def robust_automation_with_error_handling():
+    """Production-grade error handling patterns."""
+    
+    max_retries = 3
+    base_delay = 1.0
+    
+    for attempt in range(max_retries):
+        try:
+            with Browser(verbose=attempt > 0) as browser:  # Enable logging on retries
+                page = browser.new_page()
+                
+                # Set reasonable timeouts
+                page.set_default_timeout(30000)
+                
+                # Navigate with error handling
+                try:
+                    page.goto("https://example.com", wait_until="networkidle")
+                except TimeoutError:
+                    logging.warning(f"Page load timeout on attempt {attempt + 1}")
+                    if attempt < max_retries - 1:
+                        continue
+                    raise
+                
+                # Wait for specific elements with error handling
+                try:
+                    page.wait_for_selector('[data-testid="content"]', timeout=10000)
+                except TimeoutError:
+                    logging.error("Required content not found on page")
+                    # Take screenshot for debugging
+                    page.screenshot(path=f"error-{int(time.time())}.png")
+                    raise
+                
+                # Extract data with validation
+                title = page.title()
+                if not title:
+                    raise ValueError("Page title is empty")
+                
+                content = page.locator('[data-testid="content"]').inner_text()
+                if not content.strip():
+                    raise ValueError("Page content is empty")
+                
+                return {"title": title, "content": content}
+                
+        except PlaywrightError as e:
+            logging.error(f"Playwright error on attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                delay = base_delay * (2 ** attempt)  # Exponential backoff
+                logging.info(f"Retrying in {delay} seconds...")
+                time.sleep(delay)
+                continue
+            raise
+        
+        except Exception as e:
+            logging.error(f"Unexpected error on attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(base_delay)
+                continue
+            raise
+    
+    raise Exception(f"Failed after {max_retries} attempts")
+```
+
+---
+
 ## Command-Line Interface
 
 PlaywrightAuthor comes with a comprehensive command-line interface for managing browsers, profiles, and diagnostics.

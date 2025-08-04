@@ -9,7 +9,7 @@ from typing import Any
 import requests
 from loguru import logger
 
-from .exceptions import BrowserManagerError
+from .exceptions import ConnectionError as PAConnectionError
 
 
 class ConnectionHealthChecker:
@@ -171,9 +171,21 @@ def connect_with_retry(
             is_healthy, diagnostics = check_connection_health(debug_port, timeout=5.0)
 
             if not is_healthy:
-                error_msg = f"CDP not available (attempt {attempt + 1}/{max_retries + 1}): {diagnostics.get('error', 'Unknown error')}"
-                logger.warning(error_msg)
-                last_error = BrowserManagerError(error_msg)
+                error_details = diagnostics.get("error", "Unknown error")
+                error_msg = (
+                    f"Cannot connect to Chrome DevTools Protocol on port {debug_port}"
+                )
+
+                # Provide specific guidance based on error type
+                if "refused" in str(error_details).lower():
+                    error_msg += " - Connection refused"
+                elif "timeout" in str(error_details).lower():
+                    error_msg += " - Connection timeout"
+
+                logger.warning(
+                    f"CDP not available (attempt {attempt + 1}/{max_retries + 1}): {error_details}"
+                )
+                last_error = PAConnectionError(error_msg)
 
                 if attempt < max_retries:
                     time.sleep(retry_delay * (2**attempt))  # Exponential backoff
@@ -191,11 +203,21 @@ def connect_with_retry(
             return browser
 
         except Exception as e:
-            error_msg = (
+            error_str = str(e)
+            base_msg = f"Failed to connect to Chrome on port {debug_port}"
+
+            # Provide specific error message based on exception type
+            if "connect_over_cdp" in error_str:
+                error_msg = f"{base_msg} - Playwright connection failed"
+            elif "timeout" in error_str.lower():
+                error_msg = f"{base_msg} - Connection timed out after {timeout}s"
+            else:
+                error_msg = f"{base_msg} - {error_str}"
+
+            logger.warning(
                 f"Connection failed (attempt {attempt + 1}/{max_retries + 1}): {e}"
             )
-            logger.warning(error_msg)
-            last_error = BrowserManagerError(error_msg)
+            last_error = PAConnectionError(error_msg)
 
             if attempt < max_retries:
                 time.sleep(retry_delay * (2**attempt))  # Exponential backoff
@@ -203,8 +225,9 @@ def connect_with_retry(
                 break
 
     # All retries exhausted
-    raise last_error or BrowserManagerError(
-        f"Failed to connect to Chrome on port {debug_port} after {max_retries + 1} attempts"
+    raise last_error or PAConnectionError(
+        f"Failed to connect to Chrome on port {debug_port} after {max_retries + 1} attempts. "
+        f"Chrome may not be running or the debug port may be blocked."
     )
 
 
@@ -241,9 +264,21 @@ async def async_connect_with_retry(
             is_healthy, diagnostics = check_connection_health(debug_port, timeout=5.0)
 
             if not is_healthy:
-                error_msg = f"CDP not available (attempt {attempt + 1}/{max_retries + 1}): {diagnostics.get('error', 'Unknown error')}"
-                logger.warning(error_msg)
-                last_error = BrowserManagerError(error_msg)
+                error_details = diagnostics.get("error", "Unknown error")
+                error_msg = (
+                    f"Cannot connect to Chrome DevTools Protocol on port {debug_port}"
+                )
+
+                # Provide specific guidance based on error type
+                if "refused" in str(error_details).lower():
+                    error_msg += " - Connection refused"
+                elif "timeout" in str(error_details).lower():
+                    error_msg += " - Connection timeout"
+
+                logger.warning(
+                    f"CDP not available (attempt {attempt + 1}/{max_retries + 1}): {error_details}"
+                )
+                last_error = PAConnectionError(error_msg)
 
                 if attempt < max_retries:
                     await asyncio.sleep(
@@ -263,9 +298,21 @@ async def async_connect_with_retry(
             return browser
 
         except Exception as e:
-            error_msg = f"Async connection failed (attempt {attempt + 1}/{max_retries + 1}): {e}"
-            logger.warning(error_msg)
-            last_error = BrowserManagerError(error_msg)
+            error_str = str(e)
+            base_msg = f"Failed to connect to Chrome on port {debug_port}"
+
+            # Provide specific error message based on exception type
+            if "connect_over_cdp" in error_str:
+                error_msg = f"{base_msg} - Playwright connection failed"
+            elif "timeout" in error_str.lower():
+                error_msg = f"{base_msg} - Connection timed out after {timeout}s"
+            else:
+                error_msg = f"{base_msg} - {error_str}"
+
+            logger.warning(
+                f"Async connection failed (attempt {attempt + 1}/{max_retries + 1}): {e}"
+            )
+            last_error = PAConnectionError(error_msg)
 
             if attempt < max_retries:
                 await asyncio.sleep(retry_delay * (2**attempt))  # Exponential backoff
@@ -273,6 +320,7 @@ async def async_connect_with_retry(
                 break
 
     # All retries exhausted
-    raise last_error or BrowserManagerError(
-        f"Failed to connect to Chrome on port {debug_port} after {max_retries + 1} attempts"
+    raise last_error or PAConnectionError(
+        f"Failed to connect to Chrome on port {debug_port} after {max_retries + 1} attempts. "
+        f"Chrome may not be running or the debug port may be blocked."
     )
