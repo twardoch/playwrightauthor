@@ -1,0 +1,74 @@
+site_name: PlaywrightAuthor Documentation
+site_description: Convenience package for Microsoft Playwright that handles browser automation setup
+site_author: Terragon Labs
+site_url: https://terragond.github.io/playwrightauthor/
+
+repo_name: terragond/playwrightauthor
+repo_url: https://github.com/terragond/playwrightauthor
+edit_uri: edit/main/src_docs/md/
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.arithmatex:
+      generic: true
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.mark
+  - attr_list
+  - md_in_html
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../src]
+
+docs_dir: md
+site_dir: ../docs
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Basic Usage: basic-usage.md
+  - Configuration: configuration.md
+  - Browser Management: browser-management.md
+  - Authentication: authentication.md
+  - Advanced Features: advanced-features.md
+  - Troubleshooting: troubleshooting.md
+  - API Reference: api-reference.md
+  - Contributing: contributing.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/terragond/playwrightauthor
