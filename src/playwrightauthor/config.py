@@ -506,11 +506,11 @@ class PlaywrightAuthorConfig:
 
         Save configuration to file:
         >>> from playwrightauthor.config import save_config
-        
+
         Save configuration example (commented to avoid side effects):
-        
+
         .. code-block:: python
-        
+
             from playwrightauthor.config import save_config
             save_config(config)  # Saves to ~/.config/playwrightauthor/config.json
 
@@ -536,7 +536,7 @@ class PlaywrightAuthorConfig:
 
     Environment Variable Examples:
         Export configuration via environment variables:
-        
+
         # doctest: +SKIP
         # In your shell environment:
         # export PLAYWRIGHTAUTHOR_HEADLESS=true

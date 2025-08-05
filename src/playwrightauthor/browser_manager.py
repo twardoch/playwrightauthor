@@ -65,12 +65,14 @@ def ensure_browser(
     try:
         # Check if Chrome is already running with debug port
         if get_chrome_process(debug_port):
-            logger.info(f"Chrome is already running in debug mode on port {debug_port}")
+            logger.info(
+                f"Chrome for Testing is already running in debug mode on port {debug_port}"
+            )
             browser_path = find_chrome_executable(logger)
             data_dir = install_dir()
             if not browser_path:
                 raise BrowserManagerError(
-                    "Chrome process is running but executable cannot be found. "
+                    "Chrome for Testing process is running but executable cannot be found. "
                     "This usually indicates a corrupted or incomplete installation.",
                     suggestion=(
                         "Clear the installation cache and reinstall Chrome for Testing. "
@@ -101,7 +103,7 @@ def ensure_browser(
         find_start_time = time.time()
         browser_path = find_chrome_executable(logger)
         logger.info(
-            f"Chrome executable search took {time.time() - find_start_time:.2f}s"
+            f"Chrome for Testing executable search took {time.time() - find_start_time:.2f}s"
         )
 
         if not browser_path:
@@ -143,10 +145,12 @@ def ensure_browser(
             launch_chrome_with_retry(
                 browser_path, data_dir, debug_port, logger, max_retries=max_retries
             )
-            logger.info(f"Chrome launch took {time.time() - launch_start_time:.2f}s")
+            logger.info(
+                f"Chrome for Testing launch took {time.time() - launch_start_time:.2f}s"
+            )
 
         except (BrowserLaunchError, PATimeoutError) as e:
-            logger.error(f"Chrome launch failed: {e}")
+            logger.error(f"Chrome for Testing launch failed: {e}")
             # Print the full error with all helpful information
             console.print(f"[red]{e}[/red]")
             # Re-raise the specific exception with its enhanced error message

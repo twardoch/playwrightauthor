@@ -47,13 +47,13 @@ class Browser:
 
     Usage Examples:
         Basic import and class inspection:
-        
+
         >>> from playwrightauthor import Browser
         >>> Browser.__name__
         'Browser'
         >>> hasattr(Browser, 'profile')  # Check if profile attribute exists
         False
-        
+
         Basic usage with automatic browser management:
 
         .. code-block:: python
@@ -320,13 +320,13 @@ class AsyncBrowser:
 
     Usage Examples:
         Basic import and class inspection:
-        
+
         >>> from playwrightauthor import AsyncBrowser
         >>> AsyncBrowser.__name__
         'AsyncBrowser'
         >>> hasattr(AsyncBrowser, '__aenter__')  # Check if it's an async context manager
         True
-        
+
         Basic async usage:
 
         .. code-block:: python

@@ -1,0 +1,254 @@
+name: Documentation Accessibility Check
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'docs/**', 'README.md', 'CHANGELOG.md' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'docs/**', 'README.md', 'CHANGELOG.md' ]
+  schedule:
+    # Run weekly on Saturdays at 07:00 UTC to monitor accessibility compliance
+    - cron: '0 7 * * 6'
+  workflow_dispatch:
+    inputs:
+      severity_threshold:
+        description: 'Minimum severity level to fail the workflow'
+        required: false
+        default: 'error'
+        type: choice
+        options:
+          - 'error'
+          - 'warning'
+          - 'info'
+      fail_on_issues:
+        description: 'Fail the workflow if accessibility issues are found'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  accessibility-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Make accessibility checker executable
+      run: chmod +x scripts/check_accessibility.py
+    
+    - name: Run accessibility checker
+      id: accessibility_check
+      run: |
+        # Set parameters from workflow input or defaults
+        SEVERITY_THRESHOLD="${{ github.event.inputs.severity_threshold || 'error' }}"
+        FAIL_ON_ISSUES="${{ github.event.inputs.fail_on_issues || 'false' }}"
+        
+        # For scheduled runs, always fail on error-level issues
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          FAIL_ON_ISSUES="true"
+          SEVERITY_THRESHOLD="error"
+        fi
+        
+        echo "Running accessibility checker with severity_threshold=${SEVERITY_THRESHOLD}, fail_on_issues=${FAIL_ON_ISSUES}"
+        
+        if [ "${FAIL_ON_ISSUES}" = "true" ]; then
+          python scripts/check_accessibility.py docs --output accessibility-report.md --fail-on-error --severity-threshold "${SEVERITY_THRESHOLD}"
+        else
+          python scripts/check_accessibility.py docs --output accessibility-report.md --severity-threshold "${SEVERITY_THRESHOLD}" || true
+        fi
+    
+    - name: Upload accessibility report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: accessibility-report
+        path: accessibility-report.md
+        retention-days: 30
+    
+    - name: Comment PR with accessibility results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read the accessibility report
+          let reportContent;
+          try {
+            reportContent = fs.readFileSync('accessibility-report.md', 'utf8');
+          } catch (error) {
+            console.log('No report file found');
+            return;
+          }
+          
+          // Extract key metrics from report
+          const summaryMatch = reportContent.match(/## Summary\n([\s\S]*?)\n\n/);
+          const errorsMatch = reportContent.match(/- \*\*Errors\*\*: (\d+)/);
+          const warningsMatch = reportContent.match(/- \*\*Warnings\*\*: (\d+)/);
+          const totalMatch = reportContent.match(/- \*\*Total Issues\*\*: (\d+)/);
+          
+          const errors = errorsMatch ? parseInt(errorsMatch[1]) : 0;
+          const warnings = warningsMatch ? parseInt(warningsMatch[1]) : 0;
+          const totalIssues = totalMatch ? parseInt(totalMatch[1]) : 0;
+          
+          const emoji = totalIssues === 0 ? '✅' : errors > 0 ? '❌' : '⚠️';
+          
+          const comment = `## ${emoji} Documentation Accessibility Check Results
+          
+          ${summaryMatch ? summaryMatch[1] : 'Summary not available'}
+          
+          ${totalIssues > 0 ? 
+            `### 🔍 Issues Found
+            
+            Found ${totalIssues} accessibility issues (${errors} errors, ${warnings} warnings). Please review the [full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+            
+            ### 🛠️ Common Fixes
+            
+            **Heading Structure Issues**: Most issues are likely heading hierarchy problems:
+            - Ensure headings follow logical order (H1 → H2 → H3, don't skip levels)
+            - Use only one H1 per document
+            - Make heading text descriptive and unique
+            
+            **Image Accessibility**: 
+            - Add descriptive alt text to all images
+            - Avoid generic alt text like "image" or "screenshot"
+            
+            **Link Quality**:
+            - Use descriptive link text instead of "click here" or "read more"
+            - Ensure link text explains the destination
+            
+            **Table Accessibility**:
+            - Add header rows to all tables
+            - Use proper table structure with column headers
+            
+            ### 📚 Resources
+            - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+            - [Markdown Accessibility Best Practices](https://www.markdownguide.org/basic-syntax/)` :
+            `### 🎉 No Accessibility Issues Found!
+            
+            The documentation meets accessibility standards. Great work! 🎉`
+          }
+          
+          <details>
+          <summary>View Sample Issues</summary>
+          
+          \`\`\`
+          ${reportContent.slice(0, 3000)}${reportContent.length > 3000 ? '\n... (truncated, see full report in artifacts)' : ''}
+          \`\`\`
+          
+          </details>
+          `;
+          
+          // Find existing comment
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const existingComment = comments.find(comment => 
+            comment.body.includes('Documentation Accessibility Check Results')
+          );
+          
+          if (existingComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existingComment.id,
+              body: comment
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+          }
+    
+    - name: Create issue for accessibility problems (scheduled run)
+      if: github.event_name == 'schedule' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let reportContent;
+          try {
+            reportContent = fs.readFileSync('accessibility-report.md', 'utf8');
+          } catch (error) {
+            console.log('No report file found');
+            return;
+          }
+          
+          const title = `♿ Accessibility Issues Found in Documentation - ${new Date().toISOString().split('T')[0]}`;
+          
+          const body = `## 📋 Weekly Accessibility Check Report
+          
+          The scheduled accessibility check has found issues in the documentation that need attention.
+          
+          ${reportContent}
+          
+          ### 🔧 Action Required
+          
+          Please review and fix the accessibility issues listed above. Priority areas:
+          
+          #### 🎯 High Priority (Errors)
+          - **Heading Structure**: Fix heading hierarchy violations (H1 → H2 → H3)
+          - **Missing Alt Text**: Add descriptive alt text to all images
+          - **Table Headers**: Add proper headers to all tables
+          
+          #### ⚠️ Medium Priority (Warnings)
+          - **Link Text Quality**: Improve non-descriptive link text
+          - **Language Clarity**: Review potentially unclear language
+          
+          ### 📚 Resources
+          - [Web Content Accessibility Guidelines (WCAG) 2.1](https://www.w3.org/WAI/WCAG21/quickref/)
+          - [Markdown Accessibility Best Practices](https://www.markdownguide.org/basic-syntax/)
+          - [Section 508 Compliance](https://www.section508.gov/)
+          
+          ### 🤖 Automation
+          
+          This issue was automatically created by the weekly accessibility check workflow.
+          Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          `;
+          
+          // Check if there's already an open issue for accessibility
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            labels: 'documentation,accessibility'
+          });
+          
+          if (issues.length === 0) {
+            // Create new issue
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['documentation', 'accessibility', 'automated', 'a11y']
+            });
+          } else {
+            // Update existing issue
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issues[0].number,
+              title: title,
+              body: body
+            });
+          }

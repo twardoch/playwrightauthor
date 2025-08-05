@@ -11,100 +11,46 @@ from ..utils.paths import install_dir
 
 
 def _get_windows_chrome_paths() -> Generator[Path, None, None]:
-    """Generate possible Chrome paths on Windows."""
+    """Generate possible Chrome for Testing paths on Windows."""
     install_path = install_dir()
 
-    # Chrome for Testing in our install directory
+    # Chrome for Testing in our install directory (primary location)
     yield install_path / "chrome-win64" / "chrome.exe"
     yield install_path / "chrome-win32" / "chrome.exe"
 
     # Environment variables
     program_files = os.environ.get("ProgramFiles", "C:\\Program Files")
     program_files_x86 = os.environ.get("ProgramFiles(x86)", "C:\\Program Files (x86)")
-    localappdata = os.environ.get("LOCALAPPDATA", "")
 
-    # Standard Chrome installations
+    # Chrome for Testing system installations
     chrome_paths = [
-        # 64-bit Chrome
-        Path(program_files) / "Google" / "Chrome" / "Application" / "chrome.exe",
-        # 32-bit Chrome on 64-bit Windows
-        Path(program_files_x86) / "Google" / "Chrome" / "Application" / "chrome.exe",
-        # Chrome for Testing
+        # Chrome for Testing in Program Files
         Path(program_files) / "Google" / "Chrome for Testing" / "chrome.exe",
         Path(program_files_x86) / "Google" / "Chrome for Testing" / "chrome.exe",
-        # User-specific Chrome
-        Path(localappdata) / "Google" / "Chrome" / "Application" / "chrome.exe",
-        # Chromium
-        Path(program_files) / "Chromium" / "Application" / "chrome.exe",
     ]
 
     yield from chrome_paths
 
-    # Try to find Chrome via registry (using where command as fallback)
-    try:
-        result = subprocess.run(
-            ["where", "chrome.exe"], capture_output=True, text=True, timeout=5
-        )
-        if result.returncode == 0:
-            for line in result.stdout.strip().split("\n"):
-                if line:
-                    yield Path(line)
-    except (subprocess.TimeoutExpired, OSError):
-        pass
-
 
 def _get_linux_chrome_paths() -> Generator[Path, None, None]:
-    """Generate possible Chrome paths on Linux."""
+    """Generate possible Chrome for Testing paths on Linux."""
     install_path = install_dir()
 
-    # Chrome for Testing in our install directory
+    # Chrome for Testing in our install directory (primary location)
     yield install_path / "chrome-linux64" / "chrome"
 
-    # Common binary names to search for
-    chrome_names = [
-        "google-chrome",
-        "google-chrome-stable",
-        "google-chrome-beta",
-        "google-chrome-dev",
-        "chromium",
-        "chromium-browser",
-        "chrome",
-    ]
-
-    # Common installation paths
+    # Chrome for Testing system installations
     search_paths = [
-        Path("/usr/bin"),
-        Path("/usr/local/bin"),
-        Path("/opt/google/chrome"),
-        Path("/opt/google/chrome-beta"),
-        Path("/opt/google/chrome-unstable"),
-        Path("/snap/bin"),  # Snap packages
+        Path("/opt/google/chrome-for-testing"),
+        Path("/usr/local/chrome-for-testing"),
     ]
 
-    # Check each combination
     for search_path in search_paths:
-        for chrome_name in chrome_names:
-            yield search_path / chrome_name
-
-    # Flatpak Chrome
-    flatpak_chrome = Path("/var/lib/flatpak/exports/bin/com.google.Chrome")
-    if flatpak_chrome.exists():
-        yield flatpak_chrome
-
-    # Try to find Chrome via which command
-    for chrome_name in chrome_names:
-        try:
-            result = subprocess.run(
-                ["which", chrome_name], capture_output=True, text=True, timeout=5
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                yield Path(result.stdout.strip())
-        except (subprocess.TimeoutExpired, OSError):
-            pass
+        yield search_path / "chrome"
 
 
 def _get_macos_chrome_paths() -> Generator[Path, None, None]:
-    """Generate possible Chrome paths on macOS."""
+    """Generate possible Chrome for Testing paths on macOS."""
     install_path = install_dir()
 
     # Determine architecture
@@ -114,7 +60,7 @@ def _get_macos_chrome_paths() -> Generator[Path, None, None]:
     else:
         architectures = ["x64"]
 
-    # Chrome for Testing in our install directory
+    # Chrome for Testing in our install directory (primary location)
     for arch in architectures:
         yield (
             install_path
@@ -125,49 +71,35 @@ def _get_macos_chrome_paths() -> Generator[Path, None, None]:
             / "Google Chrome for Testing"
         )
 
-    # System-wide applications
+    # System-wide Chrome for Testing installations
     app_paths = [
         "/Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-        "/Applications/Chromium.app/Contents/MacOS/Chromium",
     ]
 
     for app_path in app_paths:
         yield Path(app_path)
 
-    # User-specific applications
+    # User-specific Chrome for Testing installations
     home = Path.home()
     user_app_paths = [
         home
         / "Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
-        home / "Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-        home / "Applications/Chromium.app/Contents/MacOS/Chromium",
     ]
 
     for app_path in user_app_paths:
         yield app_path
 
-    # Homebrew installations
-    homebrew_paths = [
-        Path("/usr/local/bin/google-chrome"),
-        Path("/opt/homebrew/bin/google-chrome"),
-        Path("/usr/local/bin/chromium"),
-        Path("/opt/homebrew/bin/chromium"),
-    ]
-
-    yield from homebrew_paths
-
 
 def find_chrome_executable(logger=None, use_cache: bool = True) -> Path | None:
     """
-    Find the Chrome or Chromium executable on the system.
+    Find the Chrome for Testing executable on the system.
 
     Args:
         logger: Optional logger for debugging output
         use_cache: Whether to use cached Chrome path if available
 
     Returns:
-        Path to Chrome executable, or None if not found
+        Path to Chrome for Testing executable, or None if not found
     """
     # Try to use cached path first
     if use_cache:
@@ -225,7 +157,7 @@ def find_chrome_executable(logger=None, use_cache: bool = True) -> Path | None:
     # Log all paths that were checked if nothing was found
     if logger:
         logger.warning(
-            f"Chrome executable not found. Checked {len(checked_paths)} locations:"
+            f"Chrome for Testing executable not found. Checked {len(checked_paths)} locations:"
         )
         for path in checked_paths[:10]:  # Show first 10 paths
             logger.debug(f"  - {path}")

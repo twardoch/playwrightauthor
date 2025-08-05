@@ -758,15 +758,15 @@ class Cli:
             Exception: If REPL fails to initialize
 
         Example:
-        
+
         .. code-block:: bash
-        
+
             playwrightauthor repl --verbose
 
         Inside REPL session:
-        
+
         .. code-block:: python
-        
+
             browser = Browser()
             browser.__enter__()  # Start browser
             page = browser.new_page()

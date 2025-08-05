@@ -4,6 +4,8 @@
 
 PlaywrightAuthor is a convenience package for **Microsoft Playwright**. It handles the tedious parts of browser automation: finding and launching a **Chrome for Testing** instance, keeping it authenticated with your user profile, and connecting Playwright to it. All you need to do is instantiate a class, and you get a ready-to-use `Browser` object. This lets you focus on writing your automation script, not on the boilerplate.
 
+**Note**: PlaywrightAuthor exclusively uses Chrome for Testing (not regular Chrome) because Google has recently disabled CDP automation with user profiles in regular Chrome. Chrome for Testing is the official Google build specifically designed for automation.
+
 The core idea is to let you do this:
 
 ```python
@@ -833,7 +835,9 @@ Both provide identical functionality and return standard Playwright browser obje
 
 ### `BrowserManagerError: Could not find Chrome executable...`
 
-This error means that `playwrightauthor` could not find a Chrome executable on your system. You can either install Chrome for Testing using the `npx puppeteer browsers install chrome` command, or install Google Chrome and ensure it is in a common system location.
+This error means that `playwrightauthor` could not find a Chrome for Testing executable on your system. PlaywrightAuthor requires Chrome for Testing (not regular Chrome) because Google has disabled CDP automation with user profiles in regular Chrome. You can:
+- Let PlaywrightAuthor install it automatically (it will download on first run)
+- Or install it manually using: `npx puppeteer browsers install chrome`
 
 ### `playwright._impl._api_types.Error: Target page, context or browser has been closed`
 

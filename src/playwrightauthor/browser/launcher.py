@@ -12,20 +12,31 @@ def launch_chrome(
     browser_path: Path, data_dir: Path, port: int, logger, timeout: int = 30
 ):
     """
-    Launch Chrome executable as a detached process with verification.
+    Launch Chrome for Testing executable as a detached process with verification.
 
     Args:
-        browser_path: Path to Chrome executable
+        browser_path: Path to Chrome for Testing executable
         data_dir: User data directory path
         port: Remote debugging port
         logger: Logger instance
         timeout: Maximum time to wait for launch
 
     Raises:
-        BrowserLaunchError: If launch fails
+        BrowserLaunchError: If launch fails or if not Chrome for Testing
         TimeoutError: If launch times out
     """
-    logger.info(f"Launching Chrome from: {browser_path}")
+    logger.info(f"Launching Chrome for Testing from: {browser_path}")
+
+    # Verify this is Chrome for Testing by checking the executable name/path
+    browser_str = str(browser_path).lower()
+    if "chrome for testing" not in browser_str and "chrome-" not in browser_str:
+        # On macOS, the app bundle contains "Chrome for Testing"
+        # On Windows/Linux, our install directory uses chrome-win64/chrome-linux64
+        raise BrowserLaunchError(
+            f"Invalid Chrome executable: {browser_path}\n"
+            "PlaywrightAuthor requires Chrome for Testing, not regular Chrome.\n"
+            "Regular Chrome no longer supports CDP automation with user profiles."
+        )
 
     # Prepare launch command with additional stability flags
     command = [
@@ -87,10 +98,10 @@ def launch_chrome_with_retry(
     retry_delay: int = 2,
 ) -> None:
     """
-    Launch Chrome with retry logic.
+    Launch Chrome for Testing with retry logic.
 
     Args:
-        browser_path: Path to Chrome executable
+        browser_path: Path to Chrome for Testing executable
         data_dir: User data directory path
         port: Remote debugging port
         logger: Logger instance
@@ -98,7 +109,7 @@ def launch_chrome_with_retry(
         retry_delay: Delay between retries in seconds
 
     Raises:
-        BrowserLaunchError: If all retry attempts fail
+        BrowserLaunchError: If all retry attempts fail or if not Chrome for Testing
     """
     last_error = None
 

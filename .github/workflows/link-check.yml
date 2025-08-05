@@ -1,0 +1,217 @@
+name: Documentation Link Check
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'docs/**', 'README.md', 'CHANGELOG.md' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'docs/**', 'README.md', 'CHANGELOG.md' ]
+  schedule:
+    # Run weekly on Sundays at 06:00 UTC to catch external link rot
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+    inputs:
+      fail_on_error:
+        description: 'Fail the workflow if broken links are found'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+    
+    - name: Make link checker executable
+      run: chmod +x scripts/check_links.py
+    
+    - name: Run link checker
+      id: link_check
+      run: |
+        # Set fail_on_error from workflow input or default to false for PR/push
+        FAIL_ON_ERROR="${{ github.event.inputs.fail_on_error || 'false' }}"
+        
+        # For scheduled runs, always fail on error to catch link rot
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          FAIL_ON_ERROR="true"
+        fi
+        
+        echo "Running link checker with fail_on_error=${FAIL_ON_ERROR}"
+        
+        if [ "${FAIL_ON_ERROR}" = "true" ]; then
+          python scripts/check_links.py docs --timeout 10 --max-workers 10 --fail-on-error --output link-check-report.md
+        else
+          python scripts/check_links.py docs --timeout 10 --max-workers 10 --output link-check-report.md || true
+        fi
+    
+    - name: Upload link check report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: link-check-report
+        path: link-check-report.md
+        retention-days: 30
+    
+    - name: Comment PR with link check results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read the link check report
+          let reportContent;
+          try {
+            reportContent = fs.readFileSync('link-check-report.md', 'utf8');
+          } catch (error) {
+            console.log('No report file found');
+            return;
+          }
+          
+          // Extract summary from report
+          const summaryMatch = reportContent.match(/## Summary\n([\s\S]*?)\n\n/);
+          const brokenLinksMatch = reportContent.match(/- \*\*Broken Links\*\*: (\d+)/);
+          
+          const brokenLinks = brokenLinksMatch ? parseInt(brokenLinksMatch[1]) : 0;
+          const emoji = brokenLinks > 0 ? '❌' : '✅';
+          
+          const comment = `## ${emoji} Documentation Link Check Results
+          
+          ${summaryMatch ? summaryMatch[1] : 'Summary not available'}
+          
+          ${brokenLinks > 0 ? 
+            `### 🔍 Issues Found
+            
+            Found ${brokenLinks} broken links. Please review the [full report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+            
+            Common fixes:
+            - Update internal links to point to existing files
+            - Fix malformed links (check for code snippets being interpreted as URLs)
+            - Update external URLs that have moved or been removed
+            - Add missing section anchors in target files` :
+            `### 🎉 All Links Valid!
+            
+            No broken links found in the documentation.`
+          }
+          
+          <details>
+          <summary>View Full Report</summary>
+          
+          \`\`\`
+          ${reportContent.slice(0, 8000)}${reportContent.length > 8000 ? '\n... (truncated, see full report in artifacts)' : ''}
+          \`\`\`
+          
+          </details>
+          `;
+          
+          // Find existing comment
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+          
+          const existingComment = comments.find(comment => 
+            comment.body.includes('Documentation Link Check Results')
+          );
+          
+          if (existingComment) {
+            // Update existing comment
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existingComment.id,
+              body: comment
+            });
+          } else {
+            // Create new comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+          }
+    
+    - name: Create issue for broken links (scheduled run)
+      if: github.event_name == 'schedule' && failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          let reportContent;
+          try {
+            reportContent = fs.readFileSync('link-check-report.md', 'utf8');
+          } catch (error) {
+            console.log('No report file found');
+            return;
+          }
+          
+          const title = `🔗 Broken Links Found in Documentation - ${new Date().toISOString().split('T')[0]}`;
+          
+          const body = `## 📋 Weekly Link Check Report
+          
+          The scheduled link check has found broken links in the documentation.
+          
+          ${reportContent}
+          
+          ### 🔧 Action Required
+          
+          Please review and fix the broken links listed above. Common fixes include:
+          
+          - Update internal links to point to existing files
+          - Fix malformed links (check for code snippets being interpreted as URLs)
+          - Update external URLs that have moved or been removed
+          - Add missing section anchors in target files
+          
+          ### 🤖 Automation
+          
+          This issue was automatically created by the weekly link check workflow.
+          Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          `;
+          
+          // Check if there's already an open issue for broken links
+          const { data: issues } = await github.rest.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            labels: 'documentation,broken-links'
+          });
+          
+          if (issues.length === 0) {
+            // Create new issue
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['documentation', 'broken-links', 'automated']
+            });
+          } else {
+            // Update existing issue
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issues[0].number,
+              title: title,
+              body: body
+            });
+          }
