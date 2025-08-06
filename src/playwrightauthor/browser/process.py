@@ -12,8 +12,8 @@ def get_chrome_process(port: int | None = None) -> psutil.Process | None:
     for proc in psutil.process_iter(["name", "cmdline", "exe"]):
         try:
             proc_name = proc.info["name"].lower()
-            # Check if it's a Chrome process
-            if "chrome" in proc_name:
+            # Check if it's a Chrome process (including main Chrome for Testing)
+            if "chrome" in proc_name and not any(helper in proc_name for helper in ["helper", "crashpad"]):
                 # Try to get the executable path to verify it's Chrome for Testing
                 try:
                     exe_path = proc.info.get("exe", "") or ""

@@ -173,6 +173,41 @@ class Browser:
             self._start_monitoring()
 
         self.logger.info("Sync browser session started.")
+        
+        # Add helper method to get page in existing context
+        def get_page():
+            """Get a page from the existing browser context to reuse sessions."""
+            contexts = self.browser.contexts
+            self.logger.debug(f"Found {len(contexts)} browser contexts")
+            
+            if contexts:
+                # Use the first (default) context which has the logged-in sessions
+                context = contexts[0]
+                pages = context.pages
+                self.logger.debug(f"Context has {len(pages)} pages")
+                
+                if pages:
+                    # Find a regular page (not extension pages)
+                    for page in pages:
+                        if not page.url.startswith("chrome-extension://"):
+                            self.logger.debug(f"Reusing existing page: {page.url}")
+                            return page
+                    
+                    # All pages are extension pages, create a new one
+                    self.logger.debug("All existing pages are extension pages, creating new page")
+                    return context.new_page()
+                else:
+                    # Create a new page in the existing context
+                    self.logger.debug("Creating new page in existing context")
+                    return context.new_page()
+            else:
+                # No existing context, create a new page (will create a new context)
+                self.logger.debug("No existing context found, creating new page")
+                return self.browser.new_page()
+        
+        # Attach the helper method to the browser object
+        self.browser.get_page = get_page
+        
         return self.browser
 
     def __exit__(self, exc_type, exc_val, exc_tb):

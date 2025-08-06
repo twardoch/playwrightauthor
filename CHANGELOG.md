@@ -6,6 +6,55 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+#### 🚀 Chrome for Testing Exclusivity & Session Reuse ✅ MAJOR ENHANCEMENT
+
+- **Exclusive Chrome for Testing Support**:
+  - PlaywrightAuthor now exclusively uses Chrome for Testing (not regular Chrome)
+  - Google has disabled CDP automation with user profiles in regular Chrome
+  - Chrome for Testing is the official Google build designed for automation
+  - Updated all browser discovery, installation, and launch logic to reject regular Chrome
+  - Clear error messages explain why Chrome for Testing is required
+  - Comprehensive permission fixes for Chrome for Testing on macOS (all helper executables)
+
+- **Session Reuse Workflow**:
+  - New `get_page()` method on Browser/AsyncBrowser classes for session reuse
+  - Reuses existing browser contexts and pages instead of creating new ones
+  - Maintains authenticated sessions across script runs without re-login
+  - Intelligent page selection (skips extension pages, reuses existing tabs)
+  - Perfect for workflows that require persistent authentication state
+
+- **Developer Workflow Enhancement**:
+  - New `playwrightauthor browse` CLI command launches Chrome for Testing in CDP mode
+  - Browser stays running after command exits for other scripts to connect
+  - Detects if Chrome is already running to avoid multiple instances
+  - Enables manual login once, then automated scripts can reuse the session
+  - Example workflow:
+    1. Run `playwrightauthor browse` to launch browser
+    2. Manually log into services (Gmail, GitHub, LinkedIn, etc.)
+    3. Run automation scripts that use `browser.get_page()` to reuse sessions
+
+### Fixed
+
+- **Chrome Process Management** (2025-08-06):
+  - Now automatically kills Chrome for Testing processes running without debug port and relaunches them
+  - Removed the requirement for users to manually close Chrome when it's running without debugging
+  - `ensure_browser()` now properly launches Chrome after killing non-debug instances
+  - Fixed `launch_chrome()` and `launch_chrome_with_retry()` to properly return the Chrome process
+  - This ensures automation always works without manual intervention and browser status can be verified
+
+- **Chrome for Testing Installation**:
+  - Fixed critical issue where Chrome for Testing lacked execute permissions after download
+  - Added comprehensive permission setting for all executables in Chrome.app bundle
+  - Fixed helper executables (chrome_crashpad_handler, etc.) permission issues
+  - Resolved "GPU process isn't usable" crashes on macOS
+
+### Changed
+
+- **Browser Discovery**: Removed all regular Chrome paths from finder.py
+- **Process Management**: Only accepts Chrome for Testing processes, rejects regular Chrome
+- **Error Messages**: Updated throughout to explain Chrome for Testing requirement
+- **Examples**: Updated to use `browser.get_page()` for session reuse
+
 #### 📚 Documentation Quality Assurance ✅ COMPLETED
 
 - **Doctest Integration**:

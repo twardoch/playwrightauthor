@@ -4,7 +4,7 @@
 
 PlaywrightAuthor is a convenience package for **Microsoft Playwright**. It handles the tedious parts of browser automation: finding and launching a **Chrome for Testing** instance, keeping it authenticated with your user profile, and connecting Playwright to it. All you need to do is instantiate a class, and you get a ready-to-use `Browser` object. This lets you focus on writing your automation script, not on the boilerplate.
 
-**Note**: PlaywrightAuthor exclusively uses Chrome for Testing (not regular Chrome) because Google has recently disabled CDP automation with user profiles in regular Chrome. Chrome for Testing is the official Google build specifically designed for automation.
+**Important Note**: PlaywrightAuthor exclusively uses Chrome for Testing (not regular Chrome) because Google has recently disabled CDP automation with user profiles in regular Chrome. Chrome for Testing is the official Google build specifically designed for automation. This ensures your automation scripts can maintain persistent login sessions and reuse authenticated browser profiles.
 
 The core idea is to let you do this:
 
@@ -114,9 +114,47 @@ if __name__ == "__main__":
 
 ## Common Patterns
 
+### Pre-Authorized Sessions Workflow (Recommended)
+
+PlaywrightAuthor excels at reusing existing browser sessions. This is the recommended workflow for maintaining persistent authentication across multiple scripts:
+
+```bash
+# Step 1: Launch Chrome for Testing in CDP mode
+playwrightauthor browse
+
+# Step 2: Manually log into your services in the browser window
+# The browser stays running after the command exits
+
+# Step 3: Run your automation scripts - they'll reuse the authenticated session
+python your_script.py
+```
+
+Your scripts should use `get_page()` to reuse existing browser contexts:
+
+```python
+from playwrightauthor import Browser
+
+with Browser() as browser:
+    # get_page() reuses existing browser contexts and sessions
+    page = browser.get_page()
+    
+    # Navigate to authenticated service
+    page.goto("https://github.com/notifications")
+    
+    # You're already logged in from the browser session!
+    notifications = page.locator(".notification-list-item").count()
+    print(f"You have {notifications} GitHub notifications")
+```
+
+This approach provides several benefits:
+- **One-time authentication**: Log in once manually, then all scripts use that session
+- **Session persistence**: Authentication persists across script runs
+- **Development efficiency**: No need to handle login flows in your automation code
+- **Multi-service support**: Keep multiple services logged in simultaneously
+
 ### Authentication Workflow
 
-The most common use case is automating authenticated services. PlaywrightAuthor makes this seamless by maintaining persistent login sessions:
+For scripts that need to handle authentication programmatically, PlaywrightAuthor maintains persistent login sessions across runs:
 
 ```python
 from playwrightauthor import Browser
@@ -321,6 +359,9 @@ asyncio.run(main())
 
 **Most Common Commands:**
 ```bash
+# Launch browser for manual login (recommended workflow)
+python -m playwrightauthor browse
+
 # Check if everything is working
 python -m playwrightauthor status
 
@@ -336,17 +377,24 @@ python -m playwrightauthor clear-cache
 
 **Most Common Code Patterns:**
 ```python
-# Basic automation
+# Reuse existing session (recommended)
 with Browser() as browser:
-    page = browser.new_page()
+    page = browser.get_page()  # Reuses existing context
+    page.goto("https://example.com")
+
+# Create new page
+with Browser() as browser:
+    page = browser.new_page()  # Creates new context
     page.goto("https://example.com")
 
 # Multiple accounts
 with Browser(profile="work") as browser:
+    page = browser.get_page()
     # Work automation
 
 # High performance
 async with AsyncBrowser() as browser:
+    page = await browser.get_page()
     # Async automation
 ```
 

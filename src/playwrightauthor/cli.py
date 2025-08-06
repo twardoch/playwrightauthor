@@ -15,7 +15,8 @@ import fire
 from rich.console import Console
 from rich.table import Table
 
-from .browser_manager import ensure_browser
+from .browser.process import get_chrome_process
+from .browser_manager import ensure_browser, launch_browser
 from .config import get_config
 from .connection import check_connection_health
 from .exceptions import BrowserManagerError, CLIError
@@ -33,7 +34,8 @@ class Cli:
     JSON output formats for automation and scripting.
 
     Usage:
-        playwrightauthor status              # Check browser status
+        playwrightauthor browse             # Launch browser in CDP mode
+        playwrightauthor status             # Check browser status
         playwrightauthor profile list       # List all profiles
         playwrightauthor diagnose           # Run system diagnostics
         playwrightauthor repl               # Start interactive REPL
@@ -977,6 +979,100 @@ class Cli:
             )
             console.print("  • Run diagnostics: [bold]playwrightauthor health[/bold]")
             console.print("  • Clear cache: [bold]playwrightauthor clear-cache[/bold]")
+
+    def browse(self, verbose: bool = False, profile: str = "default"):
+        """
+        Launch Chrome for Testing in CDP mode and exit.
+
+        This command starts Chrome for Testing with remote debugging enabled on port 9222
+        and then exits immediately, leaving the browser running in the background. Other
+        scripts using PlaywrightAuthor will automatically connect to this browser instance
+        instead of launching their own.
+
+        The browser will remain open until you close it manually. All your authentication
+        sessions and cookies will be preserved between script runs as long as the browser
+        stays open.
+
+        Args:
+            verbose (bool, optional): Enable detailed logging for browser launch and
+                connection diagnostics. Useful for troubleshooting. Defaults to False.
+            profile (str, optional): Browser profile to use. Different profiles maintain
+                separate authentication sessions and browser data. Defaults to "default".
+
+        Usage Examples:
+            # Launch browser with default profile
+            playwrightauthor browse
+
+            # Launch with verbose logging
+            playwrightauthor browse --verbose
+
+            # Launch with a specific profile (e.g., work account)
+            playwrightauthor browse --profile work
+
+        Workflow Example:
+            1. Launch browser: playwrightauthor browse
+               (Browser opens, command exits immediately)
+
+            2. Run your scripts: python my_scraper.py
+               (Your script connects to the already-running browser)
+
+            3. Run multiple scripts without restarting the browser
+            4. Close the browser window when done
+
+        Benefits:
+            - Faster script execution (no browser startup time)
+            - Preserve authentication state across multiple script runs
+            - Manually interact with the browser between script runs
+            - Debug scripts by watching them execute in real-time
+            - Use browser DevTools while scripts are running
+
+        Note:
+            The command exits immediately after launching the browser. The browser
+            continues running independently and will use the configured debug port
+            (default: 9222) which must not be in use by another application.
+        """
+        console = Console()
+        logger = configure_logger(verbose)
+
+        try:
+            console.print(
+                "[bold blue]Launching Chrome for Testing in CDP mode...[/bold blue]"
+            )
+            console.print(f"[dim]Profile: {profile}[/dim]")
+            console.print(f"[dim]Debug port: 9222[/dim]\n")
+
+            # Launch browser (don't just ensure it's running)
+            from .browser.process import get_chrome_process
+            config = get_config()
+            was_already_running = get_chrome_process(config.browser.debug_port) is not None
+            
+            browser_path, data_dir = launch_browser(verbose=verbose, profile=profile)
+
+            if was_already_running:
+                console.print("[yellow]✓ Chrome for Testing is already running![/yellow]")
+            else:
+                console.print("[green]✓ Browser launched successfully![/green]")
+                
+            console.print(f"[dim]Path: {browser_path}[/dim]")
+            console.print(f"[dim]Data: {data_dir}[/dim]\n")
+
+            console.print("[yellow]Browser is running in CDP mode.[/yellow]")
+            console.print("You can now:")
+            console.print("  • Run PlaywrightAuthor scripts to connect to this browser")
+            console.print("  • Manually browse and log into services")
+            console.print("  • Use Chrome DevTools (press F12)")
+            console.print("\n[dim]The browser will remain open until you close it manually.[/dim]")
+
+        except BrowserManagerError as e:
+            console.print(f"[red]Failed to launch browser: {e}[/red]")
+            sys.exit(1)
+        except Exception as e:
+            console.print(f"[red]Unexpected error: {e}[/red]")
+            if verbose:
+                import traceback
+
+                console.print(f"[dim]{traceback.format_exc()}[/dim]")
+            sys.exit(1)
 
 
 def main() -> None:

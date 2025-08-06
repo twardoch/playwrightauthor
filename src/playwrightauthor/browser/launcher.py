@@ -4,13 +4,15 @@ import subprocess
 import time
 from pathlib import Path
 
+import psutil
+
 from ..exceptions import BrowserLaunchError, TimeoutError
 from .process import wait_for_process_start
 
 
 def launch_chrome(
     browser_path: Path, data_dir: Path, port: int, logger, timeout: int = 30
-):
+) -> psutil.Process:
     """
     Launch Chrome for Testing executable as a detached process with verification.
 
@@ -20,6 +22,9 @@ def launch_chrome(
         port: Remote debugging port
         logger: Logger instance
         timeout: Maximum time to wait for launch
+
+    Returns:
+        psutil.Process: The Chrome process that was launched
 
     Raises:
         BrowserLaunchError: If launch fails or if not Chrome for Testing
@@ -73,8 +78,9 @@ def launch_chrome(
         # Wait for Chrome to actually start accepting debug connections
         logger.info("Waiting for Chrome debug port to become available...")
         try:
-            wait_for_process_start(port, timeout=timeout)
+            chrome_proc = wait_for_process_start(port, timeout=timeout)
             logger.info("Chrome launched successfully and debug port is available")
+            return chrome_proc
         except TimeoutError as e:
             # Try to clean up the process if it's still running
             try:
@@ -96,7 +102,7 @@ def launch_chrome_with_retry(
     logger,
     max_retries: int = 3,
     retry_delay: int = 2,
-) -> None:
+) -> psutil.Process:
     """
     Launch Chrome for Testing with retry logic.
 
@@ -108,6 +114,9 @@ def launch_chrome_with_retry(
         max_retries: Maximum number of retry attempts
         retry_delay: Delay between retries in seconds
 
+    Returns:
+        psutil.Process: The Chrome process that was launched
+
     Raises:
         BrowserLaunchError: If all retry attempts fail or if not Chrome for Testing
     """
@@ -116,8 +125,8 @@ def launch_chrome_with_retry(
     for attempt in range(max_retries):
         try:
             logger.info(f"Chrome launch attempt {attempt + 1}/{max_retries}")
-            launch_chrome(browser_path, data_dir, port, logger)
-            return  # Success
+            chrome_proc = launch_chrome(browser_path, data_dir, port, logger)
+            return chrome_proc  # Success - return the process
 
         except (BrowserLaunchError, TimeoutError) as e:
             last_error = e

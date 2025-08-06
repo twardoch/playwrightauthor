@@ -2,8 +2,10 @@
 
 import hashlib
 import json
+import os
 import platform
 import shutil
+import stat
 import time
 from pathlib import Path
 
@@ -153,6 +155,10 @@ def _extract_archive(archive_path: Path, extract_path: Path, logger) -> None:
         logger.info("Extracting downloaded archive...")
         shutil.unpack_archive(archive_path, extract_path)
         logger.info("Extraction complete")
+        
+        # Fix executable permissions on macOS and Linux
+        if platform.system() in ["Darwin", "Linux"]:
+            _fix_executable_permissions(extract_path, logger)
 
         # Clean up archive file
         archive_path.unlink()
@@ -160,6 +166,66 @@ def _extract_archive(archive_path: Path, extract_path: Path, logger) -> None:
 
     except (shutil.ReadError, OSError) as e:
         raise BrowserInstallationError(f"Failed to extract archive: {e}") from e
+
+
+def _fix_executable_permissions(extract_path: Path, logger) -> None:
+    """
+    Fix executable permissions for Chrome for Testing on Unix-like systems.
+    
+    Args:
+        extract_path: Root extraction directory
+        logger: Logger instance
+    """
+    try:
+        # Find Chrome executable based on platform
+        if platform.system() == "Darwin":
+            # macOS: Look for the executable inside the app bundle
+            chrome_executable = None
+            for chrome_dir in extract_path.glob("chrome-mac-*"):
+                app_path = chrome_dir / "Google Chrome for Testing.app" / "Contents" / "MacOS" / "Google Chrome for Testing"
+                if app_path.exists():
+                    chrome_executable = app_path
+                    break
+        else:
+            # Linux: Look for chrome executable
+            chrome_executable = None
+            for chrome_dir in extract_path.glob("chrome-linux*"):
+                chrome_path = chrome_dir / "chrome"
+                if chrome_path.exists():
+                    chrome_executable = chrome_path
+                    break
+        
+        if chrome_executable:
+            # Add executable permissions
+            current_permissions = chrome_executable.stat().st_mode
+            chrome_executable.chmod(current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            logger.debug(f"Set executable permissions on: {chrome_executable}")
+            
+            # Fix permissions for all executables in the app bundle on macOS
+            if platform.system() == "Darwin":
+                app_bundle = chrome_executable.parent.parent.parent  # Get to .app directory
+                if app_bundle.suffix == ".app":
+                    # Fix all executables in the app bundle
+                    for exe_path in app_bundle.rglob("*"):
+                        if exe_path.is_file():
+                            # Check if it's likely an executable (no extension or specific names)
+                            if (not exe_path.suffix or 
+                                exe_path.suffix in [".dylib"] or
+                                "Helper" in exe_path.name or
+                                "chrome_crashpad_handler" in exe_path.name or
+                                exe_path.parent.name in ["MacOS", "Helpers"]):
+                                try:
+                                    current_perms = exe_path.stat().st_mode
+                                    exe_path.chmod(current_perms | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+                                    logger.debug(f"Set executable permissions on: {exe_path.relative_to(app_bundle)}")
+                                except Exception as e:
+                                    logger.debug(f"Could not set permissions on {exe_path.name}: {e}")
+        else:
+            logger.warning("Could not find Chrome executable to set permissions")
+            
+    except Exception as e:
+        logger.warning(f"Failed to set executable permissions: {e}")
+        # Don't fail the installation, just warn
 
 
 def install_from_lkgv(logger, max_retries: int = 3, retry_delay: int = 5) -> None:

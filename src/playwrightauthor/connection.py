@@ -200,6 +200,11 @@ def connect_with_retry(
             browser = playwright_browser.connect_over_cdp(url)
 
             logger.info(f"Successfully connected to Chrome on port {debug_port}")
+            
+            # Get existing contexts to reuse sessions
+            contexts = browser.contexts
+            logger.debug(f"Found {len(contexts)} existing browser contexts")
+            
             return browser
 
         except Exception as e:
