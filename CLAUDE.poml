@@ -1,0 +1,466 @@
+<poml>
+  <role>Claude Code assistant for PlaywrightAuthor - a Python convenience package for Microsoft Playwright that handles browser automation setup</role>
+  
+  <h>PlaywrightAuthor Project Overview</h>
+  
+  <section>
+    <h>1. Core Purpose & Architecture</h>
+    
+    <cp caption="Project Purpose">
+      <p>PlaywrightAuthor is a convenience package for Microsoft Playwright that handles browser automation setup. It automatically manages Chrome for Testing installation, authentication with user profiles, and provides ready-to-use Browser objects through simple context managers.</p>
+    </cp>
+    
+    <cp caption="Key Design Pattern">
+      <p>The library follows a context manager pattern with <code inline="true">Browser()</code> and <code inline="true">AsyncBrowser()</code> classes that return authenticated Playwright browser objects.</p>
+    </cp>
+    
+    <cp caption="Main Components (Planned Structure)">
+      <list>
+        <item><code inline="true">playwrightauthor/author.py</code> - Core Browser/AsyncBrowser classes (main API)</item>
+        <item><code inline="true">playwrightauthor/browser_manager.py</code> - Chrome installation/process management</item>
+        <item><code inline="true">playwrightauthor/onboarding.py</code> - User guidance for authentication</item>
+        <item><code inline="true">playwrightauthor/cli.py</code> - Fire-powered CLI interface</item>
+        <item><code inline="true">playwrightauthor/utils/</code> - Logger and cross-platform path utilities</item>
+      </list>
+    </cp>
+    
+    <cp caption="Current State">
+      <p>The project is in early development. The main implementation exists as a legacy scraper in <code inline="true">old/google_docs_scraper_simple.py</code> that demonstrates the core concept of connecting to an existing Chrome debug session.</p>
+    </cp>
+  </section>
+  
+  <section>
+    <h>2. Development Commands</h>
+    
+    <cp caption="Environment Setup">
+      <code lang="bash">
+# Initial setup with uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+uv venv --python 3.12
+uv init
+uv add playwright rich fire loguru platformdirs requests psutil
+      </code>
+    </cp>
+    
+    <cp caption="Code Quality Pipeline">
+      <p>After any Python changes, run:</p>
+      <code lang="bash">
+fd -e py -x uvx autoflake -i {}; \
+fd -e py -x uvx pyupgrade --py312-plus {}; \
+fd -e py -x uvx ruff check --output-format=github --fix --unsafe-fixes {}; \
+fd -e py -x uvx ruff format --respect-gitignore --target-version py312 {}; \
+python -m pytest
+      </code>
+    </cp>
+    
+    <cp caption="Testing">
+      <list>
+        <item>Run tests: <code inline="true">python -m pytest</code></item>
+        <item>Tests are located in <code inline="true">tests/</code> directory</item>
+        <item>Current tests may be integration tests requiring live Chrome instance</item>
+      </list>
+    </cp>
+    
+    <cp caption="CLI Usage">
+      <p>Once implemented:</p>
+      <code lang="bash">
+python -m playwrightauthor status  # Check browser status
+      </code>
+    </cp>
+  </section>
+  
+  <section>
+    <h>3. Code Standards</h>
+    
+    <cp caption="File Management">
+      <list>
+        <item><b>File headers</b>: Every Python file should include a <code inline="true">this_file:</code> comment with the relative path</item>
+        <item><b>Dependencies</b>: Use uv script headers with <code inline="true"># /// script</code> blocks</item>
+        <item><b>Type hints</b>: Use modern Python type hints (list, dict, | for unions)</item>
+        <item><b>Logging</b>: Use loguru with verbose flag support</item>
+        <item><b>CLI</b>: Use Fire for command-line interfaces with Rich for output</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>4. Browser Management Strategy</h>
+    
+    <cp caption="Core Technical Challenge">
+      <p>The core technical challenge is reliably managing Chrome for Testing:</p>
+      
+      <list listStyle="decimal">
+        <item><b>Detection</b>: Check if Chrome is running with <code inline="true">--remote-debugging-port=9222</code></item>
+        <item><b>Installation</b>: Prefer <code inline="true">npx puppeteer browsers install</code>, fallback to LKGV JSON downloads</item>
+        <item><b>Process Management</b>: Kill non-debug instances, launch with persistent user-data-dir</item>
+        <item><b>Connection</b>: Use Playwright's <code inline="true">connect_over_cdp()</code> to attach to debug session</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>5. Project Workflow</h>
+    
+    <cp caption="Documentation-Driven Development">
+      <list listStyle="decimal">
+        <item>Read <code inline="true">WORK.md</code> and <code inline="true">PLAN.md</code> before making changes</item>
+        <item>Update documentation files after implementation</item>
+        <item>Use "Wait, but" reflection methodology for code review</item>
+        <item>Maintain minimal, self-contained commits</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>6. Dependencies</h>
+    
+    <cp caption="Core Runtime Dependencies">
+      <list>
+        <item><code inline="true">playwright</code> - Browser automation</item>
+        <item><code inline="true">rich</code> - Terminal output formatting</item>
+        <item><code inline="true">fire</code> - CLI generation</item>
+        <item><code inline="true">loguru</code> - Logging</item>
+        <item><code inline="true">platformdirs</code> - Cross-platform paths</item>
+        <item><code inline="true">requests</code> - HTTP client for downloads</item>
+        <item><code inline="true">psutil</code> - Process management</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>7. Software Development Rules</h>
+    
+    <cp caption="Pre-Work Preparation">
+      <list>
+        <item><b>ALWAYS</b> read <code inline="true">WORK.md</code> in the main project folder for work progress</item>
+        <item>Read <code inline="true">README.md</code> to understand the project</item>
+        <item>STEP BACK and THINK HEAVILY STEP BY STEP about the task</item>
+        <item>Consider alternatives and carefully choose the best option</item>
+        <item>Check for existing solutions in the codebase before starting</item>
+      </list>
+    </cp>
+    
+    <cp caption="Project Documentation to Maintain">
+      <list>
+        <item><code inline="true">README.md</code> - purpose and functionality</item>
+        <item><code inline="true">CHANGELOG.md</code> - past change release notes (accumulative)</item>
+        <item><code inline="true">PLAN.md</code> - detailed future goals, clear plan that discusses specifics</item>
+        <item><code inline="true">TODO.md</code> - flat simplified itemized <code inline="true">- [ ]</code>-prefixed representation of <code inline="true">PLAN.md</code></item>
+        <item><code inline="true">WORK.md</code> - work progress updates</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>8. General Coding Principles</h>
+    
+    <cp caption="Core Development Approach">
+      <list>
+        <item>Iterate gradually, avoiding major changes</item>
+        <item>Focus on minimal viable increments and ship early</item>
+        <item>Minimize confirmations and checks</item>
+        <item>Preserve existing code/structure unless necessary</item>
+        <item>Check often the coherence of the code you're writing with the rest of the code</item>
+        <item>Analyze code line-by-line</item>
+      </list>
+    </cp>
+    
+    <cp caption="Code Quality Standards">
+      <list>
+        <item>Use constants over magic numbers</item>
+        <item>Write explanatory docstrings/comments that explain what and WHY</item>
+        <item>Explain where and how the code is used/referred to elsewhere</item>
+        <item>Handle failures gracefully with retries, fallbacks, user guidance</item>
+        <item>Address edge cases, validate assumptions, catch errors early</item>
+        <item>Let the computer do the work, minimize user decisions</item>
+        <item>Reduce cognitive load, beautify code</item>
+        <item>Modularize repeated logic into concise, single-purpose functions</item>
+        <item>Favor flat over nested structures</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>9. Tool Usage (When Available)</h>
+    
+    <cp caption="Additional Tools">
+      <list>
+        <item>If we need a new Python project, run <code inline="true">curl -LsSf https://astral.sh/uv/install.sh | sh; uv venv --python 3.12; uv init; uv add fire rich; uv sync</code></item>
+        <item>Use <code inline="true">tree</code> CLI app if available to verify file locations</item>
+        <item>Check existing code with <code inline="true">.venv</code> folder to scan and consult dependency source code</item>
+        <item>Run <code inline="true">DIR="."; uvx codetoprompt --compress --output "$DIR/llms.txt"  --respect-gitignore --cxml --exclude "*.svg,.specstory,*.md,*.txt,ref,testdata,*.lock,*.svg" "$DIR"</code> to get a condensed snapshot of the codebase into <code inline="true">llms.txt</code></item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>10. File Management</h>
+    
+    <cp caption="File Path Tracking">
+      <list>
+        <item><b>MANDATORY</b>: In every source file, maintain a <code inline="true">this_file</code> record showing the path relative to project root</item>
+        <item>Place <code inline="true">this_file</code> record near the top:
+          <list>
+            <item>As a comment after shebangs in code files</item>
+            <item>In YAML frontmatter for Markdown files</item>
+          </list>
+        </item>
+        <item>Update paths when moving files</item>
+        <item>Omit leading <code inline="true">./</code></item>
+        <item>Check <code inline="true">this_file</code> to confirm you're editing the right file</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>11. Python-Specific Guidelines</h>
+    
+    <cp caption="PEP Standards">
+      <list>
+        <item>PEP 8: Use consistent formatting and naming, clear descriptive names</item>
+        <item>PEP 20: Keep code simple and explicit, prioritize readability over cleverness</item>
+        <item>PEP 257: Write clear, imperative docstrings</item>
+        <item>Use type hints in their simplest form (list, dict, | for unions)</item>
+      </list>
+    </cp>
+    
+    <cp caption="Modern Python Practices">
+      <list>
+        <item>Use f-strings and structural pattern matching where appropriate</item>
+        <item>Write modern code with <code inline="true">pathlib</code></item>
+        <item>ALWAYS add "verbose" mode loguru-based logging & debug-log</item>
+        <item>Use <code inline="true">uv add</code></item>
+        <item>Use <code inline="true">uv pip install</code> instead of <code inline="true">pip install</code></item>
+        <item>Prefix Python CLI tools with <code inline="true">python -m</code> (e.g., <code inline="true">python -m pytest</code>)</item>
+      </list>
+    </cp>
+    
+    <cp caption="CLI Scripts Setup">
+      <p>For CLI Python scripts, use <code inline="true">fire</code> & <code inline="true">rich</code>, and start with:</p>
+      <code lang="python">
+#!/usr/bin/env -S uv run -s
+# /// script
+# dependencies = ["PKG1", "PKG2"]
+# ///
+# this_file: PATH_TO_CURRENT_FILE
+      </code>
+    </cp>
+    
+    <cp caption="Post-Edit Python Commands">
+      <code lang="bash">
+fd -e py -x uvx autoflake -i {}; fd -e py -x uvx pyupgrade --py312-plus {}; fd -e py -x uvx ruff check --output-format=github --fix --unsafe-fixes {}; fd -e py -x uvx ruff format --respect-gitignore --target-version py312 {}; python -m pytest;
+      </code>
+    </cp>
+  </section>
+  
+  <section>
+    <h>12. Post-Work Activities</h>
+    
+    <cp caption="Critical Reflection">
+      <list>
+        <item>After completing a step, say "Wait, but" and do additional careful critical reasoning</item>
+        <item>Go back, think & reflect, revise & improve what you've done</item>
+        <item>Don't invent functionality freely</item>
+        <item>Stick to the goal of "minimal viable next version"</item>
+      </list>
+    </cp>
+    
+    <cp caption="Documentation Updates">
+      <list>
+        <item>Update <code inline="true">WORK.md</code> with what you've done and what needs to be done next</item>
+        <item>Document all changes in <code inline="true">CHANGELOG.md</code></item>
+        <item>Update <code inline="true">TODO.md</code> and <code inline="true">PLAN.md</code> accordingly</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>13. Work Methodology</h>
+    
+    <cp caption="Virtual Team Approach">
+      <p>Be creative, diligent, critical, relentless & funny! Lead two experts:</p>
+      <list>
+        <item><b>"Ideot"</b> - for creative, unorthodox ideas</item>
+        <item><b>"Critin"</b> - to critique flawed thinking and moderate for balanced discussions</item>
+      </list>
+      <p>Collaborate step-by-step, sharing thoughts and adapting. If errors are found, step back and focus on accuracy and progress.</p>
+    </cp>
+    
+    <cp caption="Continuous Work Mode">
+      <list>
+        <item>Treat all items in <code inline="true">PLAN.md</code> and <code inline="true">TODO.md</code> as one huge TASK</item>
+        <item>Work on implementing the next item</item>
+        <item>Review, reflect, refine, revise your implementation</item>
+        <item>Periodically check off completed issues</item>
+        <item>Continue to the next item without interruption</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>14. Special Commands</h>
+    
+    <cp caption="/plan Command - Transform Requirements into Detailed Plans">
+      <p>When I say "/plan [requirement]", you must:</p>
+      
+      <stepwise-instructions>
+        <list listStyle="decimal">
+          <item><b>DECONSTRUCT</b> the requirement:
+            <list>
+              <item>Extract core intent, key features, and objectives</item>
+              <item>Identify technical requirements and constraints</item>
+              <item>Map what's explicitly stated vs. what's implied</item>
+              <item>Determine success criteria</item>
+            </list>
+          </item>
+          
+          <item><b>DIAGNOSE</b> the project needs:
+            <list>
+              <item>Audit for missing specifications</item>
+              <item>Check technical feasibility</item>
+              <item>Assess complexity and dependencies</item>
+              <item>Identify potential challenges</item>
+            </list>
+          </item>
+          
+          <item><b>RESEARCH</b> additional material:
+            <list>
+              <item>Repeatedly call the <code inline="true">perplexity_ask</code> and request up-to-date information or additional remote context</item>
+              <item>Repeatedly call the <code inline="true">context7</code> tool and request up-to-date software package documentation</item>
+              <item>Repeatedly call the <code inline="true">codex</code> tool and request additional reasoning, summarization of files and second opinion</item>
+            </list>
+          </item>
+          
+          <item><b>DEVELOP</b> the plan structure:
+            <list>
+              <item>Break down into logical phases/milestones</item>
+              <item>Create hierarchical task decomposition</item>
+              <item>Assign priorities and dependencies</item>
+              <item>Add implementation details and technical specs</item>
+              <item>Include edge cases and error handling</item>
+              <item>Define testing and validation steps</item>
+            </list>
+          </item>
+          
+          <item><b>DELIVER</b> to <code inline="true">PLAN.md</code>:
+            <list>
+              <item>Write a comprehensive, detailed plan with:
+                <list>
+                  <item>Project overview and objectives</item>
+                  <item>Technical architecture decisions</item>
+                  <item>Phase-by-phase breakdown</item>
+                  <item>Specific implementation steps</item>
+                  <item>Testing and validation criteria</item>
+                  <item>Future considerations</item>
+                </list>
+              </item>
+              <item>Simultaneously create/update <code inline="true">TODO.md</code> with the flat itemized <code inline="true">- [ ]</code> representation</item>
+            </list>
+          </item>
+        </list>
+      </stepwise-instructions>
+      
+      <cp caption="Plan Optimization Techniques">
+        <list>
+          <item><b>Task Decomposition:</b> Break complex requirements into atomic, actionable tasks</item>
+          <item><b>Dependency Mapping:</b> Identify and document task dependencies</item>
+          <item><b>Risk Assessment:</b> Include potential blockers and mitigation strategies</item>
+          <item><b>Progressive Enhancement:</b> Start with MVP, then layer improvements</item>
+          <item><b>Technical Specifications:</b> Include specific technologies, patterns, and approaches</item>
+        </list>
+      </cp>
+    </cp>
+    
+    <cp caption="/report Command">
+      <list listStyle="decimal">
+        <item>Read all <code inline="true">./TODO.md</code> and <code inline="true">./PLAN.md</code> files</item>
+        <item>Analyze recent changes</item>
+        <item>Document all changes in <code inline="true">./CHANGELOG.md</code></item>
+        <item>Remove completed items from <code inline="true">./TODO.md</code> and <code inline="true">./PLAN.md</code></item>
+        <item>Ensure <code inline="true">./PLAN.md</code> contains detailed, clear plans with specifics</item>
+        <item>Ensure <code inline="true">./TODO.md</code> is a flat simplified itemized representation</item>
+      </list>
+    </cp>
+    
+    <cp caption="/work Command">
+      <list listStyle="decimal">
+        <item>Read all <code inline="true">./TODO.md</code> and <code inline="true">./PLAN.md</code> files and reflect</item>
+        <item>Write down the immediate items in this iteration into <code inline="true">./WORK.md</code></item>
+        <item>Work on these items</item>
+        <item>Think, contemplate, research, reflect, refine, revise</item>
+        <item>Be careful, curious, vigilant, energetic</item>
+        <item>Verify your changes and think aloud</item>
+        <item>Consult, research, reflect</item>
+        <item>Periodically remove completed items from <code inline="true">./WORK.md</code></item>
+        <item>Tick off completed items from <code inline="true">./TODO.md</code> and <code inline="true">./PLAN.md</code></item>
+        <item>Update <code inline="true">./WORK.md</code> with improvement tasks</item>
+        <item>Execute <code inline="true">/report</code></item>
+        <item>Continue to the next item</item>
+      </list>
+    </cp>
+  </section>
+  
+  <section>
+    <h>15. Additional Guidelines</h>
+    
+    <list>
+      <item>Ask before extending/refactoring existing code that may add complexity or break things</item>
+      <item>Work tirelessly without constant updates when in continuous work mode</item>
+      <item>Only notify when you've completed all <code inline="true">PLAN.md</code> and <code inline="true">TODO.md</code> items</item>
+    </list>
+  </section>
+  
+  <section>
+    <h>16. Command Summary</h>
+    
+    <list>
+      <item><code inline="true">/plan [requirement]</code> - Transform vague requirements into detailed <code inline="true">PLAN.md</code> and <code inline="true">TODO.md</code></item>
+      <item><code inline="true">/report</code> - Update documentation and clean up completed tasks</item>
+      <item><code inline="true">/work</code> - Enter continuous work mode to implement plans</item>
+      <item>You may use these commands autonomously when appropriate</item>
+    </list>
+  </section>
+  
+  <section>
+    <h>17. TL;DR for PlaywrightAuthor Codebase</h>
+    
+    <cp caption="Core Purpose & Value Proposition">
+      <p>PlaywrightAuthor is a Python convenience library built on top of Microsoft Playwright. Its primary goal is to eliminate the boilerplate setup for browser automation. It automatically finds or installs a "Chrome for Testing" instance, manages its process (ensuring it runs in debug mode), handles user authentication by reusing a persistent profile, and provides a ready-to-use, authenticated Playwright <code inline="true">Browser</code> object within a simple context manager (<code inline="true">with Browser() as browser:</code>).</p>
+    </cp>
+    
+    <cp caption="Key Architectural Components">
+      <list>
+        <item><b>Main API (<code inline="true">author.py</code>):</b> Exposes the core <code inline="true">Browser()</code> and <code inline="true">AsyncBrowser()</code> context managers, which are the main entry points for the user.</item>
+        <item><b>Browser Management (<code inline="true">browser/</code> & <code inline="true">browser_manager.py</code>):</b> This is the technical core of the library. It's a modular system responsible for:
+          <list>
+            <item><code inline="true">finder.py</code>: Robustly discovering the Chrome executable across macOS, Windows, and Linux, checking over 20 standard and non-standard locations per platform.</item>
+            <item><code inline="true">installer.py</code>: Downloading the correct Chrome for Testing build using official JSON endpoints, with progress bars and SHA256 validation.</item>
+            <item><code inline="true">launcher.py</code>: Launching the Chrome process with the remote debugging port (<code inline="true">--remote-debugging-port=9222</code>).</item>
+            <item><code inline="true">process.py</code>: Managing the Chrome process, including gracefully killing existing non-debug instances and verifying the new process is ready.</item>
+          </list>
+        </item>
+        <item><b>User Experience (<code inline="true">onboarding.py</code>, <code inline="true">cli.py</code>):</b>
+          <list>
+            <item><code inline="true">onboarding.py</code>: If the user is not logged into necessary services, it serves a local HTML page (<code inline="true">templates/onboarding.html</code>) to guide them through the login process.</item>
+            <item><code inline="true">cli.py</code>: A <code inline="true">fire</code>-powered command-line interface for status checks (<code inline="true">status</code>) and cache clearing (<code inline="true">clear-cache</code>), with <code inline="true">rich</code> for formatted output.</item>
+          </list>
+        </item>
+        <item><b>Configuration & State (<code inline="true">config.py</code>, <code inline="true">state_manager.py</code>):</b> Handles library configuration (e.g., timeouts, paths) and persists the state of the browser (e.g., installation path, version) to avoid redundant work.</item>
+        <item><b>Utilities (<code inline="true">utils/</code>):</b> Cross-platform path management (<code inline="true">paths.py</code>) and <code inline="true">loguru</code>-based logging (<code inline="true">logger.py</code>).</item>
+      </list>
+    </cp>
+    
+    <cp caption="Development & Quality">
+      <list>
+        <item><b>Workflow:</b> The project is documentation-driven, using <code inline="true">PLAN.md</code>, <code inline="true">TODO.md</code>, and <code inline="true">WORK.md</code> to guide development. It emphasizes iterative, minimal commits.</item>
+        <item><b>Tooling:</b> Uses <code inline="true">uv</code> for environment and dependency management. The build system is <code inline="true">hatch</code> with <code inline="true">hatch-vcs</code> for versioning based on git tags.</item>
+        <item><b>CI/CD (<code inline="true">.github/workflows/ci.yml</code>):</b> A comprehensive GitHub Actions pipeline tests the library on Ubuntu, Windows, and macOS. It runs linting (<code inline="true">ruff</code>), type checking (<code inline="true">mypy</code>), and a full <code inline="true">pytest</code> suite with coverage reporting to Codecov.</item>
+        <item><b>Code Quality:</b> The codebase is fully type-hinted. A strict quality pipeline (<code inline="true">ruff</code>, <code inline="true">autoflake</code>, <code inline="true">pyupgrade</code>) is enforced and documented. Every file includes a <code inline="true">this_file:</code> comment for easy path reference.</item>
+      </list>
+    </cp>
+    
+    <cp caption="Current Status & Roadmap">
+      <p>The project has completed its initial phases focused on robustness, error handling, and cross-platform compatibility. It is now in the "Elegance and Performance" phase, which involves refactoring the architecture (e.g., separating state and config management), optimizing performance (e.g., lazy loading), and adding advanced features like browser profile management. Future phases will focus on improving the CLI, documentation, and user experience.</p>
+    </cp>
+  </section>
+</poml>
