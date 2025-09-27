@@ -1,6 +1,6 @@
 # Advanced Features
 
-PlaywrightAuthor provides sophisticated features for complex automation scenarios, including async operations, performance monitoring, custom configurations, and advanced browser management.
+PlaywrightAuthor provides advanced features for complex automation scenarios, including async operations, performance monitoring, custom configurations, and browser management.
 
 ## Asynchronous Operations
 

@@ -1,12 +1,12 @@
 # API Reference
 
-Complete reference documentation for PlaywrightAuthor classes, methods, and configuration options.
+Documentation for PlaywrightAuthor classes, methods, and configuration options.
 
 ## Core Classes
 
 ### Browser
 
-The main synchronous browser context manager.
+Synchronous browser context manager.
 
 ```python
 class Browser:
@@ -51,7 +51,7 @@ with Browser(headless=True, debug_port=9223) as browser:
 
 ### AsyncBrowser
 
-The asynchronous browser context manager.
+Asynchronous browser context manager.
 
 ```python
 class AsyncBrowser:

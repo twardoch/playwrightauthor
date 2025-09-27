@@ -2,7 +2,7 @@
 
 This guide covers Windows-specific setup, configuration, and troubleshooting for PlaywrightAuthor.
 
-## 🎯 Quick Start
+## Quick Start
 
 ```powershell
 # Install PlaywrightAuthor
@@ -12,7 +12,7 @@ pip install playwrightauthor
 python -c "from playwrightauthor import Browser; Browser().__enter__()"
 ```
 
-## 🔐 Security & Permissions
+## Security & Permissions
 
 ### User Account Control (UAC)
 
@@ -108,12 +108,12 @@ def add_defender_exclusion(path: str):
         )
         
         if result.returncode == 0:
-            print(f"✅ Added {path} to Windows Defender exclusions")
+            print(f"Added {path} to Windows Defender exclusions")
         else:
-            print(f"❌ Failed to add exclusion: {result.stderr}")
+            print(f"Failed to add exclusion: {result.stderr}")
             
     except Exception as e:
-        print(f"❌ Error adding exclusion: {e}")
+        print(f"Error adding exclusion: {e}")
 
 # Add PlaywrightAuthor directories
 playwrightauthor_dir = os.path.join(os.environ['LOCALAPPDATA'], 'playwrightauthor')
@@ -173,7 +173,7 @@ output, error = run_powershell_script(script)
 print(output)
 ```
 
-## 🗂️ Windows-Specific Paths
+## Windows-Specific Paths
 
 ### Chrome Installation Locations
 
@@ -267,7 +267,7 @@ def create_secure_directory(path: str):
     win32security.SetFileSecurity(path, win32security.DACL_SECURITY_INFORMATION, sd)
 ```
 
-## 🖥️ Display & DPI Handling
+## Display & DPI Handling
 
 ### High DPI Support
 
@@ -343,7 +343,7 @@ if len(monitors) > 1:
         pass
 ```
 
-## 🚀 Performance Optimization
+## Performance Optimization
 
 ### Windows-Specific Chrome Flags
 
@@ -404,7 +404,7 @@ def set_chrome_priority(priority_class=win32process.NORMAL_PRIORITY_CLASS):
 set_chrome_priority(win32process.HIGH_PRIORITY_CLASS)
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Windows Issues
 
@@ -482,7 +482,7 @@ def diagnose_chrome_windows():
     print("Chrome Diagnostics for Windows:")
     print("-" * 50)
     for diag in diagnostics:
-        status = "✅" if diag['passed'] else "❌"
+        status = "PASS" if diag['passed'] else "FAIL"
         print(f"{status} {diag['check']}: {diag['details']}")
     
     return all(d['passed'] for d in diagnostics)
@@ -516,9 +516,9 @@ def fix_permission_issues():
                 'icacls', path, '/grant', f'{os.environ["USERNAME"]}:F', '/t'
             ], capture_output=True)
             
-            print(f"✅ Took ownership of {path}")
+            print(f"Took ownership of {path}")
         except Exception as e:
-            print(f"❌ Failed to take ownership: {e}")
+            print(f"Failed to take ownership: {e}")
     
     # Apply to PlaywrightAuthor directory
     pa_dir = os.path.join(os.environ['LOCALAPPDATA'], 'playwrightauthor')
@@ -595,7 +595,7 @@ if __name__ == '__main__':
     win32serviceutil.HandleCommandLine(PlaywrightAuthorService)
 ```
 
-## 🛡️ Security Best Practices
+## Security Best Practices
 
 ### Windows Credential Manager
 
@@ -615,7 +615,7 @@ def save_credential(target: str, username: str, password: str):
     }
     
     win32cred.CredWrite(credential)
-    print(f"✅ Credential saved for {target}")
+    print(f"Credential saved for {target}")
 
 def get_credential(target: str):
     """Retrieve credential from Windows Credential Manager."""
@@ -645,7 +645,7 @@ $rule = New-AppLockerPolicy -RuleType Exe -AllowRule -UserOrGroupSid S-1-1-0 `
 Set-AppLockerPolicy -PolicyObject $rule
 ```
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Chrome Enterprise on Windows](https://support.google.com/chrome/a/answer/7587273)
 - [Windows Security Baselines](https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-security-baselines)

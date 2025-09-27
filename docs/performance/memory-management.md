@@ -1,8 +1,8 @@
 # Memory Management Guide
 
-This guide provides detailed strategies for managing memory effectively when using PlaywrightAuthor for browser automation.
+This guide explains how to manage memory effectively when using PlaywrightAuthor for browser automation.
 
-## 🧠 Understanding Memory Usage
+## Understanding Memory Usage
 
 ### Memory Components
 
@@ -102,7 +102,7 @@ print(f"Memory grew by {stats['growth_mb']:.2f}MB")
 tracker.plot()
 ```
 
-## 🔧 Memory Optimization Techniques
+## Memory Optimization Techniques
 
 ### 1. Page Lifecycle Management
 
@@ -390,7 +390,7 @@ with Browser() as browser:
             print(f"Processed {len(results)} pages, Memory: {status['rss_mb']:.2f}MB")
 ```
 
-## 🚨 Memory Leak Prevention
+## Memory Leak Prevention
 
 ### Common Memory Leak Sources
 
@@ -504,12 +504,12 @@ class MemoryLeakDetector:
         leaks = self.check_for_leaks()
         
         if not leaks:
-            print("✅ No significant memory leaks detected")
+            print("No significant memory leaks detected")
             return
         
-        print("⚠️  Potential memory leaks detected:")
+        print("Potential memory leaks detected:")
         for leak in leaks:
-            print(f"\n📍 {leak['file']}:{leak['line']}")
+            print(f"\n{leak['file']}:{leak['line']}")
             print(f"   Code: {leak['code']}")
             print(f"   Growth: +{leak['size_diff_mb']:.2f}MB ({leak['count_diff']:+d} objects)")
 
@@ -530,7 +530,7 @@ with Browser() as browser:
 detector.print_report()
 ```
 
-## 📊 Memory Monitoring Tools
+## Memory Monitoring Tools
 
 ### Real-time Memory Monitor
 
@@ -577,7 +577,7 @@ class RealTimeMemoryMonitor:
     
     def _trigger_alert(self, memory_mb: float):
         """Trigger memory alert."""
-        print(f"🚨 MEMORY ALERT: {memory_mb:.2f}MB exceeds threshold of {self.alert_threshold_mb}MB")
+        print(f"MEMORY ALERT: {memory_mb:.2f}MB exceeds threshold of {self.alert_threshold_mb}MB")
     
     def get_statistics(self) -> dict:
         """Get memory statistics."""
@@ -621,7 +621,7 @@ finally:
     monitor.stop_monitoring()
 ```
 
-## 🎯 Memory Best Practices
+## Memory Best Practices
 
 1. **Always Close Resources**
    - Close pages when done
@@ -648,7 +648,7 @@ finally:
    - Cache clearing
    - Profile rotation
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Performance Optimization](index.md)
 - [Connection Pooling](connection-pooling.md)

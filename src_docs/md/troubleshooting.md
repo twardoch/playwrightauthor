@@ -1,6 +1,6 @@
 # Troubleshooting
 
-This guide helps you diagnose and resolve common issues with PlaywrightAuthor. Issues are organized by category with detailed solutions and debugging techniques.
+This guide helps you diagnose and resolve common issues with PlaywrightAuthor. Problems are organized by category with practical solutions.
 
 ## Installation Issues
 
@@ -13,13 +13,13 @@ This guide helps you diagnose and resolve common issues with PlaywrightAuthor. I
 # Update pip first
 python -m pip install --upgrade pip
 
-# Install with verbose output for debugging
+# Install with verbose output
 pip install -v playwrightauthor
 
-# Use alternative index if needed
+# Use alternative index
 pip install -i https://pypi.org/simple/ playwrightauthor
 
-# Install from source if package issues persist
+# Install from source
 pip install git+https://github.com/terragond/playwrightauthor.git
 ```
 
@@ -27,7 +27,7 @@ pip install git+https://github.com/terragond/playwrightauthor.git
 
 **Solutions**:
 ```python
-# Check if PlaywrightAuthor is properly installed
+# Verify installation
 import sys
 print(sys.path)
 
@@ -49,7 +49,7 @@ print(f"Playwright version: {playwright.__version__}")
 **Check Python version**:
 ```bash
 python --version
-# Should be 3.8 or higher
+# Requires 3.8 or higher
 ```
 
 **Solutions**:
@@ -133,7 +133,7 @@ os.environ['HTTPS_PROXY'] = 'http://proxy.company.com:8080'
 ```python
 from playwrightauthor import BrowserConfig
 
-# Disable SSL verification for downloads (use with caution)
+# Disable SSL verification for downloads (security risk)
 config = BrowserConfig(
     chrome_args=["--ignore-certificate-errors", "--ignore-ssl-errors"]
 )
@@ -147,16 +147,12 @@ config = BrowserConfig(
 
 **Debugging**:
 ```python
-from playwrightauthor.browser.process import find_available_port, get_chrome_processes
+from playwrightauthor.browser.process import get_chrome_processes
 
 # Find what's using the port
 processes = get_chrome_processes()
 for proc in processes:
     print(f"PID: {proc.pid}, Command: {' '.join(proc.cmdline())}")
-
-# Find alternative port
-available_port = find_available_port(start_port=9222)
-print(f"Available port: {available_port}")
 ```
 
 **Solutions**:
@@ -178,7 +174,7 @@ kill_chrome_instances()
 
 **Problem**: Chrome won't start due to security restrictions
 
-**Solutions for Linux**:
+**Linux solutions**:
 ```bash
 # Add Chrome to PATH
 export PATH="/opt/google/chrome:$PATH"
@@ -202,7 +198,7 @@ config = BrowserConfig(
 # Check SELinux status
 sestatus
 
-# Temporarily disable if needed
+# Temporarily disable
 sudo setenforce 0
 
 # For AppArmor
@@ -230,9 +226,6 @@ RUN apt-get update && apt-get install -y \
     libgbm1 \
     libxkbcommon0 \
     libxss1
-
-# Run with proper security context
-docker run --cap-add=SYS_ADMIN --security-opt seccomp=unconfined
 ```
 
 ```python
@@ -257,20 +250,15 @@ config = BrowserConfig(
 
 **Debugging**:
 ```python
-from playwrightauthor.connection import test_connection
 import requests
 
-# Test if Chrome debug port is responding
+# Test Chrome debug port
 port = 9222
 try:
     response = requests.get(f"http://localhost:{port}/json/version", timeout=5)
     print(f"Chrome debug info: {response.json()}")
 except Exception as e:
     print(f"Connection test failed: {e}")
-
-# Test PlaywrightAuthor connection
-success = test_connection(port=port)
-print(f"Connection successful: {success}")
 ```
 
 **Solutions**:
@@ -280,11 +268,11 @@ import time
 
 # Increase connection timeout
 config = BrowserConfig(
-    connect_timeout=30,  # 30 seconds
+    connect_timeout=30,
     connect_retries=5
 )
 
-# Retry connection with delays
+# Retry connection
 def connect_with_retry():
     for attempt in range(3):
         try:
@@ -298,7 +286,7 @@ def connect_with_retry():
 
 ### Browser Process Management
 
-**Problem**: Chrome processes not terminating properly
+**Problem**: Chrome processes not terminating
 
 **Debugging**:
 ```python
@@ -307,7 +295,7 @@ import psutil
 
 manager = ChromeProcessManager()
 
-# List all Chrome processes
+# List Chrome processes
 processes = manager.get_chrome_processes()
 for proc in processes:
     try:
@@ -320,10 +308,10 @@ for proc in processes:
 ```python
 from playwrightauthor.browser.process import force_kill_chrome
 
-# Force kill all Chrome processes
+# Force kill Chrome processes
 force_kill_chrome()
 
-# Or use process manager for graceful shutdown
+# Or graceful shutdown
 manager = ChromeProcessManager()
 manager.shutdown_all_chrome(graceful=True, timeout=10)
 ```
@@ -336,7 +324,6 @@ manager.shutdown_all_chrome(graceful=True, timeout=10)
 
 **Debugging**:
 ```python
-from playwrightauthor import Browser, BrowserConfig
 from pathlib import Path
 
 # Check profile directory
@@ -347,12 +334,6 @@ print(f"Profile exists: {profile_dir.exists()}")
 if profile_dir.exists():
     files = list(profile_dir.glob("**/*"))
     print(f"Profile files: {len(files)}")
-    
-    # Look for key files
-    key_files = ["Cookies", "Local Storage", "Session Storage"]
-    for key_file in key_files:
-        file_path = profile_dir / key_file
-        print(f"{key_file}: {file_path.exists()}")
 ```
 
 **Solutions**:
@@ -373,7 +354,7 @@ with Browser(config=config) as browser:
     # Complete authentication
     input("Press Enter after logging in...")
     
-    # Verify session is saved
+    # Verify session
     cookies = page.context.cookies()
     print(f"Saved {len(cookies)} cookies")
 ```
@@ -390,11 +371,11 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://httpbin.org/cookies/set/test/value")
     
-    # Check if cookies are set
+    # Check cookies
     cookies = page.context.cookies()
     print(f"Current cookies: {cookies}")
     
-    # Test cookie persistence
+    # Test persistence
     page.goto("https://httpbin.org/cookies")
     response = page.text_content("body")
     print(f"Cookie response: {response}")
@@ -406,13 +387,13 @@ with Browser() as browser:
 with Browser() as browser:
     context = browser.contexts[0]
     
-    # Save cookies manually
+    # Save cookies
     cookies = context.cookies()
     import json
     with open("cookies.json", "w") as f:
         json.dump(cookies, f)
     
-    # Load cookies manually
+    # Load cookies
     with open("cookies.json", "r") as f:
         saved_cookies = json.load(f)
     context.add_cookies(saved_cookies)
@@ -422,18 +403,14 @@ with Browser() as browser:
 
 ### Slow Browser Operations
 
-**Problem**: Browser operations are very slow
+**Problem**: Browser operations are slow
 
 **Debugging**:
 ```python
-from playwrightauthor import Browser
-from playwrightauthor.monitoring import PerformanceMonitor
 import time
+from playwrightauthor import Browser
 
 with Browser() as browser:
-    monitor = PerformanceMonitor(browser)
-    monitor.start()
-    
     page = browser.new_page()
     
     start = time.time()
@@ -441,19 +418,16 @@ with Browser() as browser:
     navigation_time = time.time() - start
     
     print(f"Navigation took: {navigation_time:.2f} seconds")
-    
-    metrics = monitor.get_metrics()
-    print(f"Performance metrics: {metrics}")
 ```
 
 **Solutions**:
 ```python
 # Optimize browser configuration
 config = BrowserConfig(
-    headless=True,  # Faster without GUI
+    headless=True,
     chrome_args=[
-        "--disable-images",  # Don't load images
-        "--disable-javascript",  # If JS not needed
+        "--disable-images",
+        "--disable-javascript",
         "--disable-plugins",
         "--disable-extensions",
         "--no-first-run",
@@ -474,7 +448,7 @@ with Browser(config=config) as browser:
 
 ### Memory Issues
 
-**Problem**: High memory usage or memory leaks
+**Problem**: High memory usage
 
 **Debugging**:
 ```python
@@ -484,7 +458,7 @@ from playwrightauthor import Browser
 
 def get_memory_usage():
     process = psutil.Process(os.getpid())
-    return process.memory_info().rss / 1024 / 1024  # MB
+    return process.memory_info().rss / 1024 / 1024
 
 print(f"Initial memory: {get_memory_usage():.1f} MB")
 
@@ -496,8 +470,6 @@ with Browser() as browser:
         page.goto("https://example.com")
         page.close()
         print(f"After page {i+1}: {get_memory_usage():.1f} MB")
-
-print(f"Final memory: {get_memory_usage():.1f} MB")
 ```
 
 **Solutions**:
@@ -508,9 +480,8 @@ with Browser() as browser:
         page = browser.new_page()
         try:
             page.goto(url)
-            # Process page
         finally:
-            page.close()  # Always close pages
+            page.close()
 
 # Limit concurrent pages
 from playwrightauthor.utils import PagePool
@@ -520,7 +491,6 @@ with Browser() as browser:
     for url in urls:
         with pool.get_page(browser) as page:
             page.goto(url)
-            # Page automatically returned to pool
 ```
 
 ## Error Messages and Debugging
@@ -533,24 +503,19 @@ with Browser() as browser:
 page.wait_for_selector("#element", timeout=60000)
 
 # Use better selectors
-page.wait_for_selector("text=Submit")  # Text-based
-page.wait_for_selector("[data-testid='submit']")  # Test ID
+page.wait_for_selector("text=Submit")
+page.wait_for_selector("[data-testid='submit']")
 
-# Check if element exists first
+# Check element exists
 if page.query_selector("#element"):
     page.click("#element")
-else:
-    print("Element not found")
 ```
 
 **"Browser has been closed"**
 ```python
-# Check browser state before operations
+# Check browser state
 if browser.is_connected():
     page = browser.new_page()
-else:
-    print("Browser connection lost")
-    # Reconnect or create new browser
 ```
 
 **"Connection refused"**
@@ -560,13 +525,11 @@ from playwrightauthor.browser.process import is_chrome_debug_running
 
 if not is_chrome_debug_running():
     print("Chrome debug server not running")
-    # Restart Chrome or check configuration
 ```
 
 ### Debug Logging
 
-Enable comprehensive logging:
-
+Enable logging:
 ```python
 import logging
 from playwrightauthor import Browser
@@ -581,7 +544,7 @@ logging.basicConfig(
     ]
 )
 
-# Enable Playwright debug logging
+# Enable Playwright debug
 import os
 os.environ['DEBUG'] = 'pw:api,pw:browser'
 
@@ -595,7 +558,7 @@ with Browser() as browser:
 ```python
 from playwrightauthor import Browser, BrowserConfig
 
-# Show browser for visual debugging
+# Show browser for debugging
 config = BrowserConfig(
     headless=False,
     chrome_args=["--auto-open-devtools-for-tabs"]
@@ -605,10 +568,10 @@ with Browser(config=config) as browser:
     page = browser.new_page()
     page.goto("https://example.com")
     
-    # Pause for manual inspection
-    page.pause()  # Opens Playwright Inspector
+    # Pause for inspection
+    page.pause()
     
-    # Take screenshots at each step
+    # Take screenshots
     page.screenshot(path="step1.png")
     page.click("button")
     page.screenshot(path="step2.png")
@@ -618,24 +581,24 @@ with Browser(config=config) as browser:
 
 ### Windows Issues
 
-**Problem**: Chrome fails to start on Windows
+**Problem**: Chrome fails to start
 
 **Solutions**:
 ```python
-# Use Windows-specific Chrome path
+# Use Windows Chrome path
 config = BrowserConfig(
     chrome_path=r"C:\Program Files\Google\Chrome\Application\chrome.exe"
 )
 
 # Handle Windows path issues
 import os
-if os.name == 'nt':  # Windows
+if os.name == 'nt':
     config.chrome_args.append("--disable-features=VizDisplayCompositor")
 ```
 
 ### macOS Issues
 
-**Problem**: Permission denied on macOS
+**Problem**: Permission denied
 
 **Solutions**:
 ```bash
@@ -648,7 +611,7 @@ brew install --cask google-chrome
 
 ### Linux Issues
 
-**Problem**: Missing dependencies on Linux
+**Problem**: Missing dependencies
 
 **Solutions**:
 ```bash
@@ -677,7 +640,7 @@ Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
 ```python
 from playwrightauthor.diagnostics import collect_diagnostic_info
 
-# Collect system information
+# Collect system info
 info = collect_diagnostic_info()
 print(info)
 ```
@@ -693,38 +656,20 @@ config = BrowserConfig(
 )
 
 with Browser(config=config) as browser:
-    # All operations will be logged
     page = browser.new_page()
     page.goto("https://example.com")
 ```
 
 ### Creating Bug Reports
 
-When reporting issues, include:
-
-1. **System Information**:
-   - Operating system and version
-   - Python version
-   - PlaywrightAuthor version
-   - Chrome version
-
-2. **Configuration**:
-   - Browser configuration used
-   - Environment variables set
-   - Command line arguments
-
-3. **Error Information**:
-   - Complete error message and stack trace
-   - Debug logs if available
-   - Steps to reproduce
-
-4. **Expected vs Actual Behavior**:
-   - What you expected to happen
-   - What actually happened
-   - Any workarounds found
+Include this information:
+1. **System**: OS, Python version, PlaywrightAuthor version, Chrome version
+2. **Configuration**: Browser config, environment variables, arguments
+3. **Error**: Complete message, stack trace, debug logs
+4. **Behavior**: Expected vs actual results, workarounds
 
 ```python
-# Script to collect diagnostic info for bug reports
+# Diagnostic script for bug reports
 import sys
 import platform
 import playwrightauthor
@@ -751,7 +696,7 @@ for var in env_vars:
 
 ## Next Steps
 
-- Review [API Reference](api-reference.md) for detailed method documentation
-- Check [Contributing](contributing.md) to report bugs or contribute fixes
-- Visit the [GitHub Issues](https://github.com/terragond/playwrightauthor/issues) page for known issues
-- Join the community discussions for additional support
+- Review [API Reference](api-reference.md) for method documentation
+- Check [Contributing](contributing.md) to report bugs
+- Visit [GitHub Issues](https://github.com/terragond/playwrightauthor/issues) for known problems
+- Join community discussions for support

@@ -1,783 +1,278 @@
-# Documentation Accessibility Report
-Generated: 2025-08-05 01:47:57
-
-## Summary
-- **Total Files**: 18
-- **Total Issues**: 118
-- **Errors**: 84 ❌
-- **Warnings**: 32 ⚠️
-- **Info**: 2 ℹ️
-
-## Issues by Type
-
-- **Heading Structure**: 116
-- **Language Clarity**: 2
-
-## Detailed Issues
-
-### architecture/browser-lifecycle.md
-**1 issues found**
-
-#### Line 437: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `State Management Options`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### architecture/components.md
-**3 issues found**
-
-#### Line 94: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `2. BrowserManager`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 499: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `9. Exception Hierarchy`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 639: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `2. **Factory Pattern**`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### architecture/error-handling.md
-**1 issues found**
-
-#### Line 558: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Diagnostic Report Format`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### auth/github.md
-**8 issues found**
-
-#### Line 38: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Step 2: Handling 2FA`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 71: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Step 3: Personal Access Token Setup`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 123: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `GitHub Enterprise`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 141: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `OAuth App Authorization`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 191: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 2: Rate Limiting`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 211: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 3: Session Timeout`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 255: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Monitor API Rate Limits`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 298: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Pull Request Automation`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### auth/gmail.md
-**7 issues found**
-
-#### Line 36: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Step 2: Handling 2FA`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 61: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Step 3: Verify Persistent Login`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 94: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Google Workspace (G Suite)`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 110: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `App Passwords (Less Secure Apps Alternative)`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 149: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 3: Session Expires Frequently`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 168: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 4: 2FA Issues`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 207: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Export/Import Profile`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### auth/index.md
-**3 issues found**
-
-#### Line 10: Language Clarity ℹ️
-**Description**: Potentially unclear language detected
-**Recommendation**: Avoid minimizing complexity
-**Element**: `2. **Manual Login**: You log in manually (just onc...`
-**WCAG**: WCAG 2.1 SC 3.1.3 (Unusual Words)
-
-#### Line 62: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Multi-Step Authentication`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 79: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Profile Management`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### auth/linkedin.md
-**9 issues found**
-
-#### Line 40: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Step 2: Handling Security Challenges`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 73: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Step 3: Remember Device`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 113: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `LinkedIn Sales Navigator`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 131: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `LinkedIn Learning`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 177: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 2: CAPTCHA Challenges`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 199: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 3: Account Restrictions`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 242: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Monitor Activity Limits`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 305: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Content Posting`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 332: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Lead Generation`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### auth/troubleshooting.md
-**5 issues found**
-
-#### Line 107: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 2: Network/Connection Problems`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 154: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 3: Cookie/JavaScript Blocked`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 198: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 4: Authentication Failures`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 242: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 5: Session Not Persisting`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 333: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Monitor Authentication Health`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### performance/connection-pooling.md
-**9 issues found**
-
-#### Line 267: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Close all connections'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Close all connections`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 448: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 525: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 540: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `2. Priority Queue Pool`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 602: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 615: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `3. Geographic Pool Distribution`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 657: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 771: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 846: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Connection Warming`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### performance/index.md
-**11 issues found**
-
-#### Line 151: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `CPU Optimization`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 213: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Network Optimization`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 343: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 366: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Page Recycling`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 408: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 417: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Process page...'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Process page...`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 520: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 544: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Real-time Dashboard`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 675: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 687: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Memory Leak Detection`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 747: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-### performance/memory-management.md
-**10 issues found**
-
-#### Line 184: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `2. Resource Blocking`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 224: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 235: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `3. Cache Management`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 296: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 306: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `4. Memory-Aware Automation`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 364: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 429: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Process page'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Process page`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 457: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Memory Leak Detector`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 516: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 597: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-### performance/monitoring.md
-**2 issues found**
-
-#### Line 757: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `OpenTelemetry Integration`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 916: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Usage'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Usage`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-### platforms/index.md
-**7 issues found**
-
-#### Line 43: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Your automation code'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Your automation code`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 48: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Your automation code'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Your automation code`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 154: Heading Structure ⚠️
-**Description**: Duplicate H3 heading: 'macOS'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `macOS`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 162: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Windows`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 162: Heading Structure ⚠️
-**Description**: Duplicate H3 heading: 'Windows'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Windows`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 169: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Linux`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 169: Heading Structure ⚠️
-**Description**: Duplicate H3 heading: 'Linux'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Linux`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-### platforms/linux.md
-**21 issues found**
-
-#### Line 41: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Fedora/CentOS/RHEL`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 55: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Install Chrome'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Install Chrome`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 58: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Or install Chromium'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Or install Chromium`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 62: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Arch Linux`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 68: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Or install Chromium'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Or install Chromium`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 72: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Alpine Linux (Minimal/Docker)`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 87: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Automated Distribution Detection`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 176: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Install Chrome'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Install Chrome`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 183: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Install PlaywrightAuthor'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Install PlaywrightAuthor`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 198: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Docker Compose with VNC Access`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 230: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Kubernetes Deployment`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 310: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Wayland Support`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 342: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Virtual Display (Xvfb)`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 432: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `AppArmor Configuration`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 466: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Running as Non-Root`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 560: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `System Resource Management`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 665: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 2: Chrome Crashes`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 677: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 3: Permission Issues`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 704: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Systemd Service`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 737: Heading Structure ⚠️
-**Description**: Duplicate H3 heading: 'Ubuntu/Debian'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Ubuntu/Debian`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 747: Heading Structure ⚠️
-**Description**: Duplicate H3 heading: 'Arch Linux'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Arch Linux`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-### platforms/macos.md
-**10 issues found**
-
-#### Line 121: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Gatekeeper & Code Signing`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 137: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Handling Gatekeeper in Python`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 163: Heading Structure ⚠️
-**Description**: Duplicate H1 heading: 'Intel Macs'
-**Recommendation**: Use unique headings or add distinguishing context
-**Element**: `Intel Macs`
-**WCAG**: WCAG 2.1 SC 2.4.6 (Headings and Labels)
-
-#### Line 173: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Homebrew Chrome Detection`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 215: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Multiple Display Handling`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 278: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Activity Monitor Integration`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 328: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 2: Chrome Won't Launch`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 381: Language Clarity ℹ️
-**Description**: Potentially unclear language detected
-**Recommendation**: Use specific references instead of "above"
-**Element**: `print("\n⚠️  Fix the issues above before proceedin...`
-**WCAG**: WCAG 2.1 SC 3.1.3 (Unusual Words)
-
-#### Line 384: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 3: Slow Performance`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 406: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `System Integration`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-### platforms/windows.md
-**11 issues found**
-
-#### Line 67: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Windows Defender & Antivirus`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 88: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Programmatic Exclusion Management`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 123: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `PowerShell Execution Policies`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 138: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Python Integration`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 230: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Profile Storage`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 310: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Multi-Monitor Setup`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 380: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Process Priority Management`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 494: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 2: Permission Denied Errors`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 529: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H4
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Issue 3: Corporate Proxy Issues`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 552: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `Windows Services Integration`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-#### Line 635: Heading Structure ❌
-**Description**: Heading level jumps from H1 to H3
-**Recommendation**: Use H2 instead, or restructure content
-**Element**: `AppLocker Considerations`
-**WCAG**: WCAG 2.1 SC 1.3.1 (Info and Relationships)
-
-## Accessibility Guidelines
-
-This report checks for compliance with:
-- **WCAG 2.1 Level AA** standards
-- **Section 508** accessibility requirements
-- **Markdown accessibility** best practices
-
-For more information:
-- [Web Content Accessibility Guidelines (WCAG) 2.1](https://www.w3.org/WAI/WCAG21/quickref/)
-- [Markdown Accessibility Guide](https://daringfireball.net/projects/markdown/syntax)
+# Documentation Accessibility Report  
+Generated: 2025-08-05 01:47:57  
+
+## Summary  
+- **Total Files**: 18  
+- **Total Issues**: 118  
+- **Errors**: 84 ❌  
+- **Warnings**: 32 ⚠️  
+- **Info**: 2 ℹ️  
+
+## Issues by Type  
+
+- **Heading Structure**: 116  
+- **Language Clarity**: 2  
+
+## Detailed Issues  
+
+### architecture/browser-lifecycle.md  
+**1 issue**  
+
+#### Line 437: Heading Structure ❌  
+**Element**: `State Management Options`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2 or restructure  
+
+### architecture/components.md  
+**3 issues**  
+
+#### Line 94: Heading Structure ❌  
+**Element**: `2. BrowserManager`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2 or restructure  
+
+#### Line 499: Heading Structure ❌  
+**Element**: `9. Exception Hierarchy`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2 or restructure  
+
+#### Line 639: Heading Structure ❌  
+**Element**: `2. **Factory Pattern**`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2 or restructure  
+
+### architecture/error-handling.md  
+**1 issue**  
+
+#### Line 558: Heading Structure ❌  
+**Element**: `Diagnostic Report Format`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2 or restructure  
+
+### auth/github.md  
+**8 issues**  
+
+Multiple headings skip levels from H1 to H3:  
+- `Step 2: Handling 2FA` (Line 38)  
+- `Step 3: Personal Access Token Setup` (Line 71)  
+- `GitHub Enterprise` (Line 123)  
+- `OAuth App Authorization` (Line 141)  
+- `Issue 2: Rate Limiting` (Line 191)  
+- `Issue 3: Session Timeout` (Line 211)  
+- `Monitor API Rate Limits` (Line 255)  
+- `Pull Request Automation` (Line 298)  
+
+**Fix all**: Replace H3 with H2 or adjust hierarchy  
+
+### auth/gmail.md  
+**7 issues**  
+
+Headings skipping from H1 to H3:  
+- `Step 2: Handling 2FA` (Line 36)  
+- `Step 3: Verify Persistent Login` (Line 61)  
+- `Google Workspace (G Suite)` (Line 94)  
+- `App Passwords (Less Secure Apps Alternative)` (Line 110)  
+- `Issue 3: Session Expires Frequently` (Line 149)  
+- `Issue 4: 2FA Issues` (Line 168)  
+- `Export/Import Profile` (Line 207)  
+
+**Fix all**: Use H2 instead  
+
+### auth/index.md  
+**3 issues**  
+
+#### Line 10: Language Clarity ℹ️  
+**Element**: `2. **Manual Login**: You log in manually (just onc...`  
+**Problem**: Vague language  
+**Fix**: Clarify that login happens once per session  
+
+#### Line 62: Heading Structure ❌  
+**Element**: `Multi-Step Authentication`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2  
+
+#### Line 79: Heading Structure ❌  
+**Element**: `Profile Management`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2  
+
+### auth/linkedin.md  
+**9 issues**  
+
+Skipped heading levels:  
+- `Step 2: Handling Security Challenges` (Line 40)  
+- `Step 3: Remember Device` (Line 73)  
+- `LinkedIn Sales Navigator` (Line 113)  
+- `LinkedIn Learning` (Line 131)  
+- `Issue 2: CAPTCHA Challenges` (Line 177)  
+- `Issue 3: Account Restrictions` (Line 199)  
+- `Monitor Activity Limits` (Line 242)  
+- `Content Posting` (Line 305)  
+- `Lead Generation` (Line 332)  
+
+**Fix all**: Use H2  
+
+### auth/troubleshooting.md  
+**5 issues**  
+
+Headings skip from H1 to H3:  
+- `Issue 2: Network/Connection Problems` (Line 107)  
+- `Issue 3: Cookie/JavaScript Blocked` (Line 154)  
+- `Issue 4: Authentication Failures` (Line 198)  
+- `Issue 5: Session Not Persisting` (Line 242)  
+- `Monitor Authentication Health` (Line 333)  
+
+**Fix all**: Use H2  
+
+### performance/connection-pooling.md  
+**9 issues**  
+
+Duplicate H1 headings:  
+- `Close all connections` (Line 267)  
+- `Usage` (Lines 448, 525, 602, 657, 771)  
+
+Skipped heading levels:  
+- `2. Priority Queue Pool` (Line 540)  
+- `3. Geographic Pool Distribution` (Line 615)  
+- `Connection Warming` (Line 846)  
+
+**Fix**: Make heading text unique or add context. Use H2 where skipping occurs  
+
+### performance/index.md  
+**11 issues**  
+
+Duplicate H1 headings:  
+- `Usage` (Lines 343, 408, 520, 675, 747)  
+- `Process page...` (Line 417)  
+
+Skipped heading levels:  
+- `CPU Optimization` (Line 151)  
+- `Network Optimization` (Line 213)  
+- `Page Recycling` (Line 366)  
+- `Real-time Dashboard` (Line 544)  
+- `Memory Leak Detection` (Line 687)  
+
+**Fix**: Rename duplicates; replace skipped H3s with H2  
+
+### performance/memory-management.md  
+**10 issues**  
+
+Duplicate H1 headings:  
+- `Usage` (Lines 224, 296, 364, 516, 597)  
+- `Process page` (Line 429)  
+
+Skipped heading levels:  
+- `2. Resource Blocking` (Line 184)  
+- `3. Cache Management` (Line 235)  
+- `4. Memory-Aware Automation` (Line 306)  
+- `Memory Leak Detector` (Line 457)  
+
+**Fix**: Add distinguishing context to duplicates; use H2 for skips  
+
+### performance/monitoring.md  
+**2 issues**  
+
+#### Line 757: Heading Structure ❌  
+**Element**: `OpenTelemetry Integration`  
+**Problem**: Skips from H1 to H3  
+**Fix**: Use H2  
+
+#### Line 916: Heading Structure ⚠️  
+**Element**: `Usage`  
+**Problem**: Duplicate H1  
+**Fix**: Add context  
+
+### platforms/index.md  
+**7 issues**  
+
+Duplicate H1 headings:  
+- `Your automation code` (Lines 43, 48)  
+
+Duplicate H3 headings:  
+- `macOS` (Line 154)  
+- `Windows` (Line 162)  
+- `Linux` (Line 169)  
+
+**Fix**: Distinguish heading content  
+
+### platforms/linux.md  
+**21 issues**  
+
+Duplicate H1 headings:  
+- `Install Chrome` (Lines 55, 176)  
+- `Or install Chromium` (Lines 58, 68)  
+- `Install PlaywrightAuthor` (Line 183)  
+
+Skipped heading levels:  
+- `Fedora/CentOS/RHEL` (Line 41)  
+- `Arch Linux` (Line 62)  
+- `Alpine Linux (Minimal/Docker)` (Line 72)  
+- `Automated Distribution Detection` (Line 87)  
+- `Docker Compose with VNC Access` (Line 198)  
+- `Kubernetes Deployment` (Line 230)  
+- `Wayland Support` (Line 310)  
+- `Virtual Display (Xvfb)` (Line 342)  
+- `AppArmor Configuration` (Line 432)  
+- `Running as Non-Root` (Line 466)  
+- `System Resource Management` (Line 560)  
+- `Issue 2: Chrome Crashes` (Line 665)  
+- `Issue 3: Permission Issues` (Line 677)  
+- `Systemd Service` (Line 704)  
+
+Duplicate H3 headings:  
+- `Ubuntu/Debian` (Line 737)  
+- `Arch Linux` (Line 747)  
+
+**Fix**: Distinguish duplicate headings; replace skipped H3/H4 with H2  
+
+### platforms/macos.md  
+**10 issues**  
+
+Duplicate H1 heading:  
+- `Intel Macs` (Line 163)  
+
+Skipped heading levels:  
+- `Gatekeeper & Code Signing` (Line 121)  
+- `Handling Gatekeeper in Python` (Line 137)  
+- `Homebrew Chrome Detection` (Line 173)  
+- `Multiple Display Handling` (Line 215)  
+- `Activity Monitor Integration` (Line 278)  
+- `Issue 2: Chrome Won't Launch` (Line 328)  
+- `Issue 3: Slow Performance` (Line 384)  
+- `System Integration` (Line 406)  
+
+#### Line 381: Language Clarity ℹ️  
+**Element**: `print("\n⚠️  Fix the issues above before proceedin...`  
+**Problem**: Unclear reference to "above"  
+**Fix**: Specify which issues  
+
+**Fix**: Rename duplicates; replace skips with H2  
+
+### platforms/windows.md  
+**11 issues**  
+
+Skipped heading levels:  
+- `Windows Defender & Antivirus` (Line 67)  
+- `Programmatic Exclusion Management` (Line 88)  
+- `PowerShell Execution Policies` (Line 123)  
+- `Python Integration` (Line 138)  
+- `Profile Storage` (Line 230)  
+- `Multi-Monitor Setup` (Line 310)  
+- `Process Priority Management` (Line 380)  
+- `Issue 2: Permission Denied Errors` (Line 494)  
+- `Issue 3: Corporate Proxy Issues` (Line 529)  
+- `Windows Services Integration` (Line 552)  
+- `AppLocker Considerations` (Line 635)  
+
+**Fix**: Replace skipped H3/H4 with H2  
+
+## Accessibility Guidelines  
+
+Checked against:  
+- **WCAG 2.1 Level AA**  
+- **Section 508**  
+- **Markdown accessibility** best practices  
+
+Resources:  
+- [WCAG 2.1 Quick Reference](https://www.w3.org/WAI/WCAG21/quickref/)  
+- [Markdown Syntax Guide](https://daringfireball.net/projects/markdown/syntax)

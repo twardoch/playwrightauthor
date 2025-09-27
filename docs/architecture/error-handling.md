@@ -1,8 +1,8 @@
 # Error Handling & Recovery
 
-This document details PlaywrightAuthor's comprehensive error handling system, recovery mechanisms, and user guidance features.
+This document details PlaywrightAuthor's error handling system, recovery mechanisms, and user guidance features.
 
-## 🎯 Error Handling Philosophy
+## Error Handling Philosophy
 
 PlaywrightAuthor follows these principles for error handling:
 
@@ -12,7 +12,7 @@ PlaywrightAuthor follows these principles for error handling:
 4. **Preserve Data**: Never lose user sessions or data
 5. **Learn & Adapt**: Use errors to improve future reliability
 
-## 🏗️ Exception Hierarchy
+## Exception Hierarchy
 
 ```mermaid
 graph TD
@@ -42,7 +42,7 @@ graph TD
     style StateError fill:#ffff99
 ```
 
-## 📋 Exception Details
+## Exception Details
 
 ### Base Exception
 
@@ -63,13 +63,13 @@ class PlaywrightAuthorError(Exception):
     
     def _format_message(self) -> str:
         """Format exception with guidance."""
-        parts = [f"❌ {self.message}"]
+        parts = [f"Error: {self.message}"]
         
         if self.suggestion:
-            parts.append(f"\n💡 Suggestion: {self.suggestion}")
+            parts.append(f"\nSuggestion: {self.suggestion}")
         
         if self.diagnostic_info:
-            parts.append("\n📊 Diagnostic Info:")
+            parts.append("\nDiagnostic Info:")
             for key, value in self.diagnostic_info.items():
                 parts.append(f"   {key}: {value}")
         
@@ -137,7 +137,7 @@ class ConnectionTimeoutError(NetworkError):
         )
 ```
 
-## 🔄 Retry Mechanisms
+## Retry Mechanisms
 
 ### Connection Retry Strategy
 
@@ -209,7 +209,7 @@ class RetryStrategy:
         return min(delay, self.max_delay)
 ```
 
-## 🛡️ Recovery Mechanisms
+## Recovery Mechanisms
 
 ### Browser Crash Recovery
 
@@ -308,7 +308,7 @@ class BrowserRecovery:
             raise
 ```
 
-## 💡 User Guidance System
+## User Guidance System
 
 ### Intelligent Error Messages
 
@@ -366,25 +366,25 @@ def interactive_error_handler(error: PlaywrightAuthorError):
     console = Console()
     
     # Display error
-    console.print(f"\n[red]❌ Error:[/red] {error.message}")
+    console.print(f"\nError: {error.message}")
     
     if error.suggestion:
-        console.print(f"\n[yellow]💡 Suggestion:[/yellow]")
+        console.print(f"\nSuggestion:")
         console.print(error.suggestion)
     
     # Offer automated fixes
     if hasattr(error, 'auto_fix_available'):
-        if Confirm.ask("\n🔧 Would you like to try automatic fix?"):
+        if Confirm.ask("\nWould you like to try automatic fix?"):
             try:
                 error.auto_fix()
-                console.print("[green]✅ Fixed automatically![/green]")
+                console.print("Fixed automatically!")
                 return True
             except Exception as e:
-                console.print(f"[red]Auto-fix failed: {e}[/red]")
+                console.print(f"Auto-fix failed: {e}")
     
     # Interactive troubleshooting
     if hasattr(error, 'troubleshooting_steps'):
-        console.print("\n[cyan]🔍 Troubleshooting Steps:[/cyan]")
+        console.print("\nTroubleshooting Steps:")
         
         for i, step in enumerate(error.troubleshooting_steps, 1):
             console.print(f"{i}. {step['description']}")
@@ -400,7 +400,7 @@ def interactive_error_handler(error: PlaywrightAuthorError):
     return False
 ```
 
-## 🏥 Health Check System
+## Health Check System
 
 ### Health Check Flow
 
@@ -483,7 +483,7 @@ class HealthMetrics:
         return max(0, score)
 ```
 
-## 🔍 Diagnostic Tools
+## Diagnostic Tools
 
 ### Built-in Diagnostics
 
@@ -579,7 +579,7 @@ class DiagnosticReport:
         
         # Add recommendations
         if self.recommendations:
-            lines.append("## 🔧 Recommendations")
+            lines.append("## Recommendations")
             lines.append("")
             
             for i, rec in enumerate(self.recommendations, 1):
@@ -599,7 +599,7 @@ class DiagnosticReport:
         }, indent=2)
 ```
 
-## 📊 Error Patterns & Solutions
+## Error Patterns & Solutions
 
 ### Common Error Patterns
 
@@ -662,7 +662,7 @@ graph TD
 | Network error | Retry | Check proxy | Validate connectivity |
 | Out of memory | Clear cache | Restart system | Monitor usage |
 
-## 🛠️ Configuration Options
+## Configuration Options
 
 ### Error Handling Configuration
 
@@ -694,7 +694,7 @@ class ErrorHandlingConfig:
     unhealthy_threshold: int = 3
 ```
 
-## 🔐 Security Considerations
+## Security Considerations
 
 ### Error Information Disclosure
 
@@ -710,7 +710,7 @@ class ErrorHandlingConfig:
 3. **Resource Limits**: Prevent resource exhaustion attacks
 4. **Audit Trail**: Log all recovery attempts
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Component Architecture](components.md)
 - [Browser Lifecycle](browser-lifecycle.md)

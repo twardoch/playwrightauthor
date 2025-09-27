@@ -1,16 +1,16 @@
 # PlaywrightAuthor + FastAPI Integration
 
-This example demonstrates how to build a web scraping API service using PlaywrightAuthor with FastAPI.
+This example shows how to build a web scraping API using PlaywrightAuthor and FastAPI.
 
-## Features Demonstrated
+## Features
 
-- **Async API Endpoints**: High-performance async web scraping endpoints
-- **Browser Pool Management**: Efficient browser resource management
-- **Error Handling**: Robust error handling and response formatting
-- **Rate Limiting**: Basic rate limiting for API protection
-- **Data Extraction**: Common web scraping patterns and data extraction
-- **Authentication Handling**: Managing authenticated scraping scenarios
-- **Caching**: Response caching for improved performance
+- **Async API Endpoints**: Non-blocking scraping operations
+- **Browser Pool Management**: Reuse browser instances for efficiency
+- **Error Handling**: Proper HTTP error responses
+- **Rate Limiting**: Throttle requests per minute
+- **Data Extraction**: Extract titles, links, text, or custom elements
+- **Authentication Handling**: Scrape pages that require login
+- **Caching**: Cache results to reduce redundant work
 
 ## Installation
 
@@ -21,30 +21,30 @@ pip install playwrightauthor fastapi uvicorn python-multipart
 ## Running the API
 
 ```bash
-# Development server
+# Development
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-# Production server
+# Production
 uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 ## API Endpoints
 
 ### Basic Scraping
-- `GET /scrape?url={url}` - Basic page scraping
-- `POST /scrape/batch` - Batch scraping multiple URLs
-- `GET /scrape/screenshot?url={url}` - Page screenshot generation
+- `GET /scrape?url={url}` - Scrape a single page
+- `POST /scrape/batch` - Scrape multiple URLs
+- `GET /scrape/screenshot?url={url}` - Take a screenshot
 
 ### Content Extraction
-- `GET /extract/title?url={url}` - Extract page title
-- `GET /extract/links?url={url}` - Extract all links
-- `GET /extract/text?url={url}` - Extract page text content
-- `POST /extract/custom` - Custom CSS selector extraction
+- `GET /extract/title?url={url}` - Get page title
+- `GET /extract/links?url={url}` - Get all links
+- `GET /extract/text?url={url}` - Get visible text
+- `POST /extract/custom` - Extract using CSS selectors
 
 ### Advanced Features
-- `GET /scrape/authenticated?url={url}&profile={profile}` - Authenticated scraping
-- `GET /scrape/wait?url={url}&selector={selector}` - Wait for element scraping
-- `GET /health` - API health check
+- `GET /scrape/authenticated?url={url}&profile={profile}` - Scrape with login
+- `GET /scrape/wait?url={url}&selector={selector}` - Wait for an element
+- `GET /health` - Health check endpoint
 
 ## Example Usage
 
@@ -77,8 +77,8 @@ curl -X POST "http://localhost:8000/scrape/batch" \
 
 ## Configuration
 
-Set environment variables:
+Environment variables:
 - `BROWSER_POOL_SIZE`: Number of browser instances (default: 3)
-- `REQUEST_TIMEOUT`: Request timeout in seconds (default: 30)
+- `REQUEST_TIMEOUT`: Timeout in seconds (default: 30)
 - `RATE_LIMIT_REQUESTS`: Requests per minute (default: 60)
-- `CACHE_TTL`: Cache time-to-live in seconds (default: 300)
+- `CACHE_TTL`: Cache expiry in seconds (default: 300)

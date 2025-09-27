@@ -1,14 +1,14 @@
 # PlaywrightAuthor + pytest Integration
 
-This example demonstrates how to integrate PlaywrightAuthor with pytest for robust browser automation testing.
+This example shows how to integrate PlaywrightAuthor with pytest for browser automation testing.
 
-## Features Demonstrated
+## Features
 
 - **Pytest Fixtures**: Reusable browser setup with proper teardown
 - **Profile Management**: Testing with different user profiles
-- **Error Handling**: Robust error handling and recovery
-- **Parallel Testing**: Running tests concurrently with different profiles
-- **Authentication Testing**: Testing login flows and authenticated scenarios
+- **Error Handling**: Error handling and recovery
+- **Parallel Testing**: Concurrent test execution with different profiles
+- **Authentication Testing**: Login flows and authenticated scenarios
 - **Performance Testing**: Basic performance assertions
 
 ## Installation
@@ -46,8 +46,8 @@ pytest -m "performance"
 
 ## Best Practices
 
-1. **Use Fixtures**: Always use pytest fixtures for browser setup
+1. **Use Fixtures**: Use pytest fixtures for browser setup
 2. **Profile Isolation**: Use different profiles for different test categories
-3. **Error Recovery**: Implement proper error handling and cleanup
+3. **Error Recovery**: Implement error handling and cleanup
 4. **Timeouts**: Set appropriate timeouts for network operations
 5. **Parallel Safe**: Ensure tests can run in parallel without conflicts

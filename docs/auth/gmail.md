@@ -1,8 +1,8 @@
 # Gmail/Google Authentication Guide
 
-This guide covers authenticating with Gmail and Google services using PlaywrightAuthor.
+This guide shows how to authenticate with Gmail and Google services using PlaywrightAuthor.
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before starting:
 
@@ -10,7 +10,7 @@ Before starting:
 2. **2FA Considerations**: Have your phone or authenticator app ready
 3. **Browser Permissions**: Ensure Chrome has necessary permissions (especially on macOS)
 
-## 🚀 Step-by-Step Authentication
+## Authentication Steps
 
 ### Step 1: Initial Setup
 
@@ -28,9 +28,9 @@ with Browser() as browser:
     # Wait for successful login (inbox appears)
     try:
         page.wait_for_selector('div[role="main"]', timeout=300000)  # 5 minutes
-        print("✅ Login successful!")
+        print("Login successful!")
     except:
-        print("❌ Login timeout - please try again")
+        print("Login timeout - please try again")
 ```
 
 ### Step 2: Handling 2FA
@@ -55,7 +55,7 @@ with Browser() as browser:
     
     # Wait for successful authentication
     page.wait_for_url("**/myaccount.google.com/**", timeout=120000)
-    print("✅ 2FA completed successfully!")
+    print("2FA completed successfully!")
 ```
 
 ### Step 3: Verify Persistent Login
@@ -68,12 +68,12 @@ with Browser() as browser:
     
     # Should load directly to inbox without login
     if page.url.startswith("https://mail.google.com/mail/"):
-        print("✅ Authentication persisted successfully!")
+        print("Authentication persisted successfully!")
     else:
-        print("❌ Authentication not persisted - please login again")
+        print("Authentication not persisted - please login again")
 ```
 
-## 🔧 Advanced Scenarios
+## Advanced Scenarios
 
 ### Multiple Google Accounts
 
@@ -107,7 +107,7 @@ with Browser() as browser:
     print("Complete your organization's login process...")
 ```
 
-### App Passwords (Less Secure Apps Alternative)
+### App Passwords
 
 For automation, consider using App Passwords:
 
@@ -116,7 +116,7 @@ For automation, consider using App Passwords:
 3. Generate an app-specific password
 4. Use it in your automation scripts
 
-## 🚨 Common Issues & Solutions
+## Common Issues
 
 ### Issue 1: "Couldn't sign you in" Error
 
@@ -165,7 +165,7 @@ print(f"Profile stored at: {profile_path}")
 print(f"Profile exists: {profile_path.exists()}")
 ```
 
-### Issue 4: 2FA Issues
+### Issue 4: 2FA Problems
 
 **Symptoms**: Can't complete 2FA
 
@@ -174,7 +174,7 @@ print(f"Profile exists: {profile_path.exists()}")
 2. Set up a dedicated automation account
 3. Use Google's Advanced Protection for better security
 
-## 📊 Monitoring & Maintenance
+## Monitoring
 
 ### Check Authentication Status
 
@@ -201,7 +201,7 @@ def check_gmail_auth():
             return False, f"Unknown state: {page.url}"
 
 status, message = check_gmail_auth()
-print(f"{'✅' if status else '❌'} {message}")
+print(f"{'✓' if status else '✗'} {message}")
 ```
 
 ### Export/Import Profile
@@ -214,7 +214,7 @@ playwrightauthor profile export work --output work-profile.zip
 playwrightauthor profile import work --input work-profile.zip
 ```
 
-## 💡 Best Practices
+## Best Practices
 
 1. **Dedicated Accounts**: Use separate Google accounts for automation
 2. **Regular Checks**: Monitor authentication status weekly
@@ -222,7 +222,7 @@ playwrightauthor profile import work --input work-profile.zip
 4. **Error Handling**: Always implement retry logic
 5. **Rate Limiting**: Add delays between actions to avoid detection
 
-## 🔐 Security Considerations
+## Security
 
 1. **Never hardcode passwords** in your scripts
 2. **Use environment variables** for sensitive data
@@ -230,7 +230,7 @@ playwrightauthor profile import work --input work-profile.zip
 4. **Regularly rotate** app passwords
 5. **Monitor account activity** for unauthorized access
 
-## 📚 Additional Resources
+## Resources
 
 - [Google Account Security](https://myaccount.google.com/security)
 - [App Passwords Guide](https://support.google.com/accounts/answer/185833)

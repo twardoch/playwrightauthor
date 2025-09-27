@@ -1,12 +1,12 @@
 # Contributing
 
-Thank you for your interest in contributing to PlaywrightAuthor! This guide will help you get started with development, testing, and submitting contributions.
+PlaywrightAuthor welcomes contributions. This guide covers setup, development workflow, coding standards, testing, and pull requests.
 
 ## Development Setup
 
 ### Prerequisites
 
-- **Python 3.8+** (recommended: 3.11+)
+- **Python 3.8+** (3.11+ recommended)
 - **Git** for version control
 - **uv** for dependency management
 - **Chrome or Chromium** for testing
@@ -56,7 +56,7 @@ git checkout -b feature/your-feature-name
 git checkout -b fix/issue-description
 ```
 
-2. **Make Changes**: Follow the coding standards below
+2. **Make Changes**: Follow coding standards below
 
 3. **Run Quality Checks**:
 ```bash
@@ -90,8 +90,6 @@ git push origin feature/your-feature-name
 
 ### Code Style
 
-PlaywrightAuthor follows strict code quality standards:
-
 **Python Standards**:
 - **PEP 8**: Formatting and naming conventions
 - **PEP 20**: Keep code simple and explicit
@@ -111,9 +109,6 @@ PlaywrightAuthor follows strict code quality standards:
 
 """
 Example module demonstrating coding standards.
-
-This module shows the expected code style, documentation,
-and patterns for PlaywrightAuthor contributions.
 """
 
 from pathlib import Path
@@ -152,12 +147,10 @@ class ExampleClass:
         if not data:
             raise ValueError("Data cannot be empty")
         
-        # Process data with error handling
         results = {"processed": len(data), "errors": []}
         
         for item in data:
             try:
-                # Processing logic here
                 self._process_item(item)
             except Exception as e:
                 logger.warning(f"Failed to process item: {e}")
@@ -167,7 +160,6 @@ class ExampleClass:
     
     def _process_item(self, item: dict) -> None:
         """Private method to process individual item."""
-        # Implementation details
         pass
 ```
 
@@ -178,9 +170,6 @@ class ExampleClass:
 def function_name(param1: str, param2: int = 10) -> bool:
     """
     Brief one-line description of what the function does.
-    
-    Longer description if needed, explaining the purpose,
-    behavior, and any important details.
     
     Args:
         param1: Description of first parameter
@@ -225,16 +214,16 @@ Tests are organized in the `tests/` directory:
 
 ```
 tests/
-├── unit/                 # Unit tests
+├── unit/
 │   ├── test_browser.py
 │   ├── test_config.py
 │   └── test_finder.py
-├── integration/          # Integration tests  
+├── integration/
 │   ├── test_browser_manager.py
 │   └── test_auth.py
-├── e2e/                 # End-to-end tests
+├── e2e/
 │   └── test_full_workflow.py
-└── conftest.py          # Pytest configuration
+└── conftest.py
 ```
 
 ### Writing Tests
@@ -339,7 +328,6 @@ class TestBrowserManager:
         
         # Test cleanup
         manager.cleanup()
-        # Verify process is terminated
     
     @pytest.mark.slow
     def test_chrome_download(self):
@@ -398,7 +386,6 @@ def chrome_executable():
     try:
         return find_chrome()
     except Exception:
-        # Download Chrome for Testing if not found
         from playwrightauthor.browser.installer import ChromeInstaller
         installer = ChromeInstaller()
         return installer.install_latest()
@@ -459,8 +446,8 @@ Documentation is built with MkDocs Material:
 
 ```
 src_docs/
-├── mkdocs.yml           # MkDocs configuration
-└── md/                  # Markdown files
+├── mkdocs.yml
+└── md/
     ├── index.md
     ├── getting-started.md
     ├── basic-usage.md
@@ -551,7 +538,7 @@ Detailed explanation of the example.
 
 ### Conventional Commits
 
-Use conventional commit format for clear change tracking:
+Use conventional commit format:
 
 ```bash
 # Feature additions
@@ -785,11 +772,10 @@ Instead:
 
 ## Thank You
 
-Thank you for contributing to PlaywrightAuthor! Your contributions help make browser automation more accessible and reliable for everyone.
+Your contributions help make browser automation more accessible and reliable.
 
 ## Next Steps
 
 - Review the [API Reference](api-reference.md) for implementation details
 - Check [Troubleshooting](troubleshooting.md) for common development issues
 - Join GitHub Discussions to connect with other contributors
-- Star the repository to show your support!

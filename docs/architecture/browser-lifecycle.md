@@ -2,7 +2,7 @@
 
 This document details how PlaywrightAuthor manages the Chrome browser lifecycle from installation to connection management.
 
-## 🔄 Lifecycle Overview
+## Lifecycle Overview
 
 ```mermaid
 graph TD
@@ -31,7 +31,7 @@ graph TD
     style KeepAlive fill:#66bb6a
 ```
 
-## 🚀 Phase 1: Discovery & Installation
+## Phase 1: Discovery & Installation
 
 ### Chrome Discovery Process
 
@@ -101,7 +101,7 @@ Key features:
 - Progress reporting during download
 - Atomic installation (no partial installs)
 
-## 🎯 Phase 2: Process Management
+## Phase 2: Process Management
 
 ### Chrome Launch Sequence
 
@@ -186,7 +186,7 @@ graph TB
 
 **Implementation**: `src/playwrightauthor/monitoring.py`
 
-## 🔌 Phase 3: Connection Management
+## Phase 3: Connection Management
 
 ### CDP Connection Flow
 
@@ -242,7 +242,7 @@ graph LR
 
 **Implementation**: `src/playwrightauthor/connection.py`
 
-## 💾 Phase 4: State Persistence
+## Phase 4: State Persistence
 
 ### Profile Management
 
@@ -315,7 +315,7 @@ sequenceDiagram
     Website-->>Chrome: Authenticated Content
 ```
 
-## 🛡️ Phase 5: Cleanup & Recovery
+## Phase 5: Cleanup & Recovery
 
 ### Graceful Shutdown
 
@@ -361,7 +361,7 @@ flowchart TD
     style Fail fill:#ff5252
 ```
 
-## 📊 Performance Considerations
+## Performance Considerations
 
 ### Connection Pooling (Future)
 
@@ -410,7 +410,7 @@ graph LR
     end
 ```
 
-## 🔧 Configuration Options
+## Configuration Options
 
 ### Browser Launch Configuration
 
@@ -445,7 +445,7 @@ state_config = {
 }
 ```
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Component Details](components.md)
 - [Error Handling](error-handling.md)

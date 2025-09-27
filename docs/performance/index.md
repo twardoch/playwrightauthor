@@ -1,19 +1,19 @@
 # Performance Optimization Guide
 
-This guide provides comprehensive strategies for optimizing PlaywrightAuthor performance, managing resources efficiently, and debugging performance issues.
+This guide covers strategies for optimizing PlaywrightAuthor performance, managing resources efficiently, and debugging performance issues.
 
-## 🎯 Performance Overview
+## Performance Overview
 
-PlaywrightAuthor is designed for efficiency, but performance can vary based on:
+PlaywrightAuthor performance depends on:
 - Hardware resources (CPU, RAM, disk)
 - Number of browser instances
 - Page complexity and JavaScript execution
 - Network conditions
 - Profile size and cache
 
-## 📊 Performance Benchmarks
+## Performance Benchmarks
 
-### Baseline Performance Metrics
+### Baseline Metrics
 
 | Operation | Cold Start | Warm Start | Memory Usage | CPU Usage |
 |-----------|------------|------------|--------------|-----------|
@@ -31,14 +31,13 @@ PlaywrightAuthor is designed for efficiency, but performance can vary based on:
 | Concurrent Operations | 3-5 | 10-15 | CPU/Network |
 | Profile Size | <100MB | <1GB | Disk I/O |
 
-## 🚀 Quick Optimizations
+## Quick Optimizations
 
 ```python
 from playwrightauthor import Browser
 
 # Optimal configuration for performance
 PERFORMANCE_CONFIG = {
-    # Browser settings
     'args': [
         '--disable-blink-features=AutomationControlled',
         '--disable-dev-shm-usage',  # Use disk instead of shared memory
@@ -58,11 +57,10 @@ PERFORMANCE_CONFIG = {
 }
 
 with Browser(**PERFORMANCE_CONFIG) as browser:
-    # Optimized browser instance
     pass
 ```
 
-## 📈 Resource Optimization Strategies
+## Resource Optimization Strategies
 
 ### Memory Management
 
@@ -92,21 +90,17 @@ import psutil
 import os
 
 class MemoryOptimizedBrowser:
-    """Browser with memory optimization features."""
-    
     def __init__(self, memory_limit_mb: int = 1024):
         self.memory_limit_mb = memory_limit_mb
         self.browser = None
         self.pages = []
     
     def check_memory(self):
-        """Check current memory usage."""
         process = psutil.Process(os.getpid())
         memory_mb = process.memory_info().rss / 1024 / 1024
         return memory_mb
     
     def optimize_memory(self):
-        """Optimize memory usage."""
         # Close old pages
         if len(self.pages) > 5:
             for page in self.pages[:-5]:
@@ -121,7 +115,6 @@ class MemoryOptimizedBrowser:
         gc.collect()
     
     def new_page_with_limit(self):
-        """Create new page with memory checking."""
         current_memory = self.check_memory()
         
         if current_memory > self.memory_limit_mb:
@@ -141,11 +134,9 @@ with Browser() as browser:
     optimizer = MemoryOptimizedBrowser()
     optimizer.browser = browser
     
-    # Create pages with memory management
     for i in range(20):
         page = optimizer.new_page_with_limit()
         page.goto("https://example.com")
-        # Process page...
 ```
 
 ### CPU Optimization
@@ -156,24 +147,19 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class CPUOptimizedAutomation:
-    """CPU-efficient automation strategies."""
-    
     @staticmethod
     def throttle_operations(operations: list, max_concurrent: int = 3, delay: float = 0.5):
-        """Throttle operations to prevent CPU spikes."""
         results = []
         
         with ThreadPoolExecutor(max_workers=max_concurrent) as executor:
-            # Submit operations with delay
             futures = []
             for i, operation in enumerate(operations):
                 if i > 0:
-                    time.sleep(delay)  # Delay between submissions
+                    time.sleep(delay)
                 
                 future = executor.submit(operation)
                 futures.append(future)
             
-            # Collect results
             for future in as_completed(futures):
                 results.append(future.result())
         
@@ -181,30 +167,25 @@ class CPUOptimizedAutomation:
     
     @staticmethod
     def batch_process_pages(urls: list, process_func, batch_size: int = 5):
-        """Process pages in batches to manage CPU."""
         results = []
         
         with Browser() as browser:
             for i in range(0, len(urls), batch_size):
                 batch = urls[i:i + batch_size]
                 
-                # Process batch
                 pages = []
                 for url in batch:
                     page = browser.new_page()
                     page.goto(url)
                     pages.append(page)
                 
-                # Process all pages in batch
                 for page in pages:
                     result = process_func(page)
                     results.append(result)
                 
-                # Clean up batch
                 for page in pages:
                     page.close()
                 
-                # Cool down between batches
                 time.sleep(1)
         
         return results
@@ -214,18 +195,12 @@ class CPUOptimizedAutomation:
 
 ```python
 class NetworkOptimizedBrowser:
-    """Network optimization strategies."""
-    
     @staticmethod
     def configure_network_optimizations(page):
-        """Configure page for network efficiency."""
-        
-        # Block unnecessary resources
         def handle_route(route):
             resource_type = route.request.resource_type
             url = route.request.url
             
-            # Block non-essential resources
             blocked_types = ['image', 'media', 'font', 'stylesheet']
             blocked_domains = ['googletagmanager.com', 'google-analytics.com', 'doubleclick.net']
             
@@ -237,16 +212,10 @@ class NetworkOptimizedBrowser:
                 route.continue_()
         
         page.route("**/*", handle_route)
-        
-        # Enable cache
         page.context.set_offline(False)
-        
-        # Set network conditions (optional throttling)
-        # page.context.set_extra_http_headers({'Save-Data': 'on'})
     
     @staticmethod
     def parallel_fetch(urls: list, max_concurrent: int = 5):
-        """Fetch multiple URLs in parallel."""
         from concurrent.futures import ThreadPoolExecutor
         
         def fetch_url(url):
@@ -271,7 +240,7 @@ class NetworkOptimizedBrowser:
         return results
 ```
 
-## 🔄 Connection Pooling
+## Connection Pooling
 
 ### Browser Pool Implementation
 
@@ -282,8 +251,6 @@ import time
 from contextlib import contextmanager
 
 class BrowserPool:
-    """Reusable browser instance pool."""
-    
     def __init__(self, min_size: int = 2, max_size: int = 10):
         self.min_size = min_size
         self.max_size = max_size
@@ -291,32 +258,26 @@ class BrowserPool:
         self.size = 0
         self.lock = threading.Lock()
         
-        # Pre-populate pool
         self._initialize_pool()
     
     def _initialize_pool(self):
-        """Create initial browser instances."""
         for _ in range(self.min_size):
             browser = self._create_browser()
             self.pool.put(browser)
             self.size += 1
     
     def _create_browser(self):
-        """Create new browser instance."""
         from playwrightauthor import Browser
         return Browser().__enter__()
     
     @contextmanager
     def get_browser(self, timeout: float = 30):
-        """Get browser from pool."""
         browser = None
         
         try:
-            # Try to get from pool
             try:
                 browser = self.pool.get(timeout=timeout)
             except queue.Empty:
-                # Create new if under limit
                 with self.lock:
                     if self.size < self.max_size:
                         browser = self._create_browser()
@@ -327,12 +288,10 @@ class BrowserPool:
             yield browser
             
         finally:
-            # Return to pool
             if browser:
                 self.pool.put(browser)
     
     def shutdown(self):
-        """Close all browsers in pool."""
         while not self.pool.empty():
             try:
                 browser = self.pool.get_nowait()
@@ -343,7 +302,6 @@ class BrowserPool:
 # Usage
 pool = BrowserPool(min_size=3, max_size=10)
 
-# Use browsers from pool
 urls = ["https://example.com", "https://google.com", "https://github.com"]
 
 def process_url(url):
@@ -353,9 +311,6 @@ def process_url(url):
         title = page.title()
         page.close()
         return title
-
-# Process URLs using pool
-from concurrent.futures import ThreadPoolExecutor
 
 with ThreadPoolExecutor(max_workers=5) as executor:
     results = list(executor.map(process_url, urls * 10))
@@ -367,8 +322,6 @@ pool.shutdown()
 
 ```python
 class PageRecycler:
-    """Recycle pages instead of creating new ones."""
-    
     def __init__(self, browser, max_pages: int = 10):
         self.browser = browser
         self.max_pages = max_pages
@@ -376,32 +329,25 @@ class PageRecycler:
         self.all_pages = []
     
     def get_page(self):
-        """Get recycled or new page."""
         try:
-            # Try to get recycled page
             page = self.available_pages.get_nowait()
             
-            # Reset page state
             page.goto("about:blank")
             page.evaluate("() => { localStorage.clear(); sessionStorage.clear(); }")
             
         except queue.Empty:
-            # Create new page if under limit
             if len(self.all_pages) < self.max_pages:
                 page = self.browser.new_page()
                 self.all_pages.append(page)
             else:
-                # Wait for available page
                 page = self.available_pages.get()
         
         return page
     
     def return_page(self, page):
-        """Return page to pool for recycling."""
         self.available_pages.put(page)
     
     def cleanup(self):
-        """Close all pages."""
         for page in self.all_pages:
             page.close()
 
@@ -409,19 +355,17 @@ class PageRecycler:
 with Browser() as browser:
     recycler = PageRecycler(browser)
     
-    # Process many URLs with page recycling
     for url in urls:
         page = recycler.get_page()
         try:
             page.goto(url)
-            # Process page...
         finally:
             recycler.return_page(page)
     
     recycler.cleanup()
 ```
 
-## 📊 Monitoring & Profiling
+## Monitoring & Profiling
 
 ### Performance Monitoring
 
@@ -434,7 +378,6 @@ import statistics
 
 @dataclass
 class PerformanceMetrics:
-    """Performance metrics container."""
     operation: str
     start_time: float = field(default_factory=time.time)
     end_time: float = None
@@ -443,7 +386,6 @@ class PerformanceMetrics:
     cpu_percent: float = None
     
     def complete(self):
-        """Mark operation as complete."""
         self.end_time = time.time()
         process = psutil.Process()
         self.memory_end = process.memory_info().rss / 1024 / 1024
@@ -451,27 +393,22 @@ class PerformanceMetrics:
     
     @property
     def duration(self) -> float:
-        """Operation duration in seconds."""
         if self.end_time:
             return self.end_time - self.start_time
         return time.time() - self.start_time
     
     @property
     def memory_delta(self) -> float:
-        """Memory change in MB."""
         if self.memory_start and self.memory_end:
             return self.memory_end - self.memory_start
         return 0
 
 class PerformanceMonitor:
-    """Monitor and analyze performance."""
-    
     def __init__(self):
         self.metrics: List[PerformanceMetrics] = []
         self.process = psutil.Process()
     
     def start_operation(self, name: str) -> PerformanceMetrics:
-        """Start monitoring an operation."""
         metric = PerformanceMetrics(
             operation=name,
             memory_start=self.process.memory_info().rss / 1024 / 1024
@@ -480,7 +417,6 @@ class PerformanceMonitor:
         return metric
     
     def get_summary(self) -> Dict:
-        """Get performance summary."""
         if not self.metrics:
             return {}
         
@@ -499,7 +435,6 @@ class PerformanceMonitor:
         }
     
     def print_report(self):
-        """Print performance report."""
         summary = self.get_summary()
         
         print("\n=== Performance Report ===")
@@ -511,7 +446,6 @@ class PerformanceMonitor:
         print(f"Average CPU Usage: {summary['avg_cpu_percent']:.1f}%")
         print(f"Current Memory: {summary['current_memory_mb']:.2f}MB")
         
-        # Top operations by duration
         print("\nTop 5 Slowest Operations:")
         sorted_ops = sorted(self.metrics, key=lambda m: m.duration, reverse=True)[:5]
         for op in sorted_ops:
@@ -521,11 +455,9 @@ class PerformanceMonitor:
 monitor = PerformanceMonitor()
 
 with Browser() as browser:
-    # Monitor browser launch
     launch_metric = monitor.start_operation("browser_launch")
     launch_metric.complete()
     
-    # Monitor page operations
     page = browser.new_page()
     
     nav_metric = monitor.start_operation("navigate_to_example")
@@ -535,8 +467,6 @@ with Browser() as browser:
     screen_metric = monitor.start_operation("take_screenshot")
     page.screenshot(path="example.png")
     screen_metric.complete()
-    
-    # More operations...
 
 monitor.print_report()
 ```
@@ -551,15 +481,12 @@ from rich.table import Table
 from rich.live import Live
 
 class PerformanceDashboard:
-    """Real-time performance dashboard."""
-    
     def __init__(self):
         self.console = Console()
         self.metrics = {}
         self.running = False
     
     def update_metric(self, name: str, value: float, unit: str = ""):
-        """Update a metric value."""
         self.metrics[name] = {
             'value': value,
             'unit': unit,
@@ -567,7 +494,6 @@ class PerformanceDashboard:
         }
     
     def create_table(self) -> Table:
-        """Create metrics table."""
         table = Table(title="PlaywrightAuthor Performance Dashboard")
         table.add_column("Metric", style="cyan")
         table.add_column("Value", style="green")
@@ -588,16 +514,13 @@ class PerformanceDashboard:
         return table
     
     def monitor_system(self):
-        """Monitor system metrics."""
         while self.running:
             process = psutil.Process()
             
-            # Update metrics
             self.update_metric("CPU Usage", process.cpu_percent(interval=1), "%")
             self.update_metric("Memory Usage", process.memory_info().rss / 1024 / 1024, "MB")
             self.update_metric("Thread Count", process.num_threads(), "threads")
             
-            # Chrome-specific metrics
             chrome_count = sum(1 for p in psutil.process_iter(['name']) 
                              if 'chrome' in p.info['name'].lower())
             self.update_metric("Chrome Processes", chrome_count, "processes")
@@ -605,38 +528,31 @@ class PerformanceDashboard:
             time.sleep(1)
     
     def start(self):
-        """Start dashboard."""
         self.running = True
         
-        # Start monitoring thread
         monitor_thread = threading.Thread(target=self.monitor_system)
         monitor_thread.daemon = True
         monitor_thread.start()
         
-        # Display live table
         with Live(self.create_table(), refresh_per_second=1) as live:
             while self.running:
                 time.sleep(0.5)
                 live.update(self.create_table())
     
     def stop(self):
-        """Stop dashboard."""
         self.running = False
 
 # Usage (run in separate thread or process)
 dashboard = PerformanceDashboard()
 
-# In main thread
 try:
-    # Your automation code
     with Browser() as browser:
         dashboard.update_metric("Browser Status", 1, "running")
-        # ... automation tasks ...
 except KeyboardInterrupt:
     dashboard.stop()
 ```
 
-## 🐛 Debugging Performance Issues
+## Debugging Performance Issues
 
 ### Performance Profiler
 
@@ -647,7 +563,6 @@ import io
 from functools import wraps
 
 def profile_performance(func):
-    """Decorator to profile function performance."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         profiler = cProfile.Profile()
@@ -658,12 +573,11 @@ def profile_performance(func):
         finally:
             profiler.disable()
             
-            # Print profiling results
             s = io.StringIO()
             stats = pstats.Stats(profiler, stream=s)
             stats.strip_dirs()
             stats.sort_stats('cumulative')
-            stats.print_stats(10)  # Top 10 functions
+            stats.print_stats(10)
             
             print(f"\n=== Profile for {func.__name__} ===")
             print(s.getvalue())
@@ -678,7 +592,7 @@ def slow_automation():
     with Browser() as browser:
         page = browser.new_page()
         page.goto("https://example.com")
-        page.wait_for_timeout(5000)  # Intentionally slow
+        page.wait_for_timeout(5000)
         return page.title()
 
 title = slow_automation()
@@ -691,20 +605,16 @@ import tracemalloc
 import gc
 
 class MemoryLeakDetector:
-    """Detect memory leaks in automation."""
-    
     def __init__(self):
         self.snapshots = []
         tracemalloc.start()
     
     def take_snapshot(self, label: str):
-        """Take memory snapshot."""
-        gc.collect()  # Force garbage collection
+        gc.collect()
         snapshot = tracemalloc.take_snapshot()
         self.snapshots.append((label, snapshot))
     
     def compare_snapshots(self, index1: int = 0, index2: int = -1):
-        """Compare two snapshots."""
         if len(self.snapshots) < 2:
             print("Need at least 2 snapshots")
             return
@@ -721,14 +631,12 @@ class MemoryLeakDetector:
             print(f"{stat}")
     
     def find_leaks(self, threshold_mb: float = 10):
-        """Find potential memory leaks."""
         if len(self.snapshots) < 2:
             return []
         
         first_snap = self.snapshots[0][1]
         last_snap = self.snapshots[-1][1]
         
-        # Get statistics
         first_size = sum(stat.size for stat in first_snap.statistics('filename'))
         last_size = sum(stat.size for stat in last_snap.statistics('filename'))
         
@@ -737,7 +645,6 @@ class MemoryLeakDetector:
         if leak_mb > threshold_mb:
             print(f"\n⚠️  Potential memory leak detected: {leak_mb:.2f}MB increase")
             
-            # Show top growing allocations
             top_stats = last_snap.compare_to(first_snap, 'filename')
             print("\nTop growing allocations:")
             for stat in top_stats[:5]:
@@ -747,31 +654,26 @@ class MemoryLeakDetector:
 # Usage
 detector = MemoryLeakDetector()
 
-# Take initial snapshot
 detector.take_snapshot("Start")
 
-# Run automation
 with Browser() as browser:
     for i in range(10):
         page = browser.new_page()
         page.goto("https://example.com")
-        # Intentionally not closing pages to create leak
     
     detector.take_snapshot("After 10 pages")
     
-    # Fix the leak
     for page in browser.pages:
         page.close()
     
     detector.take_snapshot("After cleanup")
 
-# Analyze
-detector.compare_snapshots(0, 1)  # Start → After 10 pages
-detector.compare_snapshots(1, 2)  # After 10 pages → After cleanup
+detector.compare_snapshots(0, 1)
+detector.compare_snapshots(1, 2)
 detector.find_leaks()
 ```
 
-## 🎯 Best Practices
+## Best Practices
 
 ### 1. Resource Management
 - Always close pages when done
@@ -803,7 +705,7 @@ detector.find_leaks()
 - Profile bottlenecks
 - Regular performance testing
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Browser Architecture](../architecture/browser-lifecycle.md)
 - [Memory Management](memory-management.md)

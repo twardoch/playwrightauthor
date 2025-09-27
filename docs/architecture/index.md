@@ -1,10 +1,10 @@
 # PlaywrightAuthor Architecture
 
-This section provides detailed insights into PlaywrightAuthor's internal architecture, component design, and system flows.
+This section describes PlaywrightAuthor's internal architecture, component design, and system flows.
 
-## 📐 Overview
+## Overview
 
-PlaywrightAuthor is built on a modular architecture that separates concerns and provides flexibility:
+PlaywrightAuthor uses a modular architecture that separates concerns for flexibility and maintainability:
 
 ```mermaid
 graph TB
@@ -54,37 +54,37 @@ graph TB
     Process --> Utils
 ```
 
-## 🏗️ Core Components
+## Core Components
 
 ### [Browser Lifecycle Management](browser-lifecycle.md)
-Understanding how PlaywrightAuthor manages Chrome instances:
+How PlaywrightAuthor manages Chrome instances:
 - Installation and discovery
 - Process management
 - Connection handling
 - Session persistence
 
 ### [Component Architecture](components.md)
-Detailed breakdown of each component:
+Component breakdown:
 - Author classes (Browser/AsyncBrowser)
 - Configuration system
 - State management
 - Browser management modules
 
 ### [Error Handling & Recovery](error-handling.md)
-How PlaywrightAuthor handles failures gracefully:
+Failure handling mechanisms:
 - Exception hierarchy
-- Retry mechanisms
-- User guidance system
+- Retry logic
+- User guidance
 - Crash recovery
 
 ### [Monitoring & Metrics](monitoring.md)
-Production monitoring capabilities:
+Production monitoring features:
 - Health checks
 - Performance metrics
 - Crash detection
 - Resource tracking
 
-## 🔄 System Flows
+## System Flows
 
 ### Authentication Flow
 
@@ -143,43 +143,43 @@ stateDiagram-v2
     Error --> [*]: Failure
 ```
 
-## 🎯 Design Principles
+## Design Principles
 
-### 1. **Separation of Concerns**
-Each module has a single, well-defined responsibility:
+### 1. Separation of Concerns
+Each module handles one specific task:
 - `browser_manager.py` - High-level orchestration
-- `browser/*.py` - Specific browser operations
+- `browser/*.py` - Browser operations
 - `author.py` - User-facing API
 - `config.py` - Configuration management
 
-### 2. **Fail-Safe Design**
-Multiple layers of error handling:
-- Try graceful operations first
-- Fall back to forceful methods
-- Always provide user guidance
-- Never leave system in bad state
+### 2. Fail-Safe Design
+Error handling strategy:
+- Attempt graceful operations first
+- Use forceful methods as fallback
+- Provide clear user guidance
+- Maintain system stability
 
-### 3. **Cross-Platform Compatibility**
-Platform-specific code isolated:
-- `finder.py` - Platform-specific paths
-- `process.py` - OS-specific process handling
-- `paths.py` - Platform directory resolution
+### 3. Cross-Platform Compatibility
+Platform-specific code is isolated:
+- `finder.py` - Path discovery
+- `process.py` - Process management
+- `paths.py` - Directory resolution
 
-### 4. **Performance Optimization**
-Lazy loading and caching throughout:
-- Playwright imported only when needed
-- Chrome path cached after discovery
-- Connection reused when possible
+### 4. Performance Optimization
+Optimization techniques:
+- Lazy loading of Playwright
+- Caching of Chrome paths
+- Connection reuse
 - Minimal startup overhead
 
-### 5. **User Experience First**
-Every error includes:
+### 5. User Experience First
+Error messages include:
 - Clear explanation
-- Suggested solution
-- Exact commands to run
-- Links to documentation
+- Actionable solution
+- Required commands
+- Documentation links
 
-## 🔌 Extension Points
+## Extension Points
 
 ### Plugin Architecture (Future)
 
@@ -220,27 +220,27 @@ graph TD
     style Final fill:#9f9,stroke:#333
 ```
 
-## 📊 Performance Characteristics
+## Performance Characteristics
 
 ### Startup Performance
-- First run: ~2-5s (includes Chrome launch)
-- Subsequent runs: ~0.5-1s (connection only)
+- First run: 2-5s (includes Chrome launch)
+- Subsequent runs: 0.5-1s (connection only)
 - With monitoring: +0.1s overhead
 - REPL mode: +0.2s for prompt toolkit
 
 ### Memory Usage
 - Base: ~50MB (Python + PlaywrightAuthor)
 - Per browser: ~200MB (Chrome process)
-- Per page: ~50-100MB (depending on content)
+- Per page: 50-100MB (content dependent)
 - Monitoring: ~10MB (metrics storage)
 
 ### Scalability
 - Profiles: Unlimited (filesystem bound)
 - Concurrent browsers: System resource limited
-- Pages per browser: ~50-100 recommended
-- Monitoring check interval: 5-300s configurable
+- Pages per browser: 50-100 recommended
+- Monitoring interval: 5-300s configurable
 
-## 🛡️ Security Architecture
+## Security Architecture
 
 ### Profile Isolation
 
@@ -297,7 +297,7 @@ sequenceDiagram
     Note over Storage: Encrypted cookies,<br/>tokens, session data
 ```
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Component Details](components.md)
 - [Browser Lifecycle](browser-lifecycle.md)

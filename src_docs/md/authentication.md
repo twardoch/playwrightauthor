@@ -1,15 +1,15 @@
 # Authentication
 
-PlaywrightAuthor provides seamless authentication handling through persistent browser profiles and guided onboarding workflows. This eliminates the need to re-authenticate for every automation session.
+PlaywrightAuthor handles authentication through persistent browser profiles and guided workflows. No need to log in every time you run automation.
 
 ## How Authentication Works
 
-PlaywrightAuthor uses persistent Chrome user profiles to maintain login sessions:
+PlaywrightAuthor stores login sessions in Chrome user profiles:
 
-1. **Profile Persistence**: Login data is stored in a Chrome user profile
-2. **Session Reuse**: Subsequent automation runs use the existing authenticated session
-3. **Guided Onboarding**: Interactive guidance for initial authentication setup
-4. **Cross-Site Support**: Works with any website that supports persistent cookies
+1. **Profile Persistence**: Login data saves to a Chrome user profile
+2. **Session Reuse**: Later runs use the existing session
+3. **Guided Setup**: Interactive help for first-time authentication
+4. **Cross-Site Support**: Works with any site that uses persistent cookies
 
 ## Basic Authentication Setup
 
@@ -18,18 +18,16 @@ PlaywrightAuthor uses persistent Chrome user profiles to maintain login sessions
 ```python
 from playwrightauthor import Browser
 
-# First run - will guide you through authentication
+# First run - will guide you through login
 with Browser() as browser:
     page = browser.new_page()
     page.goto("https://github.com/login")
     
-    # PlaywrightAuthor will detect if you're not logged in
-    # and provide guidance for authentication
+    # PlaywrightAuthor detects if you're logged in
+    # and shows login guidance if needed
 ```
 
-### Automatic Authentication Detection
-
-PlaywrightAuthor can detect authentication status:
+### Check Authentication Status
 
 ```python
 from playwrightauthor import Browser
@@ -39,19 +37,18 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://github.com")
     
-    # Check if authenticated
     if is_authenticated(page, site="github"):
-        print("Already logged in!")
+        print("Already logged in")
     else:
-        print("Authentication required")
-        # Trigger onboarding flow
+        print("Login required")
+        # Start setup flow
 ```
 
 ## Onboarding Workflow
 
-### Interactive Onboarding
+### Interactive Setup
 
-When authentication is needed, PlaywrightAuthor provides guided assistance:
+When login is needed, PlaywrightAuthor walks you through it:
 
 ```python
 from playwrightauthor import Browser
@@ -60,22 +57,22 @@ from playwrightauthor.onboarding import OnboardingManager
 with Browser() as browser:
     onboarding = OnboardingManager(browser)
     
-    # Start guided onboarding for GitHub
+    # Start GitHub login guide
     success = onboarding.guide_authentication(
         site="github",
         target_url="https://github.com/settings/profile"
     )
     
     if success:
-        print("Authentication completed successfully!")
+        print("Login saved")
 ```
 
-### Onboarding HTML Template
+### Onboarding Page Template
 
-PlaywrightAuthor serves a local HTML page for guidance:
+PlaywrightAuthor serves this local page for setup:
 
 ```html
-<!-- Served at http://localhost:8080/onboarding -->
+<!-- http://localhost:8080/onboarding -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -84,22 +81,21 @@ PlaywrightAuthor serves a local HTML page for guidance:
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
         .step { margin: 20px 0; padding: 15px; border-left: 4px solid #007acc; }
         .success { border-color: #28a745; background: #f8fff9; }
-        .warning { border-color: #ffc107; background: #fffbf0; }
     </style>
 </head>
 <body>
-    <h1>Authentication Setup Guide</h1>
+    <h1>Authentication Setup</h1>
     <div class="step">
-        <h3>Step 1: Login to your account</h3>
-        <p>A browser window will open. Please log into your account normally.</p>
+        <h3>Step 1: Login</h3>
+        <p>A browser window opens. Log in normally.</p>
     </div>
     <div class="step">
-        <h3>Step 2: Verify access</h3>
-        <p>Navigate to a protected page to confirm your login worked.</p>
+        <h3>Step 2: Verify</h3>
+        <p>Go to a protected page to confirm login.</p>
     </div>
     <div class="step success">
-        <h3>Step 3: Complete setup</h3>
-        <p>Your session will be saved for future automation runs!</p>
+        <h3>Step 3: Done</h3>
+        <p>Your session saves for future runs.</p>
     </div>
 </body>
 </html>
@@ -107,7 +103,7 @@ PlaywrightAuthor serves a local HTML page for guidance:
 
 ## Site-Specific Authentication
 
-### GitHub Authentication
+### GitHub
 
 ```python
 from playwrightauthor import Browser
@@ -116,21 +112,17 @@ from playwrightauthor.auth.github import GitHubAuth
 with Browser() as browser:
     github_auth = GitHubAuth(browser)
     
-    # Check authentication status
     if not github_auth.is_authenticated():
-        # Guide through GitHub login
         github_auth.authenticate()
     
-    # Now access protected GitHub features
     page = browser.new_page()
     page.goto("https://github.com/settings/profile")
     
-    # Automation with authenticated session
     name = page.input_value("#user_profile_name")
-    print(f"GitHub username: {name}")
+    print(f"GitHub user: {name}")
 ```
 
-### Gmail Authentication
+### Gmail
 
 ```python
 from playwrightauthor import Browser
@@ -139,20 +131,17 @@ from playwrightauthor.auth.gmail import GmailAuth
 with Browser() as browser:
     gmail_auth = GmailAuth(browser)
     
-    # Authenticate with Gmail
     if not gmail_auth.is_authenticated():
         gmail_auth.authenticate()
     
-    # Access Gmail
     page = browser.new_page()
     page.goto("https://mail.google.com")
     
-    # Work with authenticated Gmail session
     page.wait_for_selector("[data-tooltip='Compose']")
     page.click("[data-tooltip='Compose']")
 ```
 
-### LinkedIn Authentication
+### LinkedIn
 
 ```python
 from playwrightauthor import Browser
@@ -161,21 +150,18 @@ from playwrightauthor.auth.linkedin import LinkedInAuth
 with Browser() as browser:
     linkedin_auth = LinkedInAuth(browser)
     
-    # Handle LinkedIn authentication
     if not linkedin_auth.is_authenticated():
         linkedin_auth.authenticate()
     
-    # Navigate to LinkedIn features
     page = browser.new_page()
     page.goto("https://www.linkedin.com/feed/")
     
-    # Perform LinkedIn automation
     page.wait_for_selector("[data-test-id='feed-tab']")
 ```
 
-## Custom Authentication Patterns
+## Custom Authentication
 
-### Custom Site Authentication
+### Custom Site Handler
 
 ```python
 from playwrightauthor import Browser
@@ -187,11 +173,9 @@ class CustomSiteAuth(BaseAuth):
         self.site_url = site_url
     
     def is_authenticated(self) -> bool:
-        """Check if user is logged in"""
         page = self.browser.new_page()
         page.goto(self.site_url)
         
-        # Look for login indicators
         login_button = page.query_selector("text=Login")
         user_menu = page.query_selector("[data-testid='user-menu']")
         
@@ -199,31 +183,24 @@ class CustomSiteAuth(BaseAuth):
         return user_menu is not None and login_button is None
     
     def authenticate(self) -> bool:
-        """Guide user through authentication"""
         if self.is_authenticated():
             return True
         
-        # Open login page
         page = self.browser.new_page()
         page.goto(f"{self.site_url}/login")
         
-        # Wait for user to complete login
         self._wait_for_authentication(page)
-        
         return self.is_authenticated()
     
     def _wait_for_authentication(self, page):
-        """Wait for user to complete login process"""
-        print("Please complete login in the browser window...")
+        print("Complete login in browser...")
         
-        # Wait for successful login indicators
         try:
-            page.wait_for_selector("[data-testid='user-menu']", timeout=300000)  # 5 minutes
-            print("Authentication successful!")
+            page.wait_for_selector("[data-testid='user-menu']", timeout=300000)
+            print("Login successful")
         except TimeoutError:
-            print("Authentication timeout - please try again")
+            print("Login timed out")
 
-# Usage
 with Browser() as browser:
     auth = CustomSiteAuth(browser, "https://example.com")
     auth.authenticate()
@@ -241,96 +218,77 @@ class MFAAuth:
         self.mfa_handler = MFAHandler()
     
     def handle_mfa_flow(self, page):
-        """Handle various MFA methods"""
-        # Check for MFA prompt
         if page.query_selector("text=Enter verification code"):
             return self._handle_code_verification(page)
         elif page.query_selector("text=Use your authenticator app"):
             return self._handle_app_verification(page)
         elif page.query_selector("text=Check your phone"):
             return self._handle_sms_verification(page)
-        
         return True
     
     def _handle_code_verification(self, page):
-        """Handle manual code entry"""
-        print("Please enter the verification code in the browser")
+        print("Enter verification code in browser")
         
-        # Wait for code to be entered
         page.wait_for_function(
             "document.querySelector('[name=verification_code]').value.length >= 6"
         )
         
-        # Submit form
         page.click("button[type=submit]")
         return True
     
     def _handle_app_verification(self, page):
-        """Handle authenticator app verification"""
-        print("Please use your authenticator app and enter the code")
-        
-        # Wait for successful verification
+        print("Use authenticator app")
         page.wait_for_url("**/dashboard", timeout=120000)
         return True
 
-# Usage with MFA
 with Browser() as browser:
     mfa_auth = MFAAuth(browser)
     
     page = browser.new_page()
     page.goto("https://secure-site.com/login")
     
-    # Fill login form
     page.fill("#username", "your_username")
     page.fill("#password", "your_password")
     page.click("#login-button")
     
-    # Handle MFA if required
     mfa_auth.handle_mfa_flow(page)
 ```
 
-## Profile Management for Authentication
+## Profile Management
 
-### Named Authentication Profiles
+### Named Profiles
 
 ```python
 from playwrightauthor import Browser, BrowserConfig
 from pathlib import Path
 
 def create_auth_profile(profile_name: str):
-    """Create a named profile for specific authentication"""
     profile_dir = Path.home() / ".playwrightauthor" / "profiles" / profile_name
     profile_dir.mkdir(parents=True, exist_ok=True)
-    
     return BrowserConfig(user_data_dir=str(profile_dir))
 
-# Use different profiles for different accounts
 github_config = create_auth_profile("github_work")
 gmail_config = create_auth_profile("gmail_personal")
 
-# Work account automation
 with Browser(config=github_config) as browser:
     page = browser.new_page()
     page.goto("https://github.com/settings")
 
-# Personal account automation  
 with Browser(config=gmail_config) as browser:
     page = browser.new_page()
     page.goto("https://mail.google.com")
 ```
 
-### Profile Switching
+### Switch Profiles
 
 ```python
 from playwrightauthor.auth import ProfileManager
 
 profile_manager = ProfileManager()
 
-# Switch between profiles
 profiles = {
     "work": "/path/to/work/profile",
-    "personal": "/path/to/personal/profile",
-    "testing": "/path/to/test/profile"
+    "personal": "/path/to/personal/profile"
 }
 
 for name, path in profiles.items():
@@ -341,15 +299,14 @@ for name, path in profiles.items():
         page = browser.new_page()
         page.goto("https://github.com")
         
-        # Check which account is logged in
         if page.query_selector("[data-testid='header-user-menu']"):
             user = page.text_content("[data-testid='header-user-menu'] img")
             print(f"Logged in as: {user}")
 ```
 
-## Session Validation and Refresh
+## Session Validation
 
-### Session Health Checks
+### Check Session Health
 
 ```python
 from playwrightauthor.auth import SessionValidator
@@ -359,39 +316,29 @@ class SessionValidator:
         self.browser = browser
     
     def validate_session(self, site: str) -> bool:
-        """Validate that session is still active"""
         validators = {
             "github": self._validate_github_session,
-            "gmail": self._validate_gmail_session,
-            "linkedin": self._validate_linkedin_session,
+            "gmail": self._validate_gmail_session
         }
         
         validator = validators.get(site)
-        if validator:
-            return validator()
-        
-        return False
+        return validator() if validator else False
     
     def _validate_github_session(self) -> bool:
-        """Check GitHub session validity"""
         page = self.browser.new_page()
         page.goto("https://api.github.com/user")
         
-        # Check for valid API response
         is_valid = "login" in page.text_content("body")
         page.close()
-        
         return is_valid
     
     def refresh_session_if_needed(self, site: str):
-        """Refresh session if validation fails"""
         if not self.validate_session(site):
             print(f"Session expired for {site}, re-authenticating...")
-            # Trigger re-authentication flow
+            
             auth_handlers = {
                 "github": GitHubAuth,
-                "gmail": GmailAuth,
-                "linkedin": LinkedInAuth,
+                "gmail": GmailAuth
             }
             
             auth_class = auth_handlers.get(site)
@@ -399,19 +346,15 @@ class SessionValidator:
                 auth = auth_class(self.browser)
                 auth.authenticate()
 
-# Usage
 with Browser() as browser:
     validator = SessionValidator(browser)
-    
-    # Validate before automation
     validator.refresh_session_if_needed("github")
     
-    # Proceed with automation
     page = browser.new_page()
     page.goto("https://github.com/settings")
 ```
 
-## Security Best Practices
+## Security Practices
 
 ### Secure Profile Storage
 
@@ -421,35 +364,26 @@ from pathlib import Path
 from playwrightauthor import BrowserConfig
 
 def create_secure_profile(profile_name: str):
-    """Create profile with secure permissions"""
     profile_dir = Path.home() / ".playwrightauthor" / "profiles" / profile_name
     profile_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Set secure permissions (owner read/write only)
-    os.chmod(profile_dir, 0o700)
-    
+    os.chmod(profile_dir, 0o700)  # Owner read/write only
     return BrowserConfig(user_data_dir=str(profile_dir))
 ```
 
-### Environment-Based Configuration
+### Environment Configuration
 
 ```python
 import os
 from playwrightauthor import Browser, BrowserConfig
 
 def get_auth_config():
-    """Get authentication config from environment"""
-    # Don't hardcode sensitive paths
     profile_path = os.getenv("PLAYWRIGHT_PROFILE_PATH")
     if not profile_path:
-        raise ValueError("PLAYWRIGHT_PROFILE_PATH environment variable required")
-    
+        raise ValueError("PLAYWRIGHT_PROFILE_PATH required")
     return BrowserConfig(user_data_dir=profile_path)
 
-# Usage
 config = get_auth_config()
 with Browser(config=config) as browser:
-    # Authenticated automation
     pass
 ```
 
@@ -463,7 +397,6 @@ class CredentialManager:
         self.credentials = {}
     
     def store_credential(self, site: str, username: str, encrypted_token: str):
-        """Store encrypted credentials securely"""
         self.credentials[site] = {
             "username": username,
             "token": encrypted_token,
@@ -471,16 +404,13 @@ class CredentialManager:
         }
     
     def get_credential(self, site: str):
-        """Retrieve and decrypt credentials"""
         return self.credentials.get(site)
     
     def is_credential_valid(self, site: str) -> bool:
-        """Check if stored credential is still valid"""
         cred = self.get_credential(site)
         if not cred:
             return False
         
-        # Check expiration
         if cred.get("expires_at"):
             from datetime import datetime
             return datetime.now() < cred["expires_at"]
@@ -488,24 +418,22 @@ class CredentialManager:
         return True
 ```
 
-## Troubleshooting Authentication
+## Troubleshooting
 
-### Common Authentication Issues
+### Common Issues
 
 1. **Session Expired**:
 ```python
-# Detect and handle expired sessions
 try:
     page.goto("https://secure-site.com/protected")
     if "login" in page.url:
-        # Session expired, re-authenticate
         auth.authenticate()
         page.goto("https://secure-site.com/protected")
 except Exception as e:
-    print(f"Authentication error: {e}")
+    print(f"Auth error: {e}")
 ```
 
-2. **Profile Corruption**:
+2. **Profile Corrupted**:
 ```python
 from playwrightauthor.auth import ProfileRepair
 
@@ -515,9 +443,9 @@ if repair.is_profile_corrupted(profile_path):
     repair.create_fresh_profile(profile_path)
 ```
 
-3. **Cookie Issues**:
+3. **Cookie Problems**:
 ```python
-# Clear specific site cookies
+# Clear cookies for specific site
 page.context.clear_cookies(url="https://problematic-site.com")
 
 # Or clear all cookies
@@ -526,7 +454,7 @@ page.context.clear_cookies()
 
 ## Next Steps
 
-- Explore [Advanced Features](advanced-features.md) for complex authentication scenarios
-- Check [Troubleshooting](troubleshooting.md) for authentication-specific issues
-- Review [API Reference](api-reference.md) for authentication method details
-- Learn about [Browser Management](browser-management.md) for profile handling
+- See [Advanced Features](advanced-features.md) for complex auth cases
+- Check [Troubleshooting](troubleshooting.md) for auth issues
+- Review [API Reference](api-reference.md) for auth methods
+- Learn [Browser Management](browser-management.md) for profile handling

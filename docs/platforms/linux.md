@@ -2,7 +2,7 @@
 
 This guide covers Linux-specific setup, configuration, and troubleshooting for PlaywrightAuthor across various distributions.
 
-## 🎯 Quick Start
+## Quick Start
 
 ```bash
 # Install PlaywrightAuthor
@@ -20,7 +20,7 @@ sudo apt-get install -y \
 python -c "from playwrightauthor import Browser; Browser().__enter__()"
 ```
 
-## 📦 Distribution-Specific Installation
+## Distribution-Specific Installation
 
 ### Ubuntu/Debian
 
@@ -141,7 +141,7 @@ def install_chrome_dependencies():
         print(f"No automatic installation for {distro_id}")
 ```
 
-## 🐳 Docker Configuration
+## Docker Configuration
 
 ### Basic Dockerfile
 
@@ -267,7 +267,7 @@ spec:
           sizeLimit: 1Gi
 ```
 
-## 🖥️ Display Server Configuration
+## Display Server Configuration
 
 ### X11 Setup
 
@@ -394,7 +394,7 @@ with Browser() as browser:
     page.screenshot(path="screenshot.png")
 ```
 
-## 🔒 Security Configuration
+## Security Configuration
 
 ### SELinux Configuration
 
@@ -514,7 +514,7 @@ with Browser() as browser:
     pass
 ```
 
-## 🚀 Performance Optimization
+## Performance Optimization
 
 ### Linux-Specific Chrome Flags
 
@@ -602,7 +602,7 @@ def get_chrome_resources():
     }
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common Linux Issues
 
@@ -643,7 +643,7 @@ def check_chrome_dependencies():
             pass
     
     if missing:
-        print("❌ Missing libraries:")
+        print("Missing libraries:")
         for lib in missing:
             print(f"  - {lib}")
         
@@ -657,7 +657,7 @@ def check_chrome_dependencies():
                 print("\nInstall with:")
                 print("sudo dnf install nss nspr atk")
     else:
-        print("✅ All Chrome dependencies satisfied")
+        print("All Chrome dependencies satisfied")
 
 check_chrome_dependencies()
 ```
@@ -693,9 +693,9 @@ def fix_chrome_permissions():
             try:
                 # Ensure directory is writable
                 os.chmod(path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH)
-                print(f"✅ Fixed permissions for {path}")
+                print(f"Fixed permissions for {path}")
             except Exception as e:
-                print(f"❌ Could not fix {path}: {e}")
+                print(f"Could not fix {path}: {e}")
 
 # Fix before running
 fix_chrome_permissions()
@@ -732,7 +732,7 @@ ReadWritePaths=/opt/playwrightauthor/data
 WantedBy=multi-user.target
 ```
 
-## 🐧 Distribution-Specific Tips
+## Distribution-Specific Tips
 
 ### Ubuntu/Debian
 - Use `snap` for easy Chrome installation: `sudo snap install chromium`
@@ -754,7 +754,7 @@ WantedBy=multi-user.target
 - Use `apk` with `--no-cache` flag
 - Add `ttf-freefont` for font support
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Chrome on Linux](https://www.chromium.org/developers/how-tos/get-the-code/chromium-linux)
 - [Linux Containers](https://linuxcontainers.org/)

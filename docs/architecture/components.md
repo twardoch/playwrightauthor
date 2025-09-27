@@ -1,8 +1,8 @@
 # Component Architecture
 
-This document provides detailed information about each component in PlaywrightAuthor's architecture.
+This document describes the components that make up PlaywrightAuthor's architecture.
 
-## 🎯 Core Components Overview
+## Core Components Overview
 
 ```mermaid
 graph TB
@@ -52,12 +52,12 @@ graph TB
     Launcher --> Paths
 ```
 
-## 📦 Component Details
+## Component Details
 
 ### 1. Browser & AsyncBrowser Classes
 **Location**: `src/playwrightauthor/author.py`
 
-The main entry points for users, implementing context managers for easy browser lifecycle management.
+Main entry points for users, implementing context managers for browser lifecycle management.
 
 ```python
 # Sync API
@@ -84,7 +84,7 @@ class AsyncBrowser:
         """Async cleanup resources."""
 ```
 
-**Key Features**:
+**Features**:
 - Profile-based session management
 - Automatic Chrome installation
 - Connection reuse
@@ -94,7 +94,7 @@ class AsyncBrowser:
 ### 2. BrowserManager
 **Location**: `src/playwrightauthor/browser_manager.py`
 
-Central orchestrator for all browser operations.
+Central orchestrator for browser operations.
 
 ```mermaid
 sequenceDiagram
@@ -568,7 +568,7 @@ def cache_dir() -> Path:
     # Linux: ~/.cache/playwrightauthor
 ```
 
-## 🔄 Component Interactions
+## Component Interactions
 
 ### Startup Sequence
 
@@ -625,7 +625,7 @@ flowchart TD
     UserGuide --> Manual[Manual Intervention]
 ```
 
-## 🎨 Design Patterns
+## Design Patterns
 
 ### 1. **Context Manager Pattern**
 Used for automatic resource management:
@@ -648,7 +648,7 @@ Health monitoring observes browser state changes.
 ### 5. **Singleton Pattern**
 Configuration and state managers are singletons.
 
-## 📊 Performance Characteristics
+## Performance Characteristics
 
 ### Memory Usage
 - Base library: ~50MB
@@ -668,7 +668,7 @@ Configuration and state managers are singletons.
 - Health check interval: 30s (configurable)
 - Recovery time: <5s typical
 
-## 🔒 Security Considerations
+## Security Considerations
 
 ### Profile Isolation
 Each profile maintains separate:
@@ -689,7 +689,7 @@ Each profile maintains separate:
 - Key derivation from user password
 - Automatic lock on idle
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Browser Lifecycle](browser-lifecycle.md)
 - [Error Handling](error-handling.md)

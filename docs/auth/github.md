@@ -1,16 +1,16 @@
 # GitHub Authentication Guide
 
-This guide covers authenticating with GitHub using PlaywrightAuthor for repository automation, API access, and CI/CD workflows.
+This guide shows how to authenticate with GitHub using PlaywrightAuthor for automation, API access, and CI/CD workflows.
 
-## 📋 Prerequisites
+## Prerequisites
 
-Before starting:
+You'll need:
 
-1. **GitHub Account**: Ensure you have an active GitHub account
-2. **2FA Setup**: Have your authenticator app or SMS ready if 2FA is enabled
-3. **Personal Access Tokens**: Consider using PATs for enhanced security
+1. **GitHub Account**: An active account
+2. **2FA Setup**: Your authenticator app or SMS ready if two-factor authentication is enabled
+3. **Personal Access Tokens**: PATs are safer than passwords for automation
 
-## 🚀 Step-by-Step Authentication
+## Step-by-Step Authentication
 
 ### Step 1: Basic Authentication
 
@@ -22,17 +22,17 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://github.com/login")
     
-    print("Please log in to GitHub...")
-    print("Complete any 2FA requirements if prompted.")
+    print("Log in to GitHub manually")
+    print("Complete any 2FA requirements if prompted")
     
-    # Wait for successful login (dashboard or profile page)
+    # Wait for successful login
     try:
         page.wait_for_selector('[aria-label="Dashboard"]', timeout=300000)
-        print("✅ GitHub login successful!")
     except:
-        # Alternative: wait for avatar menu
+        # Fallback check
         page.wait_for_selector('summary[aria-label*="profile"]', timeout=300000)
-        print("✅ GitHub login successful!")
+    
+    print("GitHub login successful")
 ```
 
 ### Step 2: Handling 2FA
@@ -53,24 +53,18 @@ with Browser() as browser:
         page.wait_for_selector('input[name="otp"]', timeout=5000)
         print("2FA required. Enter your code:")
         
-        # Option 1: Manual entry
+        # Manual entry
         code = input("Enter 2FA code: ")
         page.fill('input[name="otp"]', code)
         page.press('input[name="otp"]', "Enter")
         
-        # Option 2: Wait for manual completion
-        # print("Complete 2FA in the browser...")
-        # page.wait_for_url("https://github.com/", timeout=120000)
-        
     except:
         print("No 2FA required or already completed")
-    
-    print("✅ Authentication complete!")
 ```
 
 ### Step 3: Personal Access Token Setup
 
-For automation, PATs are recommended:
+PATs are better for automation:
 
 ```python
 # Navigate to token creation
@@ -98,11 +92,11 @@ with Browser() as browser:
     token_input = page.query_selector('input[id*="new_token"]')
     if token_input:
         token = token_input.get_attribute("value")
-        print(f"✅ Token generated: {token[:8]}...")
-        print("⚠️  Save this token securely - you won't see it again!")
+        print(f"Token generated: {token[:8]}...")
+        print("Save this token securely - you won't see it again")
 ```
 
-## 🔧 Advanced Scenarios
+## Advanced Scenarios
 
 ### Multiple GitHub Accounts
 
@@ -134,8 +128,6 @@ with Browser(profile="github-enterprise") as browser:
     if "sso" in page.url:
         print("Complete SSO authentication...")
         page.wait_for_url(f"{GITHUB_ENTERPRISE_URL}/**", timeout=300000)
-    
-    print("✅ GitHub Enterprise authentication complete!")
 ```
 
 ### OAuth App Authorization
@@ -152,24 +144,24 @@ def authorize_oauth_app(app_name: str, client_id: str):
         
         # Check if already authorized
         if "callback" in page.url:
-            print(f"✅ {app_name} already authorized")
+            print(f"{app_name} already authorized")
             return
         
         # Click authorize button
         try:
             page.click('button[name="authorize"]')
-            print(f"✅ {app_name} authorized successfully")
+            print(f"{app_name} authorized successfully")
         except:
-            print(f"❌ Could not authorize {app_name}")
+            print(f"Could not authorize {app_name}")
 ```
 
-## 🚨 Common Issues & Solutions
+## Common Issues & Solutions
 
-### Issue 1: "Device Verification" Required
+### Issue 1: Device Verification Required
 
-**Symptoms**: GitHub requires device verification
+**Symptoms**: GitHub asks for device verification
 
-**Solutions**:
+**Solution**:
 ```python
 # Handle device verification
 with Browser() as browser:
@@ -192,7 +184,7 @@ with Browser() as browser:
 
 **Symptoms**: "Too many requests" errors
 
-**Solutions**:
+**Solution**:
 ```python
 import time
 
@@ -210,9 +202,9 @@ headers = {
 
 ### Issue 3: Session Timeout
 
-**Symptoms**: Frequent re-authentication required
+**Symptoms**: Need to log in repeatedly
 
-**Solutions**:
+**Solution**:
 ```python
 # Keep session alive
 def keep_github_session_alive():
@@ -222,11 +214,11 @@ def keep_github_session_alive():
         while True:
             # Visit GitHub every 30 minutes
             page.goto("https://github.com/notifications")
-            print("✅ Session refreshed")
+            print("Session refreshed")
             time.sleep(1800)  # 30 minutes
 ```
 
-## 📊 Monitoring & Maintenance
+## Monitoring & Maintenance
 
 ### Check Authentication Status
 
@@ -238,7 +230,6 @@ def check_github_auth():
         
         # Check if logged in
         try:
-            # Look for user avatar/menu
             avatar = page.query_selector('summary[aria-label*="profile"]')
             if avatar:
                 username = avatar.get_attribute("aria-label")
@@ -249,7 +240,7 @@ def check_github_auth():
             return False, "Authentication check failed"
 
 status, message = check_github_auth()
-print(f"{'✅' if status else '❌'} {message}")
+print(f"{'Authenticated' if status else 'Not authenticated'}: {message}")
 ```
 
 ### Monitor API Rate Limits
@@ -268,7 +259,7 @@ def check_rate_limits():
         print(f"Resets at: {core_limit['reset']}")
 ```
 
-## 🤖 Automation Examples
+## Automation Examples
 
 ### Repository Management
 
@@ -292,7 +283,7 @@ def create_repository(repo_name: str, private: bool = False):
         
         # Wait for repository page
         page.wait_for_url(f"**/{repo_name}")
-        print(f"✅ Repository '{repo_name}' created!")
+        print(f"Repository '{repo_name}' created")
 ```
 
 ### Pull Request Automation
@@ -318,33 +309,33 @@ def review_pull_request(repo: str, pr_number: int, approve: bool = True):
         
         # Submit review
         page.click('button[type="submit"]')
-        print(f"✅ PR #{pr_number} reviewed!")
+        print(f"PR #{pr_number} reviewed")
 ```
 
-## 💡 Best Practices
+## Best Practices
 
-1. **Use Personal Access Tokens** for automation instead of passwords
-2. **Implement retry logic** for API calls and page interactions
+1. **Use PATs** for automation instead of passwords
+2. **Add retry logic** for API calls and page interactions
 3. **Respect rate limits** - add delays between operations
 4. **Use dedicated bot accounts** for automation workflows
-5. **Enable 2FA** but use backup codes for automation
-6. **Monitor authentication status** regularly
-7. **Rotate tokens** periodically for security
+5. **Enable 2FA** but keep backup codes for emergencies
+6. **Check authentication status** regularly
+7. **Rotate tokens** periodically
 
-## 🔐 Security Considerations
+## Security Considerations
 
 1. **Never commit tokens** to repositories
-2. **Use environment variables** for sensitive data:
+2. **Use environment variables**:
    ```python
    import os
    GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
    ```
-3. **Limit token scopes** to minimum required permissions
-4. **Set token expiration** dates (90 days recommended)
-5. **Use GitHub Secrets** for Actions workflows
-6. **Monitor token usage** in GitHub settings
+3. **Limit token scopes** to what's actually needed
+4. **Set expiration dates** (90 days works well)
+5. **Use GitHub Secrets** in Actions workflows
+6. **Review token usage** in GitHub settings
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [GitHub Personal Access Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
 - [GitHub OAuth Apps](https://docs.github.com/en/developers/apps/building-oauth-apps)

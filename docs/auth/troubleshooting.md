@@ -1,8 +1,8 @@
 # Authentication Troubleshooting Guide
 
-This comprehensive guide helps you diagnose and fix authentication issues with PlaywrightAuthor.
+This guide helps you diagnose and fix authentication issues with PlaywrightAuthor.
 
-## 🔍 Quick Diagnosis
+## Quick Diagnosis
 
 Run this command first to check your setup:
 
@@ -10,7 +10,7 @@ Run this command first to check your setup:
 playwrightauthor health
 ```
 
-## 📊 Troubleshooting Flowchart
+## Troubleshooting Flowchart
 
 ```mermaid
 flowchart TD
@@ -38,7 +38,7 @@ flowchart TD
     ProfileIssue --> Fix5[Check Profile Permissions]
 ```
 
-## 🛠️ Common Issues & Solutions
+## Common Issues & Solutions
 
 ### Issue 1: Browser Won't Launch
 
@@ -283,7 +283,7 @@ if profile_path.exists():
    print(f"Free space: {stat.free / 1024**3:.2f} GB")
    ```
 
-## 🔧 Advanced Diagnostics
+## Advanced Diagnostics
 
 ### Complete System Check
 
@@ -362,7 +362,7 @@ def monitor_auth_health(url: str, check_selector: str):
 # monitor_auth_health("https://github.com", '[aria-label="Dashboard"]')
 ```
 
-## 💡 Prevention Tips
+## Prevention Tips
 
 1. **Regular Maintenance**:
    ```bash
@@ -400,7 +400,7 @@ def monitor_auth_health(url: str, check_selector: str):
            return False
    ```
 
-## 🆘 Getting Help
+## Getting Help
 
 If you're still experiencing issues:
 
@@ -424,7 +424,7 @@ If you're still experiencing issues:
    - Specify the service you're trying to authenticate with
    - Share relevant code snippets (without credentials!)
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Platform-Specific Guides](../platforms/index.md)
 - [Performance Optimization](../performance/optimization.md)

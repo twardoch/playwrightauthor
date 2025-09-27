@@ -1,8 +1,8 @@
 # macOS Platform Guide
 
-This guide covers macOS-specific setup, configuration, and troubleshooting for PlaywrightAuthor.
+This guide explains how to set up, configure, and troubleshoot PlaywrightAuthor on macOS.
 
-## 🎯 Quick Start
+## Quick Start
 
 ```bash
 # Install PlaywrightAuthor
@@ -12,27 +12,25 @@ pip install playwrightauthor
 python -c "from playwrightauthor import Browser; Browser().__enter__()"
 ```
 
-## 🏗️ Architecture Differences
+## Architecture Differences
 
 ### Apple Silicon (M1/M2/M3) vs Intel
 
 ```mermaid
 graph TD
-    subgraph "Architecture Detection"
-        Start[PlaywrightAuthor Start] --> Detect{Detect Architecture}
-        Detect -->|Apple Silicon| ARM[ARM64 Chrome]
-        Detect -->|Intel| X86[x86_64 Chrome]
-        
-        ARM --> Universal[Universal Binary Check]
-        X86 --> Native[Native Intel Binary]
-        
-        Universal --> Rosetta{Rosetta Available?}
-        Rosetta -->|Yes| Run[Run Chrome]
-        Rosetta -->|No| Install[Install Rosetta]
-    end
+    Start[PlaywrightAuthor Start] --> Detect{Detect Architecture}
+    Detect -->|Apple Silicon| ARM[ARM64 Chrome]
+    Detect -->|Intel| X86[x86_64 Chrome]
+    
+    ARM --> Universal[Universal Binary Check]
+    X86 --> Native[Native Intel Binary]
+    
+    Universal --> Rosetta{Rosetta Available?}
+    Rosetta -->|Yes| Run[Run Chrome]
+    Rosetta -->|No| Install[Install Rosetta]
 ```
 
-### Architecture-Specific Setup
+### Architecture Detection
 
 ```python
 import platform
@@ -52,21 +50,19 @@ print(f"Architecture: {get_mac_architecture()}")
 
 # Architecture-specific Chrome paths
 if get_mac_architecture() == 'Apple Silicon':
-    # M1/M2/M3 Macs
     chrome_paths = [
         "/Applications/Google Chrome.app",  # Universal binary
         "/Applications/Chrome for Testing.app",
         "/opt/homebrew/bin/chromium"  # Homebrew ARM64
     ]
 else:
-    # Intel Macs
     chrome_paths = [
         "/Applications/Google Chrome.app",
         "/usr/local/bin/chromium"  # Homebrew Intel
     ]
 ```
 
-## 🔐 Security & Permissions
+## Security & Permissions
 
 ### Required Permissions
 
@@ -84,7 +80,7 @@ macOS requires specific permissions for browser automation:
    - System Preferences → Security & Privacy → Privacy → Full Disk Access
    - Add Terminal.app or your IDE
 
-### Granting Permissions Programmatically
+### Permission Management
 
 ```python
 import subprocess
@@ -100,13 +96,12 @@ def request_accessibility_permission():
     '''
     
     subprocess.run(['osascript', '-e', script])
-    print("Please grant Accessibility access to Terminal/IDE")
+    print("Grant Accessibility access to Terminal/IDE")
     input("Press Enter after granting permission...")
 
 def check_accessibility_permission():
     """Check if accessibility permission is granted."""
     try:
-        # This will fail without accessibility permission
         script = 'tell application "System Events" to get name of first process'
         result = subprocess.run(['osascript', '-e', script], 
                               capture_output=True, text=True)
@@ -146,16 +141,16 @@ def remove_quarantine(app_path: str):
         try:
             subprocess.run(['xattr', '-cr', app_path], 
                          capture_output=True, check=True)
-            print(f"✅ Removed quarantine from {app_path}")
+            print(f"Removed quarantine from {app_path}")
         except subprocess.CalledProcessError:
-            print(f"⚠️  Need sudo to remove quarantine from {app_path}")
+            print(f"Need sudo to remove quarantine from {app_path}")
             subprocess.run(['sudo', 'xattr', '-cr', app_path])
 
 # Apply to Chrome
 remove_quarantine("/Applications/Google Chrome.app")
 ```
 
-## 🍺 Homebrew Integration
+## Homebrew Integration
 
 ### Installing Chrome via Homebrew
 
@@ -196,7 +191,7 @@ if homebrew_chrome:
     os.environ['PLAYWRIGHTAUTHOR_CHROME_PATH'] = homebrew_chrome
 ```
 
-## 🖥️ Display & Graphics
+## Display & Graphics
 
 ### Retina Display Support
 
@@ -245,7 +240,7 @@ with Browser(
     pass
 ```
 
-## 🚀 Performance Optimization
+## Performance Optimization
 
 ### macOS-Specific Chrome Flags
 
@@ -306,7 +301,7 @@ def get_chrome_metrics():
 print(json.dumps(get_chrome_metrics(), indent=2))
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Common macOS Issues
 
@@ -371,14 +366,14 @@ def diagnose_chrome_launch():
     # Print results
     print("Chrome Launch Diagnostics:")
     for check in checks:
-        status = "✅" if check['passed'] else "❌"
+        status = "✓" if check['passed'] else "✗"
         print(f"{status} {check['check']}")
     
     return all(check['passed'] for check in checks)
 
 # Run diagnostics
 if not diagnose_chrome_launch():
-    print("\n⚠️  Fix the issues above before proceeding")
+    print("\nFix the issues above before proceeding")
 ```
 
 #### Issue 3: Slow Performance
@@ -398,9 +393,9 @@ def clear_chrome_cache():
         if os.path.exists(expanded_path):
             try:
                 shutil.rmtree(expanded_path)
-                print(f"✅ Cleared {path}")
+                print(f"Cleared {path}")
             except Exception as e:
-                print(f"❌ Could not clear {path}: {e}")
+                print(f"Could not clear {path}: {e}")
 ```
 
 ### System Integration
@@ -438,7 +433,7 @@ Load with:
 launchctl load ~/Library/LaunchAgents/com.playwrightauthor.chrome.plist
 ```
 
-## 🛡️ Security Best Practices
+## Security Best Practices
 
 1. **Use macOS Keychain for Credentials**
    ```python
@@ -482,7 +477,7 @@ launchctl load ~/Library/LaunchAgents/com.playwrightauthor.chrome.plist
    - Disable camera/microphone access unless needed
    - Use separate profiles for different security contexts
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Apple Developer - Security](https://developer.apple.com/security/)
 - [Chrome Enterprise on macOS](https://support.google.com/chrome/a/answer/7550274)

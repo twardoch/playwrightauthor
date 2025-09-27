@@ -2,7 +2,7 @@
 
 ## Core Concepts
 
-PlaywrightAuthor provides two main classes for browser automation:
+PlaywrightAuthor provides two classes for browser automation:
 
 - **`Browser()`** - Synchronous context manager
 - **`AsyncBrowser()`** - Asynchronous context manager
@@ -16,7 +16,6 @@ Both return authenticated Playwright browser objects ready for automation.
 ```python
 from playwrightauthor import Browser
 
-# Basic context manager
 with Browser() as browser:
     page = browser.new_page()
     page.goto("https://github.com")
@@ -45,14 +44,12 @@ asyncio.run(automate())
 
 ```python
 with Browser() as browser:
-    # Open multiple tabs
     page1 = browser.new_page()
     page2 = browser.new_page()
     
     page1.goto("https://github.com")
     page2.goto("https://stackoverflow.com")
     
-    # Work with both pages
     print(f"Page 1: {page1.title()}")
     print(f"Page 2: {page2.title()}")
 ```
@@ -64,12 +61,10 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://example.com/login")
     
-    # Fill form fields
     page.fill("#username", "your_username")
     page.fill("#password", "your_password")
     page.click("#login-button")
     
-    # Wait for navigation
     page.wait_for_url("**/dashboard")
 ```
 
@@ -80,15 +75,11 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://example.com")
     
-    # Click elements
     page.click("button")
     page.click("text=Submit")
     page.click("#submit-btn")
     
-    # Type text
     page.type("#search", "playwright automation")
-    
-    # Select options
     page.select_option("#dropdown", "option1")
 ```
 
@@ -99,13 +90,8 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://example.com")
     
-    # Take screenshot
     page.screenshot(path="screenshot.png")
-    
-    # Generate PDF
     page.pdf(path="page.pdf")
-    
-    # Full page screenshot
     page.screenshot(path="fullpage.png", full_page=True)
 ```
 
@@ -117,13 +103,12 @@ with Browser() as browser:
 from playwrightauthor import Browser, BrowserConfig
 
 config = BrowserConfig(
-    headless=False,  # Show browser window
-    timeout=30000,   # 30 second timeout
-    user_data_dir="/custom/path"  # Custom profile location
+    headless=False,
+    timeout=30000,
+    user_data_dir="/custom/path"
 )
 
 with Browser(config=config) as browser:
-    # Browser will use custom configuration
     page = browser.new_page()
     page.goto("https://example.com")
 ```
@@ -132,10 +117,10 @@ with Browser(config=config) as browser:
 
 ```python
 with Browser() as browser:
-    # Set custom viewport
+    # Custom viewport
     page = browser.new_page(viewport={"width": 1920, "height": 1080})
     
-    # Or emulate devices
+    # Device emulation
     iphone = browser.devices["iPhone 12"]
     page = browser.new_page(**iphone)
     
@@ -171,7 +156,6 @@ with Browser() as browser:
     page.goto("https://example.com")
     
     try:
-        # Wait up to 5 seconds for element
         page.click("#slow-button", timeout=5000)
     except TimeoutError:
         print("Button not found within 5 seconds")
@@ -182,10 +166,10 @@ with Browser() as browser:
 ### Resource Management
 
 ```python
-# ✅ Always use context managers
+# ✅ Use context managers
 with Browser() as browser:
     page = browser.new_page()
-    # Automatic cleanup when exiting context
+    # Automatic cleanup
 
 # ❌ Avoid manual management
 browser = Browser()
@@ -198,14 +182,10 @@ browser = Browser()
 with Browser() as browser:
     page = browser.new_page()
     
-    # Navigate and wait for page load
     page.goto("https://example.com")
     page.wait_for_load_state("networkidle")
     
-    # Perform actions
     page.click("button")
-    
-    # Clean up if needed
     page.close()
 ```
 
@@ -216,13 +196,12 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://example.com")
     
-    # Wait for element to be visible
+    # Wait for element visibility
     page.wait_for_selector("#content", state="visible")
     
-    # Wait for element to be clickable
+    # Wait for element attachment
     page.wait_for_selector("button", state="attached")
     
-    # Then interact
     page.click("button")
 ```
 
@@ -234,7 +213,6 @@ with Browser() as browser:
 from playwrightauthor import Browser
 import logging
 
-# Enable debug logging
 logging.basicConfig(level=logging.DEBUG)
 
 with Browser() as browser:
@@ -246,15 +224,14 @@ with Browser() as browser:
 
 ```python
 with Browser() as browser:
-    # Add delays for debugging
     page = browser.new_page()
     page.goto("https://example.com")
     
     page.click("button")
-    page.wait_for_timeout(2000)  # 2 second pause
+    page.wait_for_timeout(2000)
     
     page.fill("#input", "text")
-    page.wait_for_timeout(1000)  # 1 second pause
+    page.wait_for_timeout(1000)
 ```
 
 ### Inspect Elements
@@ -264,13 +241,12 @@ with Browser() as browser:
     page = browser.new_page()
     page.goto("https://example.com")
     
-    # Pause for manual inspection
     page.pause()  # Opens Playwright Inspector
 ```
 
 ## Next Steps
 
-- Learn about [Configuration](configuration.md) options
-- Explore [Browser Management](browser-management.md) details
-- Set up [Authentication](authentication.md) workflows
-- Check [Advanced Features](advanced-features.md) for complex scenarios
+- [Configuration](configuration.md) options
+- [Browser Management](browser-management.md) details
+- [Authentication](authentication.md) workflows
+- [Advanced Features](advanced-features.md) for complex scenarios

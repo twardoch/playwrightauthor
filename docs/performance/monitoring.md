@@ -1,16 +1,16 @@
 # Performance Monitoring Guide
 
-This guide covers comprehensive monitoring strategies for PlaywrightAuthor, including metrics collection, alerting, debugging, and production monitoring best practices.
+This guide covers monitoring strategies for PlaywrightAuthor, including metrics collection, alerting, debugging, and production monitoring.
 
-## 🎯 Monitoring Overview
+## Monitoring Overview
 
 Effective monitoring helps you:
-- **Detect Issues Early**: Identify problems before they impact users
-- **Optimize Performance**: Find and fix bottlenecks
-- **Track Usage**: Understand automation patterns
-- **Ensure Reliability**: Maintain high availability
+- Detect issues before they impact users
+- Optimize performance by finding bottlenecks
+- Track automation usage patterns
+- Maintain system reliability
 
-## 📊 Key Metrics to Monitor
+## Key Metrics to Monitor
 
 ### System Metrics
 
@@ -180,7 +180,7 @@ class MetricsCollector:
 metrics = MetricsCollector()
 ```
 
-## 🔍 Monitoring Decorators
+## Monitoring Decorators
 
 ### Performance Monitoring Decorators
 
@@ -286,7 +286,7 @@ with monitor_operation("batch_processing", tags={"batch_id": "123"}):
     pass
 ```
 
-## 📈 Real-time Monitoring Dashboard
+## Real-time Monitoring Dashboard
 
 ### Terminal Dashboard
 
@@ -467,7 +467,7 @@ dashboard_thread.start()
 # dashboard.stop() when done
 ```
 
-## 🚨 Alerting System
+## Alerting System
 
 ### Alert Configuration
 
@@ -663,7 +663,7 @@ alert_thread.daemon = True
 alert_thread.start()
 ```
 
-## 📊 Production Monitoring Integration
+## Production Monitoring Integration
 
 ### Prometheus Exporter
 
@@ -840,7 +840,7 @@ def process_page_with_telemetry(url: str):
             response_time_histogram.record(duration, {"url": url})
 ```
 
-## 🐛 Debug Monitoring
+## Debug Monitoring
 
 ### Chrome DevTools Protocol Monitoring
 
@@ -929,34 +929,34 @@ with Browser() as browser:
         print(f"  {event}: {count}")
 ```
 
-## 🎯 Monitoring Best Practices
+## Monitoring Best Practices
 
 1. **Start Simple**
    - Monitor key metrics first
-   - Add more as needed
-   - Avoid metric explosion
+   - Add complexity gradually
+   - Avoid overwhelming metric volume
 
 2. **Set Meaningful Alerts**
-   - Alert on symptoms, not causes
-   - Use appropriate thresholds
-   - Implement alert fatigue prevention
+   - Alert on user-impacting symptoms
+   - Use thresholds based on actual performance requirements
+   - Prevent alert fatigue with cooldown periods
 
 3. **Use Sampling**
-   - Don't log every event
-   - Use statistical sampling
-   - Aggregate before storing
+   - Don't record every single event
+   - Sample statistically significant data
+   - Aggregate before storage
 
 4. **Monitor Business Metrics**
-   - Success rates
+   - Success and failure rates
    - Task completion times
-   - User-facing errors
+   - User-facing error counts
 
 5. **Implement SLIs/SLOs**
-   - Define Service Level Indicators
-   - Set Service Level Objectives
-   - Track error budgets
+   - Define Service Level Indicators (what you measure)
+   - Set Service Level Objectives (your targets)
+   - Track error budgets (how much failure you can afford)
 
-## 📚 Additional Resources
+## Additional Resources
 
 - [Performance Optimization](index.md)
 - [Memory Management](memory-management.md)

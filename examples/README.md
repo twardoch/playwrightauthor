@@ -4,34 +4,34 @@ This directory contains example scripts demonstrating how to use PlaywrightAutho
 
 ## Scraping Examples
 
-### 🔔 GitHub Notifications Scraper
+### GitHub Notifications Scraper
 **File:** `scrape_github_notifications.py`
 
-Demonstrates how to scrape your GitHub notifications after logging in once.
+Scrapes your GitHub notifications after a single login.
 
 ```bash
 python examples/scrape_github_notifications.py
 ```
 
 **Features:**
-- Automatic session persistence (log in once, use forever)
+- Automatic session persistence (log in once, stay logged in)
 - Extracts notification titles and repository names
-- Handles logged-out state gracefully
+- Handles logout states without crashing
 
-### 💼 LinkedIn Feed Scraper
+### LinkedIn Feed Scraper
 **File:** `scrape_linkedin_feed.py`
 
-Shows how to scrape posts from your LinkedIn feed with infinite scroll support.
+Scrapes posts from your LinkedIn feed, including infinite scroll support.
 
 ```bash
 python examples/scrape_linkedin_feed.py
 ```
 
 **Features:**
-- Scrapes post headlines, authors, and timestamps
-- Handles infinite scroll to load more posts
-- Avoids duplicate posts during scrolling
-- Configurable number of posts to scrape
+- Extracts post headlines, authors, and timestamps
+- Loads additional posts via infinite scroll
+- Prevents duplicate posts during scrolling
+- Adjustable post count limit
 
 ## First Time Setup
 
@@ -40,26 +40,26 @@ python examples/scrape_linkedin_feed.py
    pip install playwrightauthor
    ```
 
-2. Run any example script:
+2. Run any example:
    ```bash
    python examples/scrape_github_notifications.py
    ```
 
-3. **On first run:** A browser window will open. Log into the service (GitHub, LinkedIn, etc.) using your credentials.
+3. **First run:** A browser window opens. Log into the service manually.
 
-4. **Subsequent runs:** The script will use your saved session automatically - no login required!
+4. **Future runs:** The script uses your saved session automatically.
 
 ## Tips
 
-- Use `Browser(verbose=True)` for debugging connection issues
-- Your login sessions are stored locally and persist between runs
-- Different profiles can be used for different accounts: `Browser(profile="work")`
-- Sessions are stored in platform-specific locations (e.g., `~/.playwrightauthor/` on macOS/Linux)
+- Use `Browser(verbose=True)` to troubleshoot connection problems
+- Sessions save locally and persist across executions
+- Create separate profiles for different accounts: `Browser(profile="work")`
+- Session storage location varies by platform (typically `~/.playwrightauthor/` on macOS/Linux)
 
 ## Test Examples
 
-The `pytest/` subdirectory contains test examples showing how to write automated tests using PlaywrightAuthor with pytest.
+The `pytest/` directory contains examples of automated tests using PlaywrightAuthor with pytest.
 
 ## FastAPI Integration
 
-The `fastapi/` subdirectory demonstrates how to build web scraping APIs using PlaywrightAuthor with FastAPI.
+The `fastapi/` directory shows how to build web scraping APIs with PlaywrightAuthor and FastAPI.
