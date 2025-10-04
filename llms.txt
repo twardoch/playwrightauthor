@@ -47,11 +47,6 @@ Project Structure:
 │   ├── 📄 scrape_github_notifications.py
 │   └── 📄 scrape_linkedin_feed.py
 ├── 📁 issues
-├── 📁 playwrightauthor
-│   └── 📁 src
-│       └── 📁 playwrightauthor
-│           ├── 📁 helpers
-│           └── 📁 utils
 ├── 📁 scripts
 │   ├── 📄 check_accessibility.py
 │   └── 📄 check_links.py
@@ -16519,11 +16514,13 @@ from .author import AsyncBrowser, Browser
 # File: /Users/adam/Developer/vcs/github.twardoch/pub/playwright-projects/playwrightauthor/src/playwrightauthor/__main__.py
 # Language: python
 
+import io
 import json
 import shutil
 import sys
 from difflib import get_close_matches
 import fire
+import tomli_w
 from rich.console import Console
 from rich.table import Table
 from .browser_manager import ensure_browser, launch_browser
@@ -16533,6 +16530,7 @@ from .exceptions import BrowserManagerError, CLIError
 from .state_manager import get_state_manager
 from .utils.logger import configure as configure_logger
 from .utils.paths import config_dir, install_dir
+from .config import ConfigManager
 import importlib.metadata
 import playwright
 import platform
@@ -16566,7 +16564,6 @@ class Cli:
         action: str = "show",
         key: str = "",
         value: str = "",
-        format: str = "table",
     )):
         """ Manage configuration settings...."""
     def diagnose((self, verbose: bool = False, format: str = "table")):
@@ -16598,7 +16595,6 @@ def config((
         action: str = "show",
         key: str = "",
         value: str = "",
-        format: str = "table",
     )):
     """ Manage configuration settings...."""
 

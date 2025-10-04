@@ -6,12 +6,14 @@
 
 """Fire-powered command-line interface for utility tasks."""
 
+import io
 import json
 import shutil
 import sys
 from difflib import get_close_matches
 
 import fire
+import tomli_w
 from rich.console import Console
 from rich.table import Table
 
@@ -250,100 +252,31 @@ class Cli:
         action: str = "show",
         key: str = "",
         value: str = "",
-        format: str = "table",
     ):
         """
         Manage configuration settings.
 
         Args:
             action: Action to perform (show, set, reset).
-            key: Configuration key (e.g., 'browser.debug_port').
+            key: Configuration key (e.g., 'browser.chrome_version').
             value: Configuration value for set action.
-            format: Output format (table, json).
         """
         console = Console()
         config = get_config()
 
         try:
             if action == "show":
-                if format == "json":
-                    # Convert config to dictionary for JSON output
-                    config_dict = {
-                        "browser": {
-                            "debug_port": config.browser.debug_port,
-                            "headless": config.browser.headless,
-                            "timeout": config.browser.timeout,
-                            "viewport_width": config.browser.viewport_width,
-                            "viewport_height": config.browser.viewport_height,
-                            "user_agent": config.browser.user_agent,
-                            "chrome_version": config.browser.chrome_version,
-                        },
-                        "network": {
-                            "download_timeout": config.network.download_timeout,
-                            "retry_attempts": config.network.retry_attempts,
-                            "retry_delay": config.network.retry_delay,
-                            "exponential_backoff": config.network.exponential_backoff,
-                            "proxy": config.network.proxy,
-                        },
-                        "logging": {
-                            "verbose": config.logging.verbose,
-                            "log_level": config.logging.log_level,
-                        },
-                        "features": {
-                            "enable_lazy_loading": config.enable_lazy_loading,
-                            "enable_plugins": config.enable_plugins,
-                            "enable_connection_pooling": config.enable_connection_pooling,
-                            "default_profile": config.default_profile,
-                        },
-                    }
-                    console.print(json.dumps(config_dict, indent=2))
-                else:
-                    table = Table(title="Configuration Settings")
-                    table.add_column("Category", style="cyan")
-                    table.add_column("Setting", style="green")
-                    table.add_column("Value", style="yellow")
+                # Serialize config to TOML and print it (use plain print to avoid Rich markup)
+                from .config import ConfigManager
 
-                    # Browser settings
-                    table.add_row(
-                        "browser", "debug_port", str(config.browser.debug_port)
-                    )
-                    table.add_row("browser", "headless", str(config.browser.headless))
-                    table.add_row("browser", "timeout", f"{config.browser.timeout}ms")
-                    table.add_row(
-                        "browser",
-                        "viewport",
-                        f"{config.browser.viewport_width}x{config.browser.viewport_height}",
-                    )
-                    if config.browser.chrome_version:
-                        table.add_row(
-                            "browser", "chrome_version", config.browser.chrome_version
-                        )
+                config_manager = ConfigManager()
+                config_dict = config_manager._to_dict(config)
 
-                    # Network settings
-                    table.add_row(
-                        "network", "retry_attempts", str(config.network.retry_attempts)
-                    )
-                    table.add_row(
-                        "network", "retry_delay", f"{config.network.retry_delay}s"
-                    )
-                    table.add_row(
-                        "network",
-                        "download_timeout",
-                        f"{config.network.download_timeout}s",
-                    )
+                output = io.BytesIO()
+                tomli_w.dump(config_dict, output)
+                toml_content = output.getvalue().decode("utf-8")
 
-                    # Feature flags
-                    table.add_row(
-                        "features", "lazy_loading", str(config.enable_lazy_loading)
-                    )
-                    table.add_row("features", "plugins", str(config.enable_plugins))
-                    table.add_row(
-                        "features",
-                        "connection_pooling",
-                        str(config.enable_connection_pooling),
-                    )
-
-                    console.print(table)
+                print(toml_content, end="")
 
             elif action == "set":
                 if not key or not value:
@@ -1160,3 +1093,7 @@ def main() -> None:
 
         # Re-raise if no suggestions found
         raise
+
+
+if __name__ == "__main__":
+    main()
