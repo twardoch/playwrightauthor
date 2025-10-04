@@ -16546,6 +16546,9 @@ from .lazy_imports import get_async_playwright
 from .onboarding import interactive_setup_wizard
 from .config import get_config
 import traceback
+import requests
+from .browser.installer import install_from_lkgv
+import traceback
 from .browser.process import get_chrome_process
 import traceback
 
@@ -16576,8 +16579,10 @@ class Cli:
         """ Start interactive REPL mode for browser automation...."""
     def setup((self, verbose: bool = False)):
         """ Launch interactive setup wizard for first-time users...."""
-    def browse((self, verbose: bool = False, profile: str = "default")):
-        """ Launch Chrome for Testing in CDP mode and exit...."""
+    def upgrade((self, verbose: bool = False)):
+        """ Install the very latest Chrome for Testing browser and save version to config...."""
+    def run((self, verbose: bool = False, profile: str = "default")):
+        """ Launch Chrome for Testing in CDP debug mode and exit...."""
 
 def status((self, verbose: bool = False)):
     """ Check browser installation and connection status...."""
@@ -16617,8 +16622,11 @@ def setup((self, verbose: bool = False)):
 
 def run_wizard(()):
 
-def browse((self, verbose: bool = False, profile: str = "default")):
-    """ Launch Chrome for Testing in CDP mode and exit...."""
+def upgrade((self, verbose: bool = False)):
+    """ Install the very latest Chrome for Testing browser and save version to config...."""
+
+def run((self, verbose: bool = False, profile: str = "default")):
+    """ Launch Chrome for Testing in CDP debug mode and exit...."""
 
 def main(()) -> None:
     """Main entry point with enhanced error handling for mistyped commands."""

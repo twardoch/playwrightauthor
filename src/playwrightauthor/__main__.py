@@ -270,6 +270,11 @@ class Cli:
                 from .config import ConfigManager
 
                 config_manager = ConfigManager()
+                config_path = config_manager.config_path
+
+                # Print config file path first
+                console.print(f"[cyan]Config file: {config_path}[/cyan]\n")
+
                 config_dict = config_manager._to_dict(config)
 
                 output = io.BytesIO()
@@ -953,14 +958,121 @@ class Cli:
             console.print("  • Run diagnostics: [bold]playwrightauthor health[/bold]")
             console.print("  • Clear cache: [bold]playwrightauthor clear-cache[/bold]")
 
-    def browse(self, verbose: bool = False, profile: str = "default"):
+    def upgrade(self, verbose: bool = False):
         """
-        Launch Chrome for Testing in CDP mode and exit.
+        Install the very latest Chrome for Testing browser and save version to config.
+
+        This command downloads and installs the most recent Chrome for Testing version
+        available, then writes the version number to the config file. This allows you to
+        pin to the latest version for reproducibility.
+
+        Args:
+            verbose (bool, optional): Enable detailed logging for download and install
+                progress. Shows download progress, extraction steps, and version info.
+                Defaults to False.
+
+        Usage Examples:
+            # Install latest browser and save version
+            playwrightauthor upgrade
+
+            # Install with verbose logging
+            playwrightauthor upgrade --verbose
+
+        The command will:
+            1. Fetch latest stable Chrome for Testing version info
+            2. Download and install the browser
+            3. Write the version number to config.toml
+            4. Display the installed version
+
+        Note:
+            This command will overwrite any existing Chrome installation and update
+            the chrome_version setting in your config file.
+        """
+        console = Console()
+        logger = configure_logger(verbose)
+
+        try:
+            console.print(
+                "[bold blue]Upgrading to latest Chrome for Testing...[/bold blue]\n"
+            )
+
+            # Clear existing installation first
+            install_path = install_dir()
+            if install_path.exists():
+                console.print(
+                    f"[dim]Removing existing installation at {install_path}[/dim]"
+                )
+                shutil.rmtree(install_path)
+
+            # Fetch all versions and find the absolute latest
+            import requests
+
+            logger.info("Fetching all Chrome for Testing versions...")
+
+            try:
+                response = requests.get(
+                    "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json",
+                    timeout=30,
+                )
+                response.raise_for_status()
+                data = response.json()
+
+                # Get all versions and find the latest one
+                versions = data.get("versions", [])
+                if not versions:
+                    raise ValueError("No versions found in known-good-versions")
+
+                # The list is typically in chronological order, so last one is latest
+                latest_version_data = versions[-1]
+                latest_version = latest_version_data.get("version")
+
+                if not latest_version:
+                    raise ValueError("Could not determine latest version")
+
+                console.print(f"[cyan]Latest version: {latest_version}[/cyan]\n")
+
+            except Exception as e:
+                console.print(f"[red]Failed to fetch version info: {e}[/red]")
+                sys.exit(1)
+
+            # Install the specific latest version
+            from .browser.installer import install_from_lkgv
+
+            logger.info(f"Installing Chrome for Testing {latest_version}...")
+            install_from_lkgv(logger, version=latest_version)
+
+            # Update config with the version
+            config = get_config()
+            config.browser.chrome_version = latest_version
+            save_config(config)
+
+            config_path = config_dir() / "config.toml"
+            console.print("\n[green]✓ Upgrade complete![/green]")
+            console.print(f"[green]Installed version: {latest_version}[/green]")
+            console.print(f"[dim]Config updated at: {config_path}[/dim]\n")
+
+            console.print("[cyan]Next steps:[/cyan]")
+            console.print(
+                "  • Verify installation: [bold]playwrightauthor status[/bold]"
+            )
+            console.print("  • Check health: [bold]playwrightauthor health[/bold]")
+
+        except Exception as e:
+            console.print(f"[red]Upgrade failed: {e}[/red]")
+            if verbose:
+                import traceback
+
+                console.print(f"[dim]{traceback.format_exc()}[/dim]")
+            sys.exit(1)
+
+    def run(self, verbose: bool = False, profile: str = "default"):
+        """
+        Launch Chrome for Testing in CDP debug mode and exit.
 
         This command starts Chrome for Testing with remote debugging enabled on port 9222
-        and then exits immediately, leaving the browser running in the background. Other
-        scripts using PlaywrightAuthor will automatically connect to this browser instance
-        instead of launching their own.
+        and then exits immediately, leaving the browser running in the background. The browser
+        always runs in debug mode. Other scripts using PlaywrightAuthor will automatically
+        connect to this browser instance instead of launching their own.
 
         The browser will remain open until you close it manually. All your authentication
         sessions and cookies will be preserved between script runs as long as the browser
@@ -974,17 +1086,17 @@ class Cli:
 
         Usage Examples:
             # Launch browser with default profile
-            playwrightauthor browse
+            playwrightauthor run
 
             # Launch with verbose logging
-            playwrightauthor browse --verbose
+            playwrightauthor run --verbose
 
             # Launch with a specific profile (e.g., work account)
-            playwrightauthor browse --profile work
+            playwrightauthor run --profile work
 
         Workflow Example:
-            1. Launch browser: playwrightauthor browse
-               (Browser opens, command exits immediately)
+            1. Launch browser: playwrightauthor run
+               (Browser opens in debug mode, command exits immediately)
 
             2. Run your scripts: python my_scraper.py
                (Your script connects to the already-running browser)
@@ -998,21 +1110,23 @@ class Cli:
             - Manually interact with the browser between script runs
             - Debug scripts by watching them execute in real-time
             - Use browser DevTools while scripts are running
+            - Always in debug mode for easier troubleshooting
 
         Note:
             The command exits immediately after launching the browser. The browser
-            continues running independently and will use the configured debug port
-            (default: 9222) which must not be in use by another application.
+            continues running independently in debug mode and will use the configured
+            debug port (default: 9222) which must not be in use by another application.
         """
         console = Console()
-        configure_logger(verbose)
+        configure_logger(True)  # Always run in verbose/debug mode
 
         try:
             console.print(
-                "[bold blue]Launching Chrome for Testing in CDP mode...[/bold blue]"
+                "[bold blue]Launching Chrome for Testing in CDP debug mode...[/bold blue]"
             )
             console.print(f"[dim]Profile: {profile}[/dim]")
-            console.print("[dim]Debug port: 9222[/dim]\n")
+            console.print("[dim]Debug port: 9222[/dim]")
+            console.print("[dim]Debug mode: ENABLED[/dim]\n")
 
             # Launch browser (don't just ensure it's running)
             from .browser.process import get_chrome_process
@@ -1022,7 +1136,9 @@ class Cli:
                 get_chrome_process(config.browser.debug_port) is not None
             )
 
-            browser_path, data_dir = launch_browser(verbose=verbose, profile=profile)
+            browser_path, data_dir = launch_browser(
+                verbose=True, profile=profile
+            )  # Always verbose
 
             if was_already_running:
                 console.print(
@@ -1034,13 +1150,13 @@ class Cli:
             console.print(f"[dim]Path: {browser_path}[/dim]")
             console.print(f"[dim]Data: {data_dir}[/dim]\n")
 
-            console.print("[yellow]Browser is running in CDP mode.[/yellow]")
+            console.print("[yellow]Browser is running in CDP debug mode.[/yellow]")
             console.print("You can now:")
             console.print("  • Run PlaywrightAuthor scripts to connect to this browser")
             console.print("  • Manually browse and log into services")
             console.print("  • Use Chrome DevTools (press F12)")
             console.print(
-                "\n[dim]The browser will remain open until you close it manually.[/dim]"
+                "\n[dim]The browser will remain open in debug mode until you close it manually.[/dim]"
             )
 
         except BrowserManagerError as e:
