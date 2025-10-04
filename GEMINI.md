@@ -1,318 +1,347 @@
-# CLAUDE.md
+# Development guidelines
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Foundation: Challenge your first instinct with chain-of-thought
 
-## 1. Project Overview
+Before you generate any response, assume your first instinct is wrong. Apply chain-of-thought reasoning: “Let me think step by step…” Consider edge cases, failure modes, and overlooked complexities. Your first response should be what you’d produce after finding and fixing three critical issues.
 
-PlaywrightAuthor is a convenience package for Microsoft Playwright that handles browser automation setup. It automatically manages Chrome for Testing installation, authentication with user profiles, and provides ready-to-use Browser objects through simple context managers.
+### CoT reasoning template
 
-## 2. Key Architecture
+- Problem analysis: What exactly are we solving and why?
+- Constraints: What limitations must we respect?
+- Solution options: What are 2–3 viable approaches with trade-offs?
+- Edge cases: What could go wrong and how do we handle it?
+- Test strategy: How will we verify this works correctly?
 
-**Core Design Pattern**: The library follows a context manager pattern with `Browser()` and `AsyncBrowser()` classes that return authenticated Playwright browser objects.
+## No sycophancy, accuracy first
 
-**Main Components** (planned structure):
-- `playwrightauthor/author.py` - Core Browser/AsyncBrowser classes (main API)
-- `playwrightauthor/browser_manager.py` - Chrome installation/process management 
-- `playwrightauthor/onboarding.py` - User guidance for authentication
-- `playwrightauthor/cli.py` - Fire-powered CLI interface
-- `playwrightauthor/utils/` - Logger and cross-platform path utilities
+- If your confidence is below 90%, use search tools. Search within the codebase, in the references provided by me, and on the web.
+- State confidence levels clearly: “I’m certain” vs “I believe” vs “This is an educated guess”.
+- Challenge incorrect statements, assumptions, or word usage immediately.
+- Facts matter more than feelings: accuracy is non-negotiable.
+- Never just agree to be agreeable: every response should add value.
+- When user ideas conflict with best practices or standards, explain why.
+- NEVER use validation phrases like “You’re absolutely right” or “You’re correct”.
+- Acknowledge and implement valid points without unnecessary agreement statements.
 
-**Current State**: The project is in early development. The main implementation exists as a legacy scraper in `old/google_docs_scraper_simple.py` that demonstrates the core concept of connecting to an existing Chrome debug session.
+## Complete execution
 
-## 3. Development Commands
+- Complete all parts of multi-part requests.
+- Match output format to input format (code box for code box).
+- Use artifacts for formatted text or content to be saved (unless specified otherwise).
+- Apply maximum thinking time for thoroughness.
 
-### 3.1. Environment Setup
-```bash
-# Initial setup with uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
-uv venv --python 3.12
-uv init
-uv add playwright rich fire loguru platformdirs requests psutil
-```
+## Absolute priority: never overcomplicate, always verify
 
-### 3.2. Code Quality Pipeline
-After any Python changes, run:
-```bash
-fd -e py -x uvx autoflake -i {}; \
-fd -e py -x uvx pyupgrade --py312-plus {}; \
-fd -e py -x uvx ruff check --output-format=github --fix --unsafe-fixes {}; \
-fd -e py -x uvx ruff format --respect-gitignore --target-version py312 {}; \
-python -m pytest
-```
+- Stop and assess: Before writing any code, ask “Has this been done before”?
+- Build vs buy: Always choose well-maintained packages over custom solutions.
+- Verify, don’t assume: Never assume code works: test every function, every edge case.
+- Complexity kills: Every line of custom code is technical debt.
+- Lean and focused: If it’s not core functionality, it doesn’t belong.
+- Ruthless deletion: Remove features, don’t add them.
+- Test or it doesn’t exist: Untested code is broken code.
 
-### 3.3. Testing
-- Run tests: `python -m pytest`
-- Tests are located in `tests/` directory
-- Current tests may be integration tests requiring live Chrome instance
+## Verification workflow: mandatory
 
-### 3.4. CLI Usage
-Once implemented:
-```bash
-python -m playwrightauthor status  # Check browser status
-```
+1. Implement minimal code: Just enough to pass the test.
+2. Write a test: Define what success looks like.
+3. Run the test: `uvx hatch test`.
+4. Test edge cases: Empty inputs, none, negative numbers, huge inputs.
+5. Test error conditions: Network failures, missing files, bad permissions.
+6. Document test results: Add to `CHANGELOG.md` what was tested and results.
 
-## 4. Code Standards
+## Before writing any code
 
-- **File headers**: Every Python file should include a `this_file:` comment with the relative path
-- **Dependencies**: Use uv script headers with `# /// script` blocks
-- **Type hints**: Use modern Python type hints (list, dict, | for unions)
-- **Logging**: Use loguru with verbose flag support
-- **CLI**: Use Fire for command-line interfaces with Rich for output
+1. Search for existing packages: Check npm, pypi, github for solutions.
+2. Evaluate packages: >200 stars, recent updates, good documentation.
+3. Test the package: write a small proof-of-concept first.
+4. Use the package: don’t reinvent what exists.
+5. Only write custom code if no suitable package exists and it’s core functionality.
 
-## 5. Browser Management Strategy
+## Never assume: always verify
 
-The core technical challenge is reliably managing Chrome for Testing:
+- Function behavior: read the actual source code, don’t trust documentation alone.
+- API responses: log and inspect actual responses, don’t assume structure.
+- File operations: Check file exists, check permissions, handle failures.
+- Network calls: test with network off, test with slow network, test with errors.
+- Package behavior: Write minimal test to verify package does what you think.
+- Error messages: trigger the error intentionally to see actual message.
+- Performance: measure actual time/memory, don’t guess.
 
-1. **Detection**: Check if Chrome is running with `--remote-debugging-port=9222`
-2. **Installation**: Prefer `npx puppeteer browsers install`, fallback to LKGV JSON downloads
-3. **Process Management**: Kill non-debug instances, launch with persistent user-data-dir
-4. **Connection**: Use Playwright's `connect_over_cdp()` to attach to debug session
+## Test-first development
 
-## 6. Project Workflow
+- Test-first development: Write the test before the implementation.
+- Delete first, add second: Can we remove code instead?
+- One file when possible: Could this fit in a single file?
+- Iterate gradually, avoiding major changes.
+- Focus on minimal viable increments and ship early.
+- Minimize confirmations and checks.
+- Preserve existing code/structure unless necessary.
+- Check often the coherence of the code you’re writing with the rest of the code.
+- Analyze code line-by-line.
 
-The project follows a documentation-driven development approach:
-1. Read `WORK.md` and `PLAN.md` before making changes
-2. Update documentation files after implementation
-3. Use "Wait, but" reflection methodology for code review
-4. Maintain minimal, self-contained commits
+## Complexity detection triggers: rethink your approach immediately
 
-## 7. Dependencies
+- Writing a utility function that feels “general purpose”.
+- Creating abstractions “for future flexibility”.
+- Adding error handling for errors that never happen.
+- Building configuration systems for configurations.
+- Writing custom parsers, validators, or formatters.
+- Implementing caching, retry logic, or state management from scratch.
+- Creating any code for security validation, security hardening, performance validation, benchmarking.
+- More than 3 levels of indentation.
+- Functions longer than 20 lines.
+- Files longer than 200 lines.
 
-Core runtime dependencies:
-- `playwright` - Browser automation
-- `rich` - Terminal output formatting  
-- `fire` - CLI generation
-- `loguru` - Logging
-- `platformdirs` - Cross-platform paths
-- `requests` - HTTP client for downloads
-- `psutil` - Process management
+## Before starting any work
 
-# Software Development Rules
+- Always read `WORK.md` in the main project folder for work progress, and `CHANGELOG.md` for past changes notes.
+- Read `README.md` to understand the project.
+- For Python, run existing tests: `uvx hatch test` to understand current state.
+- Step back and think heavily step by step about the task.
+- Consider alternatives and carefully choose the best option.
+- Check for existing solutions in the codebase before starting.
 
-## 8. Pre-Work Preparation
+## Project documentation to maintain
 
-### 8.1. Before Starting Any Work
-- **ALWAYS** read `WORK.md` in the main project folder for work progress
-- Read `README.md` to understand the project
-- STEP BACK and THINK HEAVILY STEP BY STEP about the task
-- Consider alternatives and carefully choose the best option
-- Check for existing solutions in the codebase before starting
+- `README.md` :  purpose and functionality (keep under 200 lines).
+- `CHANGELOG.md` :  past change release notes (accumulative).
+- `PLAN.md` :  detailed future goals, clear plan that discusses specifics.
+- `TODO.md` :  flat simplified itemized `- []`-prefixed representation of `PLAN.md`.
+- `WORK.md` :  work progress updates including test results.
+- `DEPENDENCIES.md` :  list of packages used and why each was chosen.
 
-### 8.2. Project Documentation to Maintain
-- `README.md` - purpose and functionality
-- `CHANGELOG.md` - past change release notes (accumulative)
-- `PLAN.md` - detailed future goals, clear plan that discusses specifics
-- `TODO.md` - flat simplified itemized `- [ ]`-prefixed representation of `PLAN.md`
-- `WORK.md` - work progress updates
+## Code quality standards
 
-## 9. General Coding Principles
+- Use constants over magic numbers.
+- Write explanatory docstrings/comments that explain what and why.
+- Explain where and how the code is used/referred to elsewhere.
+- Handle failures gracefully with retries, fallbacks, user guidance.
+- Address edge cases, validate assumptions, catch errors early.
+- Let the computer do the work, minimize user decisions. If you identify a bug or a problem, plan its fix and then execute its fix. Don’t just “identify”.
+- Reduce cognitive load, beautify code.
+- Modularize repeated logic into concise, single-purpose functions.
+- Favor flat over nested structures.
+- Every function must have a test.
 
-### 9.1. Core Development Approach
-- Iterate gradually, avoiding major changes
-- Focus on minimal viable increments and ship early
-- Minimize confirmations and checks
-- Preserve existing code/structure unless necessary
-- Check often the coherence of the code you're writing with the rest of the code
-- Analyze code line-by-line
+## Testing standards
 
-### 9.2. Code Quality Standards
-- Use constants over magic numbers
-- Write explanatory docstrings/comments that explain what and WHY
-- Explain where and how the code is used/referred to elsewhere
-- Handle failures gracefully with retries, fallbacks, user guidance
-- Address edge cases, validate assumptions, catch errors early
-- Let the computer do the work, minimize user decisions
-- Reduce cognitive load, beautify code
-- Modularize repeated logic into concise, single-purpose functions
-- Favor flat over nested structures
+- Unit tests: Every function gets at least one test.
+- Edge cases: Test empty, none, negative, huge inputs.
+- Error cases: Test what happens when things fail.
+- Integration: Test that components work together.
+- Smoke test: One test that runs the whole program.
+- Test naming: `test_function_name_when_condition_then_result`.
+- Assert messages: Always include helpful messages in assertions.
+- Functional tests: In `examples` folder, maintain fully-featured working examples for realistic usage scenarios that showcase how to use the package but also work as a test. 
+- Add `./test.sh` script to run all test including the functional tests.
 
-## 10. Tool Usage (When Available)
+## Tool usage
 
-### 10.1. Additional Tools
-- If we need a new Python project, run `curl -LsSf https://astral.sh/uv/install.sh | sh; uv venv --python 3.12; uv init; uv add fire rich; uv sync`
-- Use `tree` CLI app if available to verify file locations
-- Check existing code with `.venv` folder to scan and consult dependency source code
-- Run `DIR="."; uvx codetoprompt --compress --output "$DIR/llms.txt"  --respect-gitignore --cxml --exclude "*.svg,.specstory,*.md,*.txt,ref,testdata,*.lock,*.svg" "$DIR"` to get a condensed snapshot of the codebase into `llms.txt`
+- Use `tree` CLI app if available to verify file locations.
+- Run `dir="." uvx codetoprompt: compress: output "$dir/llms.txt" --respect-gitignore: cxml: exclude "*.svg,.specstory,*.md,*.txt, ref, testdata,*.lock,*.svg" "$dir"` to get a condensed snapshot of the codebase into `llms.txt`.
+- As you work, consult with the tools like `codex`, `codex-reply`, `ask-gemini`, `web_search_exa`, `deep-research-tool` and `perplexity_ask` if needed.
 
-## 11. File Management
+## File path tracking
 
-### 11.1. File Path Tracking
-- **MANDATORY**: In every source file, maintain a `this_file` record showing the path relative to project root
-- Place `this_file` record near the top:
-- As a comment after shebangs in code files
-- In YAML frontmatter for Markdown files
-- Update paths when moving files
-- Omit leading `./`
-- Check `this_file` to confirm you're editing the right file
+- Mandatory: In every source file, maintain a `this_file` record showing the path relative to project root.
+- Place `this_file` record near the top, as a comment after shebangs in code files, or in YAML frontmatter for markdown files.
+- Update paths when moving files.
+- Omit leading `./`.
+- Check `this_file` to confirm you’re editing the right file.
 
-## 12. Python-Specific Guidelines
 
-### 12.1. PEP Standards
-- PEP 8: Use consistent formatting and naming, clear descriptive names
-- PEP 20: Keep code simple and explicit, prioritize readability over cleverness
-- PEP 257: Write clear, imperative docstrings
-- Use type hints in their simplest form (list, dict, | for unions)
+## For Python
 
-### 12.2. Modern Python Practices
-- Use f-strings and structural pattern matching where appropriate
-- Write modern code with `pathlib`
-- ALWAYS add "verbose" mode loguru-based logging & debug-log
-- Use `uv add` 
-- Use `uv pip install` instead of `pip install`
-- Prefix Python CLI tools with `python -m` (e.g., `python -m pytest`)
+- If we need a new Python project, run `uv venv --python 3.12 --clear; uv init; uv add fire rich pytest pytest-cov; uv sync`.
+- Check existing code with `.venv` folder to scan and consult dependency source code.
+- `uvx hatch test` :  run tests verbosely, stop on first failure.
+- `python --c "import package; print (package.__version__)"` :  verify package installation.
+- `uvx mypy file.py` :  type checking.
+- PEP 8: Use consistent formatting and naming, clear descriptive names.
+- PEP 20: Keep code simple & explicit, prioritize readability over cleverness.
+- PEP 257: Write docstrings.
+- Use type hints in their simplest form (list, dict, | for unions).
+- Use f-strings and structural pattern matching where appropriate.
+- Write modern code with `pathlib`.
+- Always add `--verbose` mode loguru-based debug logging.
+- Use `uv add`.
+- Use `uv pip install` instead of `pip install`.
+- Always use type hints: they catch bugs and document code.
+- Use dataclasses or Pydantic for data structures.
 
-### 12.3. CLI Scripts Setup
+### Package-first Python
+
+- Always use uv for package management.
+- Before any custom code: `uv add [package]`.
+- Common packages to always use:
+  - `httpx` for HTTP requests.
+  - `pydantic` for data validation.
+  - `rich` for terminal output.
+  - `fire` for CLI interfaces.
+  - `loguru` for logging.
+  - `pytest` for testing.
+
+### Python CLI scripts
+
 For CLI Python scripts, use `fire` & `rich`, and start with:
+
 ```python
-#!/usr/bin/env -S uv run -s
+#!/usr/bin/env-S uv run
 # /// script
-# dependencies = ["PKG1", "PKG2"]
+# dependencies = [“pkg1”, “pkg2”]
 # ///
-# this_file: PATH_TO_CURRENT_FILE
+# this_file: path_to_current_file
 ```
 
-### 12.4. Post-Edit Python Commands
+## Post-work activities
+
+### Critical reflection
+
+- After completing a step, say “Wait, but” and do additional careful critical reasoning.
+- Go back, think & reflect, revise & improve what you’ve done.
+- Run all tests to ensure nothing broke.
+- Check test coverage: aim for 80% minimum.
+- Don’t invent functionality freely.
+- Stick to the goal of “minimal viable next version”.
+
+### Documentation updates
+
+- Update `WORK.md` with what you’ve done, test results, and what needs to be done next.
+- Document all changes in `CHANGELOG.md`.
+- Update `TODO.md` and `PLAN.md` accordingly.
+- Update `DEPENDENCIES.md` if packages were added/removed.
+
+## Special commands
+
+### /plan command: transform requirements into detailed plans
+
+When I say `/plan [requirement]`, you must think hard and:
+
+1. Research first: Search for existing solutions.
+   - Use `perplexity_ask` to find similar projects.
+   - Search pypi/npm for relevant packages.
+   - Check if this has been solved before.
+2. Deconstruct the requirement:
+   - Extract core intent, key features, and objectives.
+   - Identify technical requirements and constraints.
+   - Map what’s explicitly stated vs. what’s implied.
+   - Determine success criteria.
+   - Define test scenarios.
+3. Diagnose the project needs:
+   - Audit for missing specifications.
+   - Check technical feasibility.
+   - Assess complexity and dependencies.
+   - Identify potential challenges.
+   - List packages that solve parts of the problem.
+4. Research additional material:
+   - Repeatedly call the `perplexity_ask` and request up-to-date information or additional remote context.
+   - Repeatedly call the `context7` tool and request up-to-date software package documentation.
+   - Repeatedly call the `codex` tool and request additional reasoning, summarization of files and second opinion.
+5. Develop the plan structure:
+   - Break down into logical phases/milestones.
+   - Create hierarchical task decomposition.
+   - Assign priorities and dependencies.
+   - Add implementation details and technical specs.
+   - Include edge cases and error handling.
+   - Define testing and validation steps.
+   - Specify which packages to use for each component.
+6. Deliver to `PLAN.md`:
+   - Write a comprehensive, detailed plan with:
+     - Project overview and objectives.
+     - Technical architecture decisions.
+     - Phase-by-phase breakdown.
+     - Specific implementation steps.
+     - Testing and validation criteria.
+     - Package dependencies and why each was chosen.
+     - Future considerations.
+   - Simultaneously create/update `TODO.md` with the flat itemized `- []` representation of the plan.
+
+Break complex requirements into atomic, actionable tasks. Identify and document task dependencies. Include potential blockers and mitigation strategies. Start with MVP, then layer improvements. Include specific technologies, patterns, and approaches.
+
+### /report command
+
+1. Read `./TODO.md` and `./PLAN.md` files.
+2. Analyze recent changes.
+3. Run tests.
+4. Document changes in `./CHANGELOG.md`.
+5. Remove completed items from `./TODO.md` and `./PLAN.md`.
+
+#### /work command
+
+1. Read `./TODO.md` and `./PLAN.md` files, think hard and reflect.
+2. Write down the immediate items in this iteration into `./work.md`.
+3. Write tests for the items first.
+4. Work on these items.
+5. Think, contemplate, research, reflect, refine, revise.
+6. Be careful, curious, vigilant, energetic.
+7. Verify your changes with tests and think aloud.
+8. Consult, research, reflect.
+9. Periodically remove completed items from `./work.md`.
+10. Tick off completed items from `./todo.md` and `./plan.md`.
+11. Update `./work.md` with improvement tasks.
+12. Execute `/report`.
+13. Continue to the next item.
+
+#### /test command: run comprehensive tests
+
+When I say `/test`, you must run
+
 ```bash
-fd -e py -x uvx autoflake -i {}; fd -e py -x uvx pyupgrade --py312-plus {}; fd -e py -x uvx ruff check --output-format=github --fix --unsafe-fixes {}; fd -e py -x uvx ruff format --respect-gitignore --target-version py312 {}; python -m pytest;
+fd -e py -x uvx autoflake -i {}; fd -e py -x uvx pyupgrade --py312-plus {}; fd -e py -x uvx ruff check --output-format=github --fix --unsafe-fixes {}; fd -e py -x uvx ruff format --respect-gitignore --target-version py312 {}; uvx hatch test;
 ```
 
-## 13. Post-Work Activities
+and document all results in `WORK.md`.
 
-### 13.1. Critical Reflection
-- After completing a step, say "Wait, but" and do additional careful critical reasoning
-- Go back, think & reflect, revise & improve what you've done
-- Don't invent functionality freely
-- Stick to the goal of "minimal viable next version"
+## Anti-enterprise bloat guidelines
 
-### 13.2. Documentation Updates
-- Update `WORK.md` with what you've done and what needs to be done next
-- Document all changes in `CHANGELOG.md`
-- Update `TODO.md` and `PLAN.md` accordingly
+CRITICAL: The fundamental mistake is treating simple utilities as enterprise systems. 
 
-## 14. Work Methodology
+- Define scope in one sentence: Write project scope in one sentence and stick to it ruthlessly.
+- Example scope: “Fetch model lists from AI providers and save to files, with basic config file generation.”
+- That’s it: No analytics, no monitoring, no production features unless part of the one-sentence scope.
 
-### 14.1. Virtual Team Approach
-Be creative, diligent, critical, relentless & funny! Lead two experts:
-- **"Ideot"** - for creative, unorthodox ideas
-- **"Critin"** - to critique flawed thinking and moderate for balanced discussions
+### RED LIST: NEVER ADD these unless requested
 
-Collaborate step-by-step, sharing thoughts and adapting. If errors are found, step back and focus on accuracy and progress.
+- NEVER ADD Analytics/metrics collection systems.
+- NEVER ADD Performance monitoring and profiling.
+- NEVER ADD Production error handling frameworks.
+- NEVER ADD Security hardening beyond basic input validation.
+- NEVER ADD Health monitoring and diagnostics.
+- NEVER ADD Circuit breakers and retry strategies.
+- NEVER ADD Sophisticated caching systems.
+- NEVER ADD Graceful degradation patterns.
+- NEVER ADD Advanced logging frameworks.
+- NEVER ADD Configuration validation systems.
+- NEVER ADD Backup and recovery mechanisms.
+- NEVER ADD System health monitoring.
+- NEVER ADD Performance benchmarking suites.
 
-### 14.2. Continuous Work Mode
-- Treat all items in `PLAN.md` and `TODO.md` as one huge TASK
-- Work on implementing the next item
-- Review, reflect, refine, revise your implementation
-- Periodically check off completed issues
-- Continue to the next item without interruption
+### GREEN LIST: what is appropriate
 
-## 15. Special Commands
+- Basic error handling (try/catch, show error).
+- Simple retry (3 attempts maximum).
+- Basic logging (e.g. loguru logger).
+- Input validation (check required fields).
+- Help text and usage examples.
+- Configuration files (TOML preferred).
+- Basic tests for core functionality.
 
-### 15.1. `/plan` Command - Transform Requirements into Detailed Plans
+## Prose
 
-When I say "/plan [requirement]", you must:
+When you write prose (like documentation or marketing or even your own commentary): 
 
-1. **DECONSTRUCT** the requirement:
-- Extract core intent, key features, and objectives
-- Identify technical requirements and constraints
-- Map what's explicitly stated vs. what's implied
-- Determine success criteria
+- The first line sells the second line: Your opening must earn attention for what follows. This applies to scripts, novels, and headlines. No throat-clearing allowed.
+- Show the transformation, not the features: Whether it’s character arc, reader journey, or customer benefit, people buy change, not things. Make them see their better self.
+- One person, one problem, one promise: Every story, page, or campaign should speak to one specific human with one specific pain. Specificity is universal; generality is forgettable.
+- Conflict is oxygen: Without tension, you have no story, no page-turner, no reason to buy. What’s at stake? What happens if they don’t act? Make it matter.
+- Dialog is action, not explanation: Every word should reveal character, advance plot, or create desire. If someone’s explaining, you’re failing. Subtext is everything.
+- Kill your darlings ruthlessly: That clever line, that beautiful scene, that witty tagline, if it doesn’t serve the story, message, customer — it dies. Your audience’s time is sacred!
+- Enter late, leave early: Start in the middle of action, end before explaining everything. Works for scenes, chapters, and sales copy. Trust your audience to fill gaps.
+- Remove fluff, bloat and corpo jargon.
+- Avoid hype words like “revolutionary”. 
+- Favor understated and unmarked UK-style humor sporadically
+- Apply healthy positive skepticism. 
+- Make every word count. 
 
-2. **DIAGNOSE** the project needs:
-- Audit for missing specifications
-- Check technical feasibility
-- Assess complexity and dependencies
-- Identify potential challenges
+---
 
-3. **RESEARCH** additional material: 
-- Repeatedly call the `perplexity_ask` and request up-to-date information or additional remote context
-- Repeatedly call the `context7` tool and request up-to-date software package documentation
-- Repeatedly call the `codex` tool and request additional reasoning, summarization of files and second opinion
-
-4. **DEVELOP** the plan structure:
-- Break down into logical phases/milestones
-- Create hierarchical task decomposition
-- Assign priorities and dependencies
-- Add implementation details and technical specs
-- Include edge cases and error handling
-- Define testing and validation steps
-
-5. **DELIVER** to `PLAN.md`:
-- Write a comprehensive, detailed plan with:
- - Project overview and objectives
- - Technical architecture decisions
- - Phase-by-phase breakdown
- - Specific implementation steps
- - Testing and validation criteria
- - Future considerations
-- Simultaneously create/update `TODO.md` with the flat itemized `- [ ]` representation
-
-**Plan Optimization Techniques:**
-- **Task Decomposition:** Break complex requirements into atomic, actionable tasks
-- **Dependency Mapping:** Identify and document task dependencies
-- **Risk Assessment:** Include potential blockers and mitigation strategies
-- **Progressive Enhancement:** Start with MVP, then layer improvements
-- **Technical Specifications:** Include specific technologies, patterns, and approaches
-
-### 15.2. `/report` Command
-
-1. Read all `./TODO.md` and `./PLAN.md` files
-2. Analyze recent changes
-3. Document all changes in `./CHANGELOG.md`
-4. Remove completed items from `./TODO.md` and `./PLAN.md`
-5. Ensure `./PLAN.md` contains detailed, clear plans with specifics
-6. Ensure `./TODO.md` is a flat simplified itemized representation
-
-### 15.3. `/work` Command
-
-1. Read all `./TODO.md` and `./PLAN.md` files and reflect
-2. Write down the immediate items in this iteration into `./WORK.md`
-3. Work on these items
-4. Think, contemplate, research, reflect, refine, revise
-5. Be careful, curious, vigilant, energetic
-6. Verify your changes and think aloud
-7. Consult, research, reflect
-8. Periodically remove completed items from `./WORK.md`
-9. Tick off completed items from `./TODO.md` and `./PLAN.md`
-10. Update `./WORK.md` with improvement tasks
-11. Execute `/report`
-12. Continue to the next item
-
-## 16. Additional Guidelines
-
-- Ask before extending/refactoring existing code that may add complexity or break things
-- Work tirelessly without constant updates when in continuous work mode
-- Only notify when you've completed all `PLAN.md` and `TODO.md` items
-
-## 17. Command Summary
-
-- `/plan [requirement]` - Transform vague requirements into detailed `PLAN.md` and `TODO.md`
-- `/report` - Update documentation and clean up completed tasks
-- `/work` - Enter continuous work mode to implement plans
-- You may use these commands autonomously when appropriate
-
-**TL;DR for PlaywrightAuthor Codebase**
-
-**1. Core Purpose & Value Proposition:**
-PlaywrightAuthor is a Python convenience library built on top of Microsoft Playwright. Its primary goal is to eliminate the boilerplate setup for browser automation. It automatically finds or installs a "Chrome for Testing" instance, manages its process (ensuring it runs in debug mode), handles user authentication by reusing a persistent profile, and provides a ready-to-use, authenticated Playwright `Browser` object within a simple context manager (`with Browser() as browser:`).
-
-**2. Key Architectural Components:**
-*   **Main API (`author.py`):** Exposes the core `Browser()` and `AsyncBrowser()` context managers, which are the main entry points for the user.
-*   **Browser Management (`browser/` & `browser_manager.py`):** This is the technical core of the library. It's a modular system responsible for:
-    *   `finder.py`: Robustly discovering the Chrome executable across macOS, Windows, and Linux, checking over 20 standard and non-standard locations per platform.
-    *   `installer.py`: Downloading the correct Chrome for Testing build using official JSON endpoints, with progress bars and SHA256 validation.
-    *   `launcher.py`: Launching the Chrome process with the remote debugging port (`--remote-debugging-port=9222`).
-    *   `process.py`: Managing the Chrome process, including gracefully killing existing non-debug instances and verifying the new process is ready.
-*   **User Experience (`onboarding.py`, `cli.py`):**
-    *   `onboarding.py`: If the user is not logged into necessary services, it serves a local HTML page (`templates/onboarding.html`) to guide them through the login process.
-    *   `cli.py`: A `fire`-powered command-line interface for status checks (`status`) and cache clearing (`clear-cache`), with `rich` for formatted output.
-*   **Configuration & State (`config.py`, `state_manager.py`):** Handles library configuration (e.g., timeouts, paths) and persists the state of the browser (e.g., installation path, version) to avoid redundant work.
-*   **Utilities (`utils/`):** Cross-platform path management (`paths.py`) and `loguru`-based logging (`logger.py`).
-
-**3. Development & Quality:**
-*   **Workflow:** The project is documentation-driven, using `PLAN.md`, `TODO.md`, and `WORK.md` to guide development. It emphasizes iterative, minimal commits.
-*   **Tooling:** Uses `uv` for environment and dependency management. The build system is `hatch` with `hatch-vcs` for versioning based on git tags.
-*   **CI/CD (`.github/workflows/ci.yml`):** A comprehensive GitHub Actions pipeline tests the library on Ubuntu, Windows, and macOS. It runs linting (`ruff`), type checking (`mypy`), and a full `pytest` suite with coverage reporting to Codecov.
-*   **Code Quality:** The codebase is fully type-hinted. A strict quality pipeline (`ruff`, `autoflake`, `pyupgrade`) is enforced and documented. Every file includes a `this_file:` comment for easy path reference.
-
-**4. Current Status & Roadmap:**
-The project has completed its initial phases focused on robustness, error handling, and cross-platform compatibility. It is now in the "Elegance and Performance" phase, which involves refactoring the architecture (e.g., separating state and config management), optimizing performance (e.g., lazy loading), and adding advanced features like browser profile management. Future phases will focus on improving the CLI, documentation, and user experience.

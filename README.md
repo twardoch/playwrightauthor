@@ -366,6 +366,75 @@ async with AsyncBrowser() as browser:
     page = await browser.get_page()
 ```
 
+## Automation Utilities
+
+PlaywrightAuthor includes reusable utilities for common automation patterns:
+
+### Adaptive Timing (`helpers.timing`)
+
+Dynamically adjust wait times based on success/failure patterns:
+
+```python
+from playwrightauthor.helpers.timing import AdaptiveTimingController
+
+timing = AdaptiveTimingController()
+
+# After successful operations
+timing.on_success()  # Speeds up after 3 consecutive successes
+
+# After failures
+timing.on_failure()  # Slows down immediately
+
+# Get current timings
+wait_time, timeout = timing.get_timings()
+```
+
+### Extraction with Fallbacks (`helpers.extraction`)
+
+Try multiple selectors until one succeeds:
+
+```python
+from playwrightauthor.helpers.extraction import extract_with_fallbacks
+
+# Sync version
+text = extract_with_fallbacks(
+    page,
+    selectors=["h1.title", "h1#main", "h1"],
+    extract_fn=lambda el: el.inner_text()
+)
+
+# Async version
+from playwrightauthor.helpers.extraction import async_extract_with_fallbacks
+text = await async_extract_with_fallbacks(page, selectors=[...])
+```
+
+### Infinite Scroll (`helpers.interaction`)
+
+Handle incremental page scrolling:
+
+```python
+from playwrightauthor.helpers.interaction import scroll_page_incremental
+
+# Scroll entire window
+scroll_page_incremental(page, distance=500, max_scrolls=10)
+
+# Scroll specific container
+scroll_page_incremental(page, selector="#content", distance=300)
+```
+
+### HTML to Markdown (`utils.html`)
+
+Convert scraped HTML to clean Markdown:
+
+```python
+from playwrightauthor.utils.html import html_to_markdown
+
+html_content = page.inner_html("article")
+markdown = html_to_markdown(html_content)
+```
+
+**Examples**: See `examples/` directory for complete working examples of each utility.
+
 ## Best practices
 
 ### Resource Management

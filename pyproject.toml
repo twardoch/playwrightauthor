@@ -25,6 +25,8 @@ dependencies = [
     "requests",
     "psutil",
     "prompt_toolkit>=3.0.0",
+    "html2text>=2025.4.15",
+    "tomli-w>=1.2.0",
 ]
 
 [project.urls]
@@ -32,7 +34,7 @@ dependencies = [
 "Bug Tracker" = "https://github.com/twardoch/playwrightauthor/issues"
 
 [project.scripts]
-playwrightauthor = "playwrightauthor.cli:main"
+playwrightauthor = "playwrightauthor.__main__:main"
 
 [tool.hatch.version]
 source = "vcs"
@@ -78,3 +80,11 @@ line-ending = "auto"
 
 [tool.ruff.lint.isort]
 known-first-party = ["playwrightauthor"]
+
+[tool.pytest.ini_options]
+markers = [
+    "asyncio: marks tests as async (using pytest-asyncio)",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "benchmark: marks tests as benchmark tests (requires pytest-benchmark)",
+    "integration: marks tests as integration tests",
+]

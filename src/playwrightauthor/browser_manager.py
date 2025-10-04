@@ -27,7 +27,7 @@ from .exceptions import (
 from .exceptions import TimeoutError as PATimeoutError
 from .state_manager import get_state_manager
 from .utils.logger import configure as configure_logger
-from .utils.paths import install_dir, data_dir as get_data_dir
+from .utils.paths import data_dir as get_data_dir
 
 
 def launch_browser(
@@ -35,35 +35,35 @@ def launch_browser(
 ) -> tuple[str, str]:
     """
     Launch Chrome for Testing with remote debugging, or return existing instance info.
-    
+
     This is used by the 'browse' command to launch Chrome or connect to existing.
-    
+
     Args:
         verbose: Enable verbose logging
         max_retries: Maximum retry attempts for browser operations. Uses config default if None.
         profile: Browser profile name to use
-        
+
     Returns:
         Tuple of (browser_path, user_data_dir)
-        
+
     Raises:
         BrowserManagerError: If browser launch fails
     """
     console = Console()
     logger = configure_logger(verbose)
     start_time = time.time()
-    
+
     # Load configuration
     config = get_config()
     debug_port = config.browser.debug_port
-    
+
     # Use configured retry attempts if not specified
     if max_retries is None:
         max_retries = config.network.retry_attempts
-        
+
     # Get state manager for profile handling
     get_state_manager()
-    
+
     try:
         # Check if Chrome is already running with debug port
         existing_chrome = get_chrome_process(debug_port)
@@ -93,17 +93,21 @@ def launch_browser(
         logger.info(
             f"Chrome for Testing executable search took {time.time() - find_start_time:.2f}s"
         )
-        
+
         if not browser_path:
             logger.warning("Chrome for Testing not found. Attempting installation...")
             install_start_time = time.time()
-            
+
             try:
-                install_from_lkgv(logger, max_retries=max_retries)
+                # Get chrome_version from config if specified
+                chrome_version = config.browser.chrome_version
+                install_from_lkgv(
+                    logger, version=chrome_version, max_retries=max_retries
+                )
                 logger.info(
                     f"Installation took {time.time() - install_start_time:.2f}s"
                 )
-                
+
                 # Try to find executable again after installation
                 browser_path = find_chrome_executable(logger)
                 if not browser_path:
@@ -117,39 +121,43 @@ def launch_browser(
                         command="playwrightauthor clear-cache && playwrightauthor browse -v",
                     )
                 logger.info(f"Chrome for Testing installed at: {browser_path}")
-                
+
             except (BrowserInstallationError, NetworkError) as e:
                 logger.error(f"Chrome for Testing installation failed: {e}")
                 # Print the full error with all helpful information
                 console.print(f"[red]{e}[/red]")
                 # Re-raise the specific exception with its enhanced error message
                 raise
-                
+
         # Launch Chrome with retry logic
-        # Use proper profile directory, not install directory  
+        # Use proper profile directory, not install directory
         profile_data_dir = get_data_dir() / "profiles" / profile
         profile_data_dir.mkdir(parents=True, exist_ok=True)
         launch_start_time = time.time()
-        
+
         try:
             launch_chrome_with_retry(
-                browser_path, profile_data_dir, debug_port, logger, max_retries=max_retries
+                browser_path,
+                profile_data_dir,
+                debug_port,
+                logger,
+                max_retries=max_retries,
             )
             logger.info(
                 f"Chrome for Testing launch took {time.time() - launch_start_time:.2f}s"
             )
-            
+
         except (BrowserLaunchError, PATimeoutError) as e:
             logger.error(f"Chrome for Testing launch failed: {e}")
             # Print the full error with all helpful information
             console.print(f"[red]{e}[/red]")
             # Re-raise the specific exception with its enhanced error message
             raise
-            
+
         logger.info("Chrome for Testing launched successfully")
         logger.info(f"launch_browser completed in {time.time() - start_time:.2f}s")
         return str(browser_path), str(profile_data_dir)
-        
+
     except BrowserManagerError:
         # Re-raise our own exceptions
         raise
@@ -158,11 +166,11 @@ def launch_browser(
         error_type = type(e).__name__
         error_msg = f"Unexpected {error_type} in browser launch: {str(e)}"
         logger.error(error_msg)
-        
+
         wrapped_error = BrowserManagerError(
             error_msg,
             suggestion="An unexpected error occurred during browser launch.",
-            command="playwrightauthor browse -v"
+            command="playwrightauthor browse -v",
         )
         console.print(f"[red]{wrapped_error}[/red]")
         raise wrapped_error from e
@@ -203,7 +211,9 @@ def ensure_browser(
     try:
         # Check if Chrome is already running with debug port
         existing_chrome = get_chrome_process(debug_port)
-        logger.debug(f"Checking for existing Chrome on port {debug_port}: {existing_chrome}")
+        logger.debug(
+            f"Checking for existing Chrome on port {debug_port}: {existing_chrome}"
+        )
         if existing_chrome:
             logger.info(
                 f"Chrome for Testing is already running in debug mode on port {debug_port}"
@@ -237,7 +247,9 @@ def ensure_browser(
                 kill_chrome_process(proc, logger=logger)
                 # Wait a moment for the process to fully terminate
                 time.sleep(1)
-                logger.info("Successfully killed Chrome for Testing process without debug port")
+                logger.info(
+                    "Successfully killed Chrome for Testing process without debug port"
+                )
             except ProcessKillError as e:
                 logger.error(f"Failed to kill Chrome for Testing process: {e}")
                 raise BrowserManagerError(
@@ -246,7 +258,7 @@ def ensure_browser(
                         "Please manually close Chrome for Testing and try again. "
                         "Use 'playwrightauthor browse' to launch with debugging enabled."
                     ),
-                    command="pkill -f 'chrome.*testing' && playwrightauthor browse"
+                    command="pkill -f 'chrome.*testing' && playwrightauthor browse",
                 ) from e
 
         # Find or install Chrome executable
@@ -261,7 +273,11 @@ def ensure_browser(
             install_start_time = time.time()
 
             try:
-                install_from_lkgv(logger, max_retries=max_retries)
+                # Get chrome_version from config if specified
+                chrome_version = config.browser.chrome_version
+                install_from_lkgv(
+                    logger, version=chrome_version, max_retries=max_retries
+                )
                 logger.info(
                     f"Installation took {time.time() - install_start_time:.2f}s"
                 )
@@ -290,36 +306,38 @@ def ensure_browser(
         # If we get here, Chrome for Testing is not running with debug port
         # Launch Chrome for Testing with debugging enabled
         logger.info("Launching Chrome for Testing with remote debugging enabled...")
-        
+
         # Use proper profile directory
         profile_data_dir = get_data_dir() / "profiles" / profile
         profile_data_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Launch Chrome with retry logic
         launch_start_time = time.time()
         try:
             chrome_proc = launch_chrome_with_retry(
-                browser_path, 
-                profile_data_dir, 
-                debug_port, 
-                logger, 
-                max_retries=max_retries
+                browser_path,
+                profile_data_dir,
+                debug_port,
+                logger,
+                max_retries=max_retries,
             )
-            
+
             if chrome_proc:
                 logger.info(
                     f"Chrome for Testing launched successfully in {time.time() - launch_start_time:.2f}s "
                     f"(PID: {chrome_proc.pid})"
                 )
-                logger.info(f"ensure_browser completed in {time.time() - start_time:.2f}s")
+                logger.info(
+                    f"ensure_browser completed in {time.time() - start_time:.2f}s"
+                )
                 return str(browser_path), str(profile_data_dir)
             else:
                 raise BrowserLaunchError(
                     "Chrome for Testing launch returned no process",
                     suggestion="Chrome may have crashed immediately after launch",
-                    command="playwrightauthor diagnose -v"
+                    command="playwrightauthor diagnose -v",
                 )
-                
+
         except (BrowserLaunchError, PATimeoutError) as e:
             logger.error(f"Failed to launch Chrome for Testing: {e}")
             raise

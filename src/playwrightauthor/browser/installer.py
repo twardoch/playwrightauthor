@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 import platform
 import shutil
 import stat
@@ -15,6 +14,7 @@ from ..exceptions import BrowserInstallationError, NetworkError
 from ..utils.paths import install_dir
 
 _LKGV_URL = "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
+_KNOWN_GOOD_VERSIONS_URL = "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
 
 
 def _get_platform_key() -> str:
@@ -155,7 +155,7 @@ def _extract_archive(archive_path: Path, extract_path: Path, logger) -> None:
         logger.info("Extracting downloaded archive...")
         shutil.unpack_archive(archive_path, extract_path)
         logger.info("Extraction complete")
-        
+
         # Fix executable permissions on macOS and Linux
         if platform.system() in ["Darwin", "Linux"]:
             _fix_executable_permissions(extract_path, logger)
@@ -171,7 +171,7 @@ def _extract_archive(archive_path: Path, extract_path: Path, logger) -> None:
 def _fix_executable_permissions(extract_path: Path, logger) -> None:
     """
     Fix executable permissions for Chrome for Testing on Unix-like systems.
-    
+
     Args:
         extract_path: Root extraction directory
         logger: Logger instance
@@ -182,7 +182,13 @@ def _fix_executable_permissions(extract_path: Path, logger) -> None:
             # macOS: Look for the executable inside the app bundle
             chrome_executable = None
             for chrome_dir in extract_path.glob("chrome-mac-*"):
-                app_path = chrome_dir / "Google Chrome for Testing.app" / "Contents" / "MacOS" / "Google Chrome for Testing"
+                app_path = (
+                    chrome_dir
+                    / "Google Chrome for Testing.app"
+                    / "Contents"
+                    / "MacOS"
+                    / "Google Chrome for Testing"
+                )
                 if app_path.exists():
                     chrome_executable = app_path
                     break
@@ -194,46 +200,111 @@ def _fix_executable_permissions(extract_path: Path, logger) -> None:
                 if chrome_path.exists():
                     chrome_executable = chrome_path
                     break
-        
+
         if chrome_executable:
             # Add executable permissions
             current_permissions = chrome_executable.stat().st_mode
-            chrome_executable.chmod(current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            chrome_executable.chmod(
+                current_permissions | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+            )
             logger.debug(f"Set executable permissions on: {chrome_executable}")
-            
+
             # Fix permissions for all executables in the app bundle on macOS
             if platform.system() == "Darwin":
-                app_bundle = chrome_executable.parent.parent.parent  # Get to .app directory
+                app_bundle = (
+                    chrome_executable.parent.parent.parent
+                )  # Get to .app directory
                 if app_bundle.suffix == ".app":
                     # Fix all executables in the app bundle
                     for exe_path in app_bundle.rglob("*"):
                         if exe_path.is_file():
                             # Check if it's likely an executable (no extension or specific names)
-                            if (not exe_path.suffix or 
-                                exe_path.suffix in [".dylib"] or
-                                "Helper" in exe_path.name or
-                                "chrome_crashpad_handler" in exe_path.name or
-                                exe_path.parent.name in ["MacOS", "Helpers"]):
+                            if (
+                                not exe_path.suffix
+                                or exe_path.suffix in [".dylib"]
+                                or "Helper" in exe_path.name
+                                or "chrome_crashpad_handler" in exe_path.name
+                                or exe_path.parent.name in ["MacOS", "Helpers"]
+                            ):
                                 try:
                                     current_perms = exe_path.stat().st_mode
-                                    exe_path.chmod(current_perms | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-                                    logger.debug(f"Set executable permissions on: {exe_path.relative_to(app_bundle)}")
+                                    exe_path.chmod(
+                                        current_perms
+                                        | stat.S_IXUSR
+                                        | stat.S_IXGRP
+                                        | stat.S_IXOTH
+                                    )
+                                    logger.debug(
+                                        f"Set executable permissions on: {exe_path.relative_to(app_bundle)}"
+                                    )
                                 except Exception as e:
-                                    logger.debug(f"Could not set permissions on {exe_path.name}: {e}")
+                                    logger.debug(
+                                        f"Could not set permissions on {exe_path.name}: {e}"
+                                    )
         else:
             logger.warning("Could not find Chrome executable to set permissions")
-            
+
     except Exception as e:
         logger.warning(f"Failed to set executable permissions: {e}")
         # Don't fail the installation, just warn
 
 
-def install_from_lkgv(logger, max_retries: int = 3, retry_delay: int = 5) -> None:
+def _fetch_specific_version_data(
+    logger, version: str, timeout: int = 30
+) -> dict | None:
     """
-    Download and extract Chrome for Testing from the LKGV JSON.
+    Fetch download data for a specific Chrome version from known-good-versions JSON.
 
     Args:
         logger: Logger instance
+        version: Specific Chrome version (e.g., "140.0.7259.0")
+        timeout: Request timeout in seconds
+
+    Returns:
+        Download data for the specified version, or None if not found
+
+    Raises:
+        NetworkError: If network request fails
+        BrowserInstallationError: If JSON is invalid
+    """
+    try:
+        logger.debug(
+            f"Fetching known-good-versions data for version {version} from {_KNOWN_GOOD_VERSIONS_URL}"
+        )
+        response = requests.get(_KNOWN_GOOD_VERSIONS_URL, timeout=timeout)
+        response.raise_for_status()
+
+        try:
+            data = response.json()
+        except json.JSONDecodeError as e:
+            raise BrowserInstallationError(
+                f"Invalid JSON response from known-good-versions API: {e}"
+            ) from e
+
+        # Find the specific version
+        versions = data.get("versions", [])
+        for version_data in versions:
+            if version_data.get("version") == version:
+                logger.debug(f"Found version {version} in known-good-versions")
+                return version_data
+
+        logger.warning(f"Version {version} not found in known-good-versions")
+        return None
+
+    except requests.RequestException as e:
+        raise NetworkError(f"Failed to fetch known-good-versions data: {e}") from e
+
+
+def install_from_lkgv(
+    logger, version: str | None = None, max_retries: int = 3, retry_delay: int = 5
+) -> None:
+    """
+    Download and extract Chrome for Testing.
+
+    Args:
+        logger: Logger instance
+        version: Optional specific Chrome version to install (e.g., "140.0.7259.0").
+                If None, installs latest stable version.
         max_retries: Maximum number of retry attempts
         retry_delay: Delay between retries in seconds
 
@@ -254,11 +325,22 @@ def install_from_lkgv(logger, max_retries: int = 3, retry_delay: int = 5) -> Non
         try:
             logger.info(f"Installation attempt {attempt + 1}/{max_retries}")
 
-            # Fetch LKGV data
-            data = _fetch_lkgv_data(logger)
+            # Fetch version data
+            if version:
+                logger.info(f"Installing specific Chrome version: {version}")
+                version_data = _fetch_specific_version_data(logger, version)
+                if not version_data:
+                    raise BrowserInstallationError(
+                        f"Chrome version {version} not found in known-good-versions. "
+                        f"Check {_KNOWN_GOOD_VERSIONS_URL} for available versions."
+                    )
+                downloads = version_data.get("downloads", {}).get("chrome", [])
+            else:
+                logger.info("Installing latest stable Chrome version")
+                data = _fetch_lkgv_data(logger)
+                downloads = data["channels"]["Stable"]["downloads"]["chrome"]
 
             # Find download URL for our platform
-            downloads = data["channels"]["Stable"]["downloads"]["chrome"]
             url = next(
                 (item["url"] for item in downloads if item["platform"] == platform_key),
                 None,

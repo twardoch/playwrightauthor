@@ -1,7 +1,4 @@
-#!/usr/bin/env -S uv run -s
-# /// script
-# dependencies = ["playwrightauthor"]
-# ///
+#!/usr/bin/env -S uv run --quiet
 # this_file: examples/scrape_linkedin_feed.py
 """
 Scrape LinkedIn feed headlines using PlaywrightAuthor.

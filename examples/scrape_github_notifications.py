@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --quiet
 # this_file: examples/scrape_github_notifications.py
 """
 Scrape GitHub notifications using PlaywrightAuthor.

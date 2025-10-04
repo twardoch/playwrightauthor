@@ -4,17 +4,18 @@
 
 This module handles configuration from multiple sources:
 1. Default values
-2. Configuration files (JSON, TOML)
+2. Configuration files (TOML)
 3. Environment variables
 4. Runtime overrides
 """
 
-import json
 import os
+import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import tomli_w
 from loguru import logger
 
 from .utils.paths import config_dir
@@ -72,10 +73,18 @@ class BrowserConfig:
             Example: ["--disable-extensions"] to allow extension usage.
             Defaults to empty list.
 
+        chrome_version (str | None): Pin a specific Chrome for Testing version.
+            When set, downloads and uses this specific version instead of latest.
+            Format: "140.0.7259.0" (must be a valid CfT version).
+            Check https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json
+            for available versions. Useful when latest version has issues.
+            Defaults to None (uses latest stable).
+
     Environment Variables:
         - PLAYWRIGHTAUTHOR_DEBUG_PORT: Override debug_port
         - PLAYWRIGHTAUTHOR_HEADLESS: Set "true" for headless mode
         - PLAYWRIGHTAUTHOR_TIMEOUT: Override timeout in milliseconds
+        - PLAYWRIGHTAUTHOR_CHROME_VERSION: Pin specific Chrome version
 
     Examples:
         Production headless configuration:
@@ -107,6 +116,7 @@ class BrowserConfig:
     user_agent: str | None = None
     args: list[str] = field(default_factory=list)
     ignore_default_args: list[str] = field(default_factory=list)
+    chrome_version: str | None = None
 
 
 @dataclass
@@ -515,24 +525,24 @@ class PlaywrightAuthorConfig:
             save_config(config)  # Saves to ~/.config/playwrightauthor/config.json
 
     Configuration File Format:
-        The configuration file is JSON format with nested sections:
-        {
-          "browser": {
-            "headless": true,
-            "timeout": 45000,
-            "debug_port": 9222
-          },
-          "network": {
-            "retry_attempts": 5,
-            "proxy": "http://proxy.example.com:8080"
-          },
-          "logging": {
-            "verbose": false,
-            "log_level": "INFO"
-          },
-          "enable_lazy_loading": true,
-          "default_profile": "production"
-        }
+        The configuration file is TOML format with nested sections:
+
+        [browser]
+        headless = true
+        timeout = 45000
+        debug_port = 9222
+        chrome_version = "140.0.7259.0"
+
+        [network]
+        retry_attempts = 5
+        proxy = "http://proxy.example.com:8080"
+
+        [logging]
+        verbose = false
+        log_level = "INFO"
+
+        enable_lazy_loading = true
+        default_profile = "production"
 
     Environment Variable Examples:
         Export configuration via environment variables:
@@ -566,7 +576,7 @@ class ConfigManager:
     """Manages configuration loading and validation."""
 
     ENV_PREFIX = "PLAYWRIGHTAUTHOR_"
-    CONFIG_FILENAME = "config.json"
+    CONFIG_FILENAME = "config.toml"
 
     def __init__(self, config_path: Path | None = None):
         """Initialize the configuration manager.
@@ -593,10 +603,10 @@ class ConfigManager:
         # Start with defaults
         config = PlaywrightAuthorConfig()
 
-        # Load from file if exists
+        # Load from TOML file if exists
         if self.config_path.exists():
             logger.debug(f"Loading config from {self.config_path}")
-            self._load_from_file(config)
+            self._load_from_toml(config)
 
         # Override with environment variables
         self._load_from_env(config)
@@ -608,7 +618,7 @@ class ConfigManager:
         return config
 
     def save(self, config: PlaywrightAuthorConfig | None = None) -> None:
-        """Save configuration to file.
+        """Save configuration to TOML file.
 
         Args:
             config: Configuration to save. Uses current config if None.
@@ -622,21 +632,21 @@ class ConfigManager:
         # Convert to dictionary
         config_dict = self._to_dict(config)
 
-        # Write to file
-        with open(self.config_path, "w", encoding="utf-8") as f:
-            json.dump(config_dict, f, indent=2, sort_keys=True)
+        # Write to file using tomli_w
+        with open(self.config_path, "wb") as f:
+            tomli_w.dump(config_dict, f)
 
         logger.info(f"Saved configuration to {self.config_path}")
 
-    def _load_from_file(self, config: PlaywrightAuthorConfig) -> None:
-        """Load configuration from file.
+    def _load_from_toml(self, config: PlaywrightAuthorConfig) -> None:
+        """Load configuration from TOML file.
 
         Args:
             config: Configuration object to update.
         """
         try:
-            with open(self.config_path, encoding="utf-8") as f:
-                data = json.load(f)
+            with open(self.config_path, "rb") as f:
+                data = tomllib.load(f)
 
             # Update browser config
             if "browser" in data:
@@ -681,8 +691,8 @@ class ConfigManager:
                 if key in data:
                     setattr(config, key, data[key])
 
-        except (OSError, json.JSONDecodeError) as e:
-            logger.error(f"Failed to load config file: {e}")
+        except (OSError, tomllib.TOMLDecodeError) as e:
+            logger.error(f"Failed to load TOML config file: {e}")
 
     def _load_from_env(self, config: PlaywrightAuthorConfig) -> None:
         """Load configuration from environment variables.
@@ -699,6 +709,9 @@ class ConfigManager:
 
         if timeout := os.getenv(f"{self.ENV_PREFIX}TIMEOUT"):
             config.browser.timeout = int(timeout)
+
+        if chrome_version := os.getenv(f"{self.ENV_PREFIX}CHROME_VERSION"):
+            config.browser.chrome_version = chrome_version
 
         # Network settings
         if proxy := os.getenv(f"{self.ENV_PREFIX}PROXY"):
@@ -791,7 +804,7 @@ class ConfigManager:
             )
 
     def _to_dict(self, config: PlaywrightAuthorConfig) -> dict[str, Any]:
-        """Convert configuration to dictionary.
+        """Convert configuration to dictionary for TOML serialization.
 
         Args:
             config: Configuration to convert.
@@ -799,60 +812,85 @@ class ConfigManager:
         Returns:
             Configuration as dictionary.
         """
-        return {
-            "browser": {
-                "debug_port": config.browser.debug_port,
-                "headless": config.browser.headless,
-                "timeout": config.browser.timeout,
-                "viewport_width": config.browser.viewport_width,
-                "viewport_height": config.browser.viewport_height,
-                "user_agent": config.browser.user_agent,
-                "args": config.browser.args,
-                "ignore_default_args": config.browser.ignore_default_args,
-            },
-            "network": {
-                "download_timeout": config.network.download_timeout,
-                "retry_attempts": config.network.retry_attempts,
-                "retry_delay": config.network.retry_delay,
-                "exponential_backoff": config.network.exponential_backoff,
-                "proxy": config.network.proxy,
-            },
-            "paths": {
-                "data_dir": str(config.paths.data_dir)
-                if config.paths.data_dir
-                else None,
-                "config_dir": str(config.paths.config_dir)
-                if config.paths.config_dir
-                else None,
-                "cache_dir": str(config.paths.cache_dir)
-                if config.paths.cache_dir
-                else None,
-                "user_data_dir": str(config.paths.user_data_dir)
-                if config.paths.user_data_dir
-                else None,
-            },
-            "logging": {
-                "verbose": config.logging.verbose,
-                "log_file": str(config.logging.log_file)
-                if config.logging.log_file
-                else None,
-                "log_level": config.logging.log_level,
-                "log_format": config.logging.log_format,
-            },
-            "monitoring": {
-                "enabled": config.monitoring.enabled,
-                "check_interval": config.monitoring.check_interval,
-                "enable_crash_recovery": config.monitoring.enable_crash_recovery,
-                "max_restart_attempts": config.monitoring.max_restart_attempts,
-                "collect_metrics": config.monitoring.collect_metrics,
-                "metrics_retention_hours": config.monitoring.metrics_retention_hours,
-            },
-            "enable_plugins": config.enable_plugins,
-            "enable_connection_pooling": config.enable_connection_pooling,
-            "enable_lazy_loading": config.enable_lazy_loading,
-            "default_profile": config.default_profile,
-            "profile_encryption": config.profile_encryption,
+        result: dict[str, Any] = {}
+
+        # Browser section
+        browser_dict: dict[str, Any] = {
+            "debug_port": config.browser.debug_port,
+            "headless": config.browser.headless,
+            "timeout": config.browser.timeout,
+            "viewport_width": config.browser.viewport_width,
+            "viewport_height": config.browser.viewport_height,
         }
+        if config.browser.user_agent:
+            browser_dict["user_agent"] = config.browser.user_agent
+        if config.browser.chrome_version:
+            browser_dict["chrome_version"] = config.browser.chrome_version
+        if config.browser.args:
+            browser_dict["args"] = config.browser.args
+        if config.browser.ignore_default_args:
+            browser_dict["ignore_default_args"] = config.browser.ignore_default_args
+        result["browser"] = browser_dict
+
+        # Network section
+        network_dict: dict[str, Any] = {
+            "download_timeout": config.network.download_timeout,
+            "retry_attempts": config.network.retry_attempts,
+            "retry_delay": config.network.retry_delay,
+            "exponential_backoff": config.network.exponential_backoff,
+        }
+        if config.network.proxy:
+            network_dict["proxy"] = config.network.proxy
+        result["network"] = network_dict
+
+        # Paths section (only if custom paths are set)
+        if any(
+            [
+                config.paths.data_dir,
+                config.paths.config_dir,
+                config.paths.cache_dir,
+                config.paths.user_data_dir,
+            ]
+        ):
+            paths_dict: dict[str, str] = {}
+            if config.paths.data_dir:
+                paths_dict["data_dir"] = str(config.paths.data_dir)
+            if config.paths.config_dir:
+                paths_dict["config_dir"] = str(config.paths.config_dir)
+            if config.paths.cache_dir:
+                paths_dict["cache_dir"] = str(config.paths.cache_dir)
+            if config.paths.user_data_dir:
+                paths_dict["user_data_dir"] = str(config.paths.user_data_dir)
+            result["paths"] = paths_dict
+
+        # Logging section
+        logging_dict: dict[str, Any] = {
+            "verbose": config.logging.verbose,
+            "log_level": config.logging.log_level,
+            "log_format": config.logging.log_format,
+        }
+        if config.logging.log_file:
+            logging_dict["log_file"] = str(config.logging.log_file)
+        result["logging"] = logging_dict
+
+        # Monitoring section
+        result["monitoring"] = {
+            "enabled": config.monitoring.enabled,
+            "check_interval": config.monitoring.check_interval,
+            "enable_crash_recovery": config.monitoring.enable_crash_recovery,
+            "max_restart_attempts": config.monitoring.max_restart_attempts,
+            "collect_metrics": config.monitoring.collect_metrics,
+            "metrics_retention_hours": config.monitoring.metrics_retention_hours,
+        }
+
+        # Feature flags at root level
+        result["enable_plugins"] = config.enable_plugins
+        result["enable_connection_pooling"] = config.enable_connection_pooling
+        result["enable_lazy_loading"] = config.enable_lazy_loading
+        result["default_profile"] = config.default_profile
+        result["profile_encryption"] = config.profile_encryption
+
+        return result
 
 
 # Singleton instance
