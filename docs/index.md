@@ -1,67 +1,43 @@
 ---
+this_file: docs/index.md
 layout: default
 title: Home
 nav_order: 1
 ---
 
-# PlaywrightAuthor Documentation
-<!-- this_file: docs/index.md -->
+# PlaywrightAuthor
 
-Master browser automation with persistent authentication.
+PlaywrightAuthor gives Python Playwright scripts a persistent, authenticated Chrome for Testing browser.
 
-## Documentation Structure
+Use it when automation should reuse a real signed-in browser profile instead of recreating login flows in code. It manages browser discovery, Chrome for Testing installation, profile directories, stable CDP ports, and connection retries, then returns a normal Playwright `Browser`.
 
-### 1. Browser Engines
-- **[Selectable Browser Engines](01-browser-engines.md)** - Switching between Chrome for Testing and CloakBrowser
+## Current Model
 
-### 2. Authentication Workflows
-- **[Authentication Workflows Overview](02-auth-overview.md)** - Maintaining persistent authentication sessions
-- **[Gmail/Google Authentication](03-auth-gmail.md)** - Handling 2FA and Workspace accounts
-- **[GitHub Authentication](04-auth-github.md)** - Access tokens, OAuth authorization, and MFA
-- **[LinkedIn Authentication](05-auth-linkedin.md)** - Scraping and automation with anti-bot handling
-- **[Troubleshooting Authentication](06-auth-troubleshooting.md)** - Diagnosing cookie and session problems
+- Chrome for Testing is the primary browser.
+- Chrome is installed or discovered through the Puppeteer browser cache layout.
+- Each profile has its own persistent user data directory.
+- Non-default profiles receive stable CDP ports, so multiple profiles can run concurrently.
+- Interactive browser tasks show a small `dialognano` notice unless suppressed.
 
-### 3. Architecture Deep Dive
-- **[Architecture Overview](07-architecture-overview.md)** - Component layout and sequence diagrams
-- **[Browser Lifecycle Management](08-architecture-lifecycle.md)** - Automated binary discovery, installation, and launch
-- **[Component Details](09-architecture-components.md)** - API modules, state, and browser managers
-- **[Error Handling & Recovery](10-architecture-errors.md)** - Resiliency logic and exceptions
+{: .warning }
+Older PlaywrightAuthor docs described a Playwright-managed browser install path. That is no longer the recommended workflow for persistent authenticated profiles. Use `npx @puppeteer/browsers install chrome@stable`.
 
-### 4. Platform Guides
-- **[Platform-Specific Guides Overview](11-platform-overview.md)** - Multi-platform support summary
-- **[macOS Guide](12-platform-macos.md)** - Universal binaries, Accessibility permissions, Homebrew
-- **[Windows Guide](13-platform-windows.md)** - PowerShell, Defender, and UAC elevation
-- **[Linux Guide](14-platform-linux.md)** - Dependencies, Alpine, Docker containers
+## Documentation Map
 
-### 5. Performance Optimization
-- **[Performance Optimization Overview](15-performance-overview.md)** - Latency, CPU and scaling benchmarks
-- **[Memory Management](16-performance-memory.md)** - Resource blocking, leak checks, and memory status
-- **[Connection Pooling](17-performance-pooling.md)** - Browser process queueing and reuse
-- **[Performance Monitoring](18-performance-monitoring.md)** - Real-time metrics and tracing
+- [Installation](installation.md): install Chrome for Testing and verify a profile.
+- [Profiles](profiles.md): create, launch, inspect, and run concurrent profiles.
+- [Python API](python-api.md): `Browser`, `AsyncBrowser`, dialogs, and examples.
+- [CLI](cli.md): practical command reference.
+- [Architecture](architecture.md): how launch, profile, state, and connection pieces fit.
+- [Troubleshooting](troubleshooting.md): ports, profile state, permissions, and stale docs review.
 
----
-
-## Quick Start
+## Minimal Example
 
 ```python
 from playwrightauthor import Browser
 
-# First run - follow the authentication prompts
-with Browser() as browser:
-    page = browser.new_page()
-    page.goto("https://mail.google.com")
-    # Browser stays open for manual login
-
-# Subsequent runs - already authenticated
-with Browser() as browser:
-    page = browser.new_page()
-    page.goto("https://mail.google.com")
-    # Automatically logged in
+with Browser(profile="google-primary", service="Gemini") as browser:
+    page = browser.get_page()
+    page.goto("https://gemini.google.com/")
+    print(page.title())
 ```
-
-## Getting Help
-
-- **Installation/Auth Issues**: [Troubleshooting guide](06-auth-troubleshooting.md)
-- **Platform-Specific Problems**: [Platform guides](11-platform-overview.md)
-- **Performance Optimization**: [Optimization strategies](15-performance-overview.md)
-- **Bug Reports**: [GitHub Issues](https://github.com/twardoch/playwrightauthor/issues)

@@ -1,23 +1,23 @@
-# _config.yml
-# Jekyll configuration for playwrightauthor documentation
 # this_file: docs/_config.yml
 
-# Site settings
-title: playwrightauthor
-description: "Your personal, authenticated browser for Playwright, ready in one line of code."
-remote_theme: just-the-docs/just-the-docs
+title: PlaywrightAuthor
+description: Persistent authenticated Chrome for Testing profiles for Python Playwright.
+theme: just-the-docs
 color_scheme: dark
 search_enabled: true
+heading_anchors: true
 
-# GitHub Pages settings
 url: "https://twardoch.github.io"
 baseurl: "/playwrightauthor"
 
-# Just the Docs settings
-# For more options, see: https://just-the-docs.github.io/just-the-docs/docs/configuration/
+aux_links:
+  "PlaywrightAuthor on GitHub":
+    - "https://github.com/twardoch/playwrightauthor"
+aux_links_new_tab: true
+
 callouts:
-  info:
-    title: Info
+  note:
+    title: Note
     color: blue
   warning:
     title: Warning
@@ -26,13 +26,4 @@ callouts:
     title: Danger
     color: red
 
-# Footer content
-footer_content: "Copyright &copy; 2026 Adam Twardoch. Distributed by an MIT license."
-
-# Aux links for the header
-aux_links:
-  "playwrightauthor on GitHub":
-    - "https://github.com/twardoch/playwrightauthor"
-
-# Enable heading anchors
-heading_anchors: true
+footer_content: "PlaywrightAuthor documentation."

@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+### Changed
+
+- Replaced the stale numbered documentation set with a practical Just the Docs site covering current Chrome for Testing installation, profile management, CLI usage, Python API, architecture, and troubleshooting.
+- Shortened the README to the current workflow: Chrome for Testing via `@puppeteer/browsers`, stable per-profile CDP ports, and optional `dialognano` prompts.
+
 ### Added
 
 - **Selectable Browser Engine Support:**
