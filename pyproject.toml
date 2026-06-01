@@ -47,8 +47,8 @@ write_to = "src/playwrightauthor/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/playwrightauthor"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "pytest",
     "ruff",
     "mypy",

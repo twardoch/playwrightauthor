@@ -24,6 +24,9 @@
 **Task 4: Publish Script Error Fix** ✅
 - Removed trailing `c` typo from `publish.sh`.
 
+**Task 5: Pyproject.toml Configuration Migration** ✅
+- Migrated dev-dependencies from deprecated `[tool.uv]` to PEP 735 compliant `[dependency-groups]`.
+
 ### Test Results
 ```
 84 passed, 24 skipped in test suite

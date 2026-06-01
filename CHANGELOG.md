@@ -21,6 +21,8 @@ All notable changes to this project will be documented in this file.
   - Fixed all mypy warning and type error issues across `src/playwrightauthor/` codebase (including config, HTML utils, and state manager annotations).
 - **Publish Script:**
   - Fixed trailing typo in `publish.sh` causing `c: command not found` error.
+- **Pyproject.toml Configuration Update:**
+  - Migrated from deprecated `[tool.uv]` `dev-dependencies` configuration to standard `[dependency-groups]` tables to eliminate deprecation warnings during packaging.
 
 #### 🔧 Quality Round 4 - Code Consistency & Type Safety ✅
 
