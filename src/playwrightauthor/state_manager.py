@@ -164,6 +164,40 @@ class StateManager:
         self.save_state(state)
         logger.debug(f"Saved profile: {name}")
 
+    def get_profile_debug_port(
+        self, name: str = "default", base_port: int = 9222
+    ) -> int:
+        """Return the persisted CDP port assigned to a browser profile."""
+        state = self.load_state()
+        profiles = state.get("profiles", {})
+        if name not in profiles:
+            profiles[name] = self._default_profile()
+        profile = profiles[name]
+
+        if name == "default":
+            profile["debug_port"] = base_port
+            state["profiles"] = profiles
+            self.save_state(state)
+            return base_port
+
+        existing_port = profile.get("debug_port")
+        if isinstance(existing_port, int) and existing_port > 0:
+            return existing_port
+
+        used_ports = {
+            data.get("debug_port")
+            for data in profiles.values()
+            if isinstance(data.get("debug_port"), int)
+        }
+        used_ports.add(base_port)
+        port = base_port + 1
+        while port in used_ports:
+            port += 1
+        profile["debug_port"] = port
+        state["profiles"] = profiles
+        self.save_state(state)
+        return port
+
     def list_profiles(self) -> list[str]:
         """List all available profile names.
 
@@ -172,6 +206,25 @@ class StateManager:
         """
         state = self.load_state()
         return list(state.get("profiles", {}).keys())
+
+    def list_profile_summaries(
+        self, base_port: int = 9222
+    ) -> dict[str, dict[str, Any]]:
+        """Return profile metadata plus resolved CDP port and user-data dir."""
+        summaries: dict[str, dict[str, Any]] = {}
+        for name in self.list_profiles():
+            summaries[name] = self.profile_summary(name, base_port=base_port)
+        return summaries
+
+    def profile_summary(self, name: str, base_port: int = 9222) -> dict[str, Any]:
+        """Return metadata plus resolved CDP port and user-data dir for one profile."""
+        profile = self.get_profile(name)
+        debug_port = self.get_profile_debug_port(name, base_port=base_port)
+        return {
+            **profile,
+            "debug_port": debug_port,
+            "user_data_dir": str(self.state_dir / "profiles" / name),
+        }
 
     def delete_profile(self, name: str) -> None:
         """Delete a browser profile.

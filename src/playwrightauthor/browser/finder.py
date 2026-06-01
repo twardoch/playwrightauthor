@@ -14,6 +14,8 @@ def _get_windows_chrome_paths() -> Generator[Path, None, None]:
     """Generate possible Chrome for Testing paths on Windows."""
     install_path = install_dir()
 
+    yield from _get_puppeteer_chrome_paths()
+
     # Chrome for Testing in our install directory (primary location)
     yield install_path / "chrome-win64" / "chrome.exe"
     yield install_path / "chrome-win32" / "chrome.exe"
@@ -36,6 +38,8 @@ def _get_linux_chrome_paths() -> Generator[Path, None, None]:
     """Generate possible Chrome for Testing paths on Linux."""
     install_path = install_dir()
 
+    yield from _get_puppeteer_chrome_paths()
+
     # Chrome for Testing in our install directory (primary location)
     yield install_path / "chrome-linux64" / "chrome"
 
@@ -52,6 +56,8 @@ def _get_linux_chrome_paths() -> Generator[Path, None, None]:
 def _get_macos_chrome_paths() -> Generator[Path, None, None]:
     """Generate possible Chrome for Testing paths on macOS."""
     install_path = install_dir()
+
+    yield from _get_puppeteer_chrome_paths()
 
     # Determine architecture
     machine = platform.machine()
@@ -87,6 +93,42 @@ def _get_macos_chrome_paths() -> Generator[Path, None, None]:
     ]
 
     yield from user_app_paths
+
+
+def _get_puppeteer_chrome_paths() -> Generator[Path, None, None]:
+    """Generate Chrome for Testing paths from the @puppeteer/browsers cache."""
+    cache_dirs = []
+    env_cache = os.environ.get("PUPPETEER_CACHE_DIR")
+    if env_cache:
+        cache_dirs.append(Path(env_cache))
+    cache_dirs.append(Path.home() / ".cache" / "puppeteer")
+
+    seen: set[Path] = set()
+    for cache_dir in cache_dirs:
+        if cache_dir in seen:
+            continue
+        seen.add(cache_dir)
+        chrome_dir = cache_dir / "chrome"
+        for version_dir in sorted(chrome_dir.glob("*"), reverse=True):
+            yield (
+                version_dir
+                / "chrome-mac-arm64"
+                / "Google Chrome for Testing.app"
+                / "Contents"
+                / "MacOS"
+                / "Google Chrome for Testing"
+            )
+            yield (
+                version_dir
+                / "chrome-mac-x64"
+                / "Google Chrome for Testing.app"
+                / "Contents"
+                / "MacOS"
+                / "Google Chrome for Testing"
+            )
+            yield version_dir / "chrome-linux64" / "chrome"
+            yield version_dir / "chrome-win64" / "chrome.exe"
+            yield version_dir / "chrome-win32" / "chrome.exe"
 
 
 def find_chrome_executable(logger=None, use_cache: bool = True) -> Path | None:

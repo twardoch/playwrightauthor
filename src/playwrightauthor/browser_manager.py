@@ -60,14 +60,15 @@ def launch_browser(
 
         return ensure_cloak_browser(config, verbose, max_retries, profile)
 
-    debug_port = config.browser.debug_port
-
     # Use configured retry attempts if not specified
     if max_retries is None:
         max_retries = config.network.retry_attempts
 
     # Get state manager for profile handling
-    get_state_manager()
+    state_manager = get_state_manager()
+    debug_port = state_manager.get_profile_debug_port(
+        profile, config.browser.debug_port
+    )
 
     try:
         # Check if Chrome is already running with debug port
@@ -209,14 +210,15 @@ def ensure_browser(
 
         return ensure_cloak_browser(config, verbose, max_retries, profile)
 
-    debug_port = config.browser.debug_port
-
     # Use configured retry attempts if not specified
     if max_retries is None:
         max_retries = config.network.retry_attempts
 
     # Get state manager for profile handling
-    get_state_manager()
+    state_manager = get_state_manager()
+    debug_port = state_manager.get_profile_debug_port(
+        profile, config.browser.debug_port
+    )
 
     try:
         # Check if Chrome is already running with debug port

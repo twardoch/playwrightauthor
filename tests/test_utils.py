@@ -11,6 +11,49 @@ from playwrightauthor.utils.logger import configure
 from playwrightauthor.utils.paths import install_dir
 
 
+def test_state_manager_assigns_stable_profile_debug_ports(tmp_path):
+    from playwrightauthor.state_manager import StateManager
+
+    state = StateManager(tmp_path)
+
+    default_port = state.get_profile_debug_port("default", base_port=9222)
+    primary_port = state.get_profile_debug_port("google-primary", base_port=9222)
+    primary_port_again = state.get_profile_debug_port("google-primary", base_port=9222)
+    secondary_port = state.get_profile_debug_port("google-secondary", base_port=9222)
+
+    assert default_port == 9222
+    assert primary_port == primary_port_again
+    assert primary_port > 9222
+    assert secondary_port > 9222
+    assert secondary_port != primary_port
+
+
+def test_state_manager_returns_profile_summaries_with_debug_ports(tmp_path):
+    from playwrightauthor.state_manager import StateManager
+
+    state = StateManager(tmp_path)
+    state.get_profile_debug_port("google-primary", base_port=9222)
+
+    summaries = state.list_profile_summaries(base_port=9222)
+
+    assert summaries["default"]["debug_port"] == 9222
+    assert summaries["google-primary"]["debug_port"] > 9222
+    assert summaries["google-primary"]["user_data_dir"].endswith(
+        "profiles/google-primary"
+    )
+
+
+def test_state_manager_returns_one_profile_summary(tmp_path):
+    from playwrightauthor.state_manager import StateManager
+
+    state = StateManager(tmp_path)
+
+    summary = state.profile_summary("google-primary", base_port=9222)
+
+    assert summary["debug_port"] > 9222
+    assert summary["user_data_dir"].endswith("profiles/google-primary")
+
+
 class TestPaths:
     """Test suite for utils.paths module."""
 

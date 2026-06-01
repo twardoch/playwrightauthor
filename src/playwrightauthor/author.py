@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from .browser.process import get_chrome_process
 from .config import get_config
+from .dialognano import notify_interactive_task
 from .engine import get_engine, get_engine_async
 from .exceptions import BrowserManagerError
 from .lazy_imports import get_async_playwright, get_sync_playwright
@@ -104,9 +105,22 @@ class Browser:
         sessions across script runs.
     """
 
-    def __init__(self, verbose: bool = False, profile: str = "default"):
+    def __init__(
+        self,
+        verbose: bool = False,
+        profile: str = "default",
+        service: str | None = None,
+        task: str | None = None,
+        suppress_dialog: bool = False,
+    ):
         self.verbose = verbose
         self.profile = profile
+        self.service = service
+        self.task = (
+            task
+            or "Complete any required sign-in, consent, captcha, or manual browser check."
+        )
+        self.suppress_dialog = suppress_dialog
         self.logger = configure_logger(verbose)
         self.config = get_config()
         self.state_manager = get_state_manager()
@@ -144,6 +158,7 @@ class Browser:
         self.logger.info(
             f"Starting sync browser session with profile '{self.profile}' using engine '{self.config.browser.engine}'..."
         )
+        self._notify_interactive_task()
         # Use lazy loading for Playwright
         sync_playwright = get_sync_playwright()
         self.playwright = sync_playwright.start()
@@ -202,6 +217,15 @@ class Browser:
         self.browser.get_page = get_page
 
         return self.browser
+
+    def _notify_interactive_task(self) -> bool:
+        """Show the user-facing interactive-task dialog for this browser session."""
+        return notify_interactive_task(
+            task=self.task,
+            profile=self.profile,
+            service=self.service,
+            suppress=self.suppress_dialog,
+        )
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
@@ -415,9 +439,22 @@ class AsyncBrowser:
         same application for different use cases.
     """
 
-    def __init__(self, verbose: bool = False, profile: str = "default"):
+    def __init__(
+        self,
+        verbose: bool = False,
+        profile: str = "default",
+        service: str | None = None,
+        task: str | None = None,
+        suppress_dialog: bool = False,
+    ):
         self.verbose = verbose
         self.profile = profile
+        self.service = service
+        self.task = (
+            task
+            or "Complete any required sign-in, consent, captcha, or manual browser check."
+        )
+        self.suppress_dialog = suppress_dialog
         self.logger = configure_logger(verbose)
         self.config = get_config()
         self.state_manager = get_state_manager()
@@ -456,6 +493,7 @@ class AsyncBrowser:
         self.logger.info(
             f"Starting async browser session with profile '{self.profile}' using engine '{self.config.browser.engine}'..."
         )
+        self._notify_interactive_task()
         # Use lazy loading for Playwright
         async_playwright = get_async_playwright()
         self.playwright = await async_playwright.start()
@@ -477,6 +515,15 @@ class AsyncBrowser:
 
         self.logger.info("Async browser session started.")
         return self.browser
+
+    def _notify_interactive_task(self) -> bool:
+        """Show the user-facing interactive-task dialog for this browser session."""
+        return notify_interactive_task(
+            task=self.task,
+            profile=self.profile,
+            service=self.service,
+            suppress=self.suppress_dialog,
+        )
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """

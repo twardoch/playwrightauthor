@@ -334,6 +334,7 @@ python -m playwrightauthor browse
 
 # Check status
 python -m playwrightauthor status
+python -m playwrightauthor status --profile google-primary
 
 # Start REPL
 python -m playwrightauthor repl
@@ -711,6 +712,7 @@ def robust_automation_with_error_handling():
 ```bash
 # Check browser status
 python -m playwrightauthor status
+python -m playwrightauthor status --profile google-primary
 
 # Clear browser cache
 python -m playwrightauthor clear-cache
@@ -724,6 +726,10 @@ python -m playwrightauthor diagnose
 ```bash
 # List profiles
 python -m playwrightauthor profile list
+
+# Launch separate profiles concurrently; each gets a stable debug port
+python -m playwrightauthor run --profile google-primary
+python -m playwrightauthor run --profile google-secondary
 
 # Create profile
 python -m playwrightauthor profile create myprofile

@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from playwrightauthor.browser.finder import (
     _get_linux_chrome_paths,
     _get_macos_chrome_paths,
+    _get_puppeteer_chrome_paths,
     _get_windows_chrome_paths,
     find_chrome_executable,
     get_chrome_version,
@@ -144,6 +145,31 @@ class TestPlatformSpecificChromeFinding:
             assert result is None, (
                 "Should not find Chrome on unsupported platform 'aix'"
             )
+
+    def test_puppeteer_cache_paths_include_chrome_for_testing_layout(self, tmp_path):
+        """Test Puppeteer-managed Chrome for Testing cache discovery."""
+        (tmp_path / "chrome" / "mac_arm-143.0.0.0").mkdir(parents=True)
+        with patch.dict(os.environ, {"PUPPETEER_CACHE_DIR": str(tmp_path)}):
+            paths = list(_get_puppeteer_chrome_paths())
+
+        path_strings = [str(path) for path in paths]
+        assert any("chrome" in path for path in path_strings)
+        assert any("Google Chrome for Testing" in path for path in path_strings)
+        assert any(str(tmp_path) in path for path in path_strings)
+
+    @patch("playwrightauthor.browser.installer.subprocess.run")
+    def test_install_uses_puppeteer_browsers_cli(self, mock_run):
+        """Test Chrome installation is delegated to @puppeteer/browsers."""
+        from playwrightauthor.browser.installer import install_from_lkgv
+
+        mock_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
+
+        install_from_lkgv(self.logger, version=None, max_retries=1)
+
+        mock_run.assert_called_once()
+        command = mock_run.call_args.args[0]
+        assert command[:3] == ["npx", "--yes", "@puppeteer/browsers"]
+        assert command[-2:] == ["install", "chrome@stable"]
 
 
 class TestPlatformSpecificPaths:

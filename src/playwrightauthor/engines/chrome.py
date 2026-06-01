@@ -18,6 +18,7 @@ from playwrightauthor.engine import (
     AsyncEngineAdapter,
     EngineAdapter,
 )
+from playwrightauthor.state_manager import get_state_manager
 
 if TYPE_CHECKING:
     from playwright.async_api import Browser as AsyncBrowser
@@ -63,7 +64,9 @@ class ChromeEngineAdapter(EngineAdapter):
             Playwright Browser instance connected over CDP.
         """
         self.ensure_browser()
-        debug_port = self.config.browser.debug_port
+        debug_port = get_state_manager().get_profile_debug_port(
+            self.profile, self.config.browser.debug_port
+        )
         max_retries = self.config.network.retry_attempts
         retry_delay = self.config.network.retry_delay
         timeout = self.config.browser.timeout // 1000
@@ -121,7 +124,9 @@ class AsyncChromeEngineAdapter(AsyncEngineAdapter):
             Async Playwright Browser instance connected over CDP.
         """
         await self.ensure_browser_async()
-        debug_port = self.config.browser.debug_port
+        debug_port = get_state_manager().get_profile_debug_port(
+            self.profile, self.config.browser.debug_port
+        )
         max_retries = self.config.network.retry_attempts
         retry_delay = self.config.network.retry_delay
         timeout = self.config.browser.timeout // 1000

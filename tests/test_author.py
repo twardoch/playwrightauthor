@@ -4,6 +4,36 @@ import pytest
 from playwrightauthor import AsyncBrowser, Browser
 
 
+def test_browser_notifies_interactive_task(monkeypatch) -> None:
+    calls: list[dict[str, object]] = []
+
+    def fake_notify_interactive_task(**kwargs: object) -> bool:
+        calls.append(kwargs)
+        return True
+
+    monkeypatch.setattr(
+        "playwrightauthor.author.notify_interactive_task",
+        fake_notify_interactive_task,
+    )
+
+    browser = Browser(
+        profile="google-primary",
+        service="Gemini",
+        task="Sign in if prompted.",
+        suppress_dialog=True,
+    )
+    browser._notify_interactive_task()
+
+    assert calls == [
+        {
+            "task": "Sign in if prompted.",
+            "profile": "google-primary",
+            "service": "Gemini",
+            "suppress": True,
+        }
+    ]
+
+
 @pytest.mark.skip(
     reason="This is an integration test that requires a live Chrome instance and potentially user interaction."
 )

@@ -20,6 +20,7 @@ from rich.table import Table
 from .browser_manager import ensure_browser, launch_browser
 from .config import get_config, save_config
 from .connection import check_connection_health
+from .dialognano import notify_interactive_task
 from .exceptions import BrowserManagerError, CLIError
 from .state_manager import get_state_manager
 from .utils.logger import configure as configure_logger
@@ -42,7 +43,9 @@ class Cli:
         playwrightauthor repl               # Start interactive REPL
     """
 
-    def status(self, verbose: bool = False):
+    def status(
+        self, verbose: bool = False, profile: str = "default", format: str = "table"
+    ):
         """
         Check browser installation and connection status.
 
@@ -54,6 +57,10 @@ class Cli:
             verbose (bool, optional): Enable detailed logging output for troubleshooting
                 connection and installation issues. Shows browser paths, process IDs,
                 and connection diagnostics. Defaults to False.
+            profile (str, optional): Browser profile to check or launch. Defaults to
+                "default".
+            format (str, optional): Output format, "table" or "json". Defaults to
+                "table".
 
         Example Output:
             Success:
@@ -80,13 +87,33 @@ class Cli:
         logger.info("Checking browser status...")
         try:
             config = get_config()
-            browser_path, data_dir = ensure_browser(verbose=verbose)
+            debug_port = get_state_manager().get_profile_debug_port(
+                profile, config.browser.debug_port
+            )
+            browser_path, data_dir = ensure_browser(verbose=verbose, profile=profile)
             engine_display = (
                 "CloakBrowser"
                 if config.browser.engine == "cloak"
                 else "Chrome for Testing"
             )
+            if format == "json":
+                console.print(
+                    json.dumps(
+                        {
+                            "status": "ready",
+                            "engine": engine_display,
+                            "profile": profile,
+                            "debug_port": debug_port,
+                            "path": str(browser_path) if browser_path else None,
+                            "user_data": str(data_dir),
+                        },
+                        indent=2,
+                    )
+                )
+                return
             console.print(f"[green]Browser ({engine_display}) is ready.[/green]")
+            console.print(f"  - Profile: {profile}")
+            console.print(f"  - Debug Port: {debug_port}")
             if browser_path:
                 console.print(f"  - Path: {browser_path}")
             console.print(f"  - User Data: {data_dir}")
@@ -204,25 +231,34 @@ class Cli:
                     console.print("[yellow]No profiles found.[/yellow]")
                     return
 
+                summaries = state_manager.list_profile_summaries(
+                    base_port=get_config().browser.debug_port
+                )
                 if format == "json":
-                    console.print(json.dumps(profiles, indent=2))
+                    console.print(json.dumps(summaries, indent=2))
                 else:
                     table = Table(title="Browser Profiles")
                     table.add_column("Profile Name", style="cyan")
                     table.add_column("Created", style="green")
                     table.add_column("Last Used", style="yellow")
+                    table.add_column("Debug Port", style="magenta")
+                    table.add_column("User Data", style="blue")
 
                     for profile_name in profiles:
-                        profile_data = state_manager.get_profile(profile_name)
+                        profile_data = summaries[profile_name]
                         table.add_row(
                             profile_name,
                             profile_data.get("created", "Unknown"),
                             profile_data.get("last_used", "Never"),
+                            str(profile_data.get("debug_port", "")),
+                            str(profile_data.get("user_data_dir", "")),
                         )
                     console.print(table)
 
             elif action == "show":
-                profile_data = state_manager.get_profile(name)
+                profile_data = state_manager.list_profile_summaries(
+                    base_port=get_config().browser.debug_port
+                ).get(name, state_manager.get_profile(name))
                 if format == "json":
                     console.print(json.dumps(profile_data, indent=2))
                 else:
@@ -1079,6 +1115,9 @@ class Cli:
         verbose: bool = False,
         profile: str = "default",
         engine: str | None = None,
+        service: str | None = None,
+        task: str | None = None,
+        suppress_dialog: bool = False,
     ):
         """
         Launch the browser in CDP debug mode and exit.
@@ -1100,6 +1139,9 @@ class Cli:
                 separate authentication sessions and browser data. Defaults to "default".
             engine (str, optional): Browser engine to use ("chrome" or "cloak"). If not
                 specified, uses the default from configuration.
+            service (str, optional): Service name to show in the interactive task dialog.
+            task (str, optional): Task description to show in the interactive task dialog.
+            suppress_dialog (bool, optional): Suppress the interactive task dialog.
 
         Usage Examples:
             # Launch browser with default profile
@@ -1155,19 +1197,28 @@ class Cli:
                 if config.browser.engine == "cloak"
                 else "Chrome for Testing"
             )
+            debug_port = get_state_manager().get_profile_debug_port(
+                profile, config.browser.debug_port
+            )
             console.print(
                 f"[bold blue]Launching {engine_display} in CDP debug mode...[/bold blue]"
             )
             console.print(f"[dim]Profile: {profile}[/dim]")
-            console.print(f"[dim]Debug port: {config.browser.debug_port}[/dim]")
+            console.print(f"[dim]Debug port: {debug_port}[/dim]")
             console.print("[dim]Debug mode: ENABLED[/dim]\n")
+
+            notify_interactive_task(
+                task=task
+                or "Use this browser profile for any required sign-in, consent, captcha, or manual check.",
+                profile=profile,
+                service=service,
+                suppress=suppress_dialog,
+            )
 
             # Launch browser (don't just ensure it's running)
             from .browser.process import get_chrome_process
 
-            was_already_running = (
-                get_chrome_process(config.browser.debug_port) is not None
-            )
+            was_already_running = get_chrome_process(debug_port) is not None
 
             browser_path, data_dir = launch_browser(
                 verbose=True, profile=profile

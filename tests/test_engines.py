@@ -68,17 +68,24 @@ def test_get_engine_async_cloak(browser_config):
 
 @patch("playwrightauthor.engines.chrome.ensure_browser")
 @patch("playwrightauthor.engines.chrome.connect_with_retry")
-def test_chrome_engine_adapter_start(mock_connect, mock_ensure, browser_config):
+@patch("playwrightauthor.engines.chrome.get_state_manager")
+def test_chrome_engine_adapter_start(
+    mock_state_manager, mock_connect, mock_ensure, browser_config
+):
     """Test that ChromeEngineAdapter start connects correctly."""
+    mock_state_manager.return_value.get_profile_debug_port.return_value = 9223
     adapter = ChromeEngineAdapter(browser_config, "test_profile", verbose=True)
     mock_chromium = MagicMock()
 
     adapter.start(mock_chromium)
 
     mock_ensure.assert_called_once_with(verbose=True, profile="test_profile")
+    mock_state_manager.return_value.get_profile_debug_port.assert_called_once_with(
+        "test_profile", browser_config.browser.debug_port
+    )
     mock_connect.assert_called_once_with(
         mock_chromium,
-        browser_config.browser.debug_port,
+        9223,
         max_retries=browser_config.network.retry_attempts,
         retry_delay=browser_config.network.retry_delay,
         timeout=browser_config.browser.timeout // 1000,
@@ -87,20 +94,25 @@ def test_chrome_engine_adapter_start(mock_connect, mock_ensure, browser_config):
 
 @patch("playwrightauthor.engines.chrome.ensure_browser")
 @patch("playwrightauthor.engines.chrome.async_connect_with_retry")
+@patch("playwrightauthor.engines.chrome.get_state_manager")
 @pytest.mark.anyio
 async def test_async_chrome_engine_adapter_start(
-    mock_connect, mock_ensure, browser_config
+    mock_state_manager, mock_connect, mock_ensure, browser_config
 ):
     """Test that AsyncChromeEngineAdapter start_async connects correctly."""
+    mock_state_manager.return_value.get_profile_debug_port.return_value = 9223
     adapter = AsyncChromeEngineAdapter(browser_config, "test_profile", verbose=True)
     mock_chromium = MagicMock()
 
     await adapter.start_async(mock_chromium)
 
     mock_ensure.assert_called_once_with(verbose=True, profile="test_profile")
+    mock_state_manager.return_value.get_profile_debug_port.assert_called_once_with(
+        "test_profile", browser_config.browser.debug_port
+    )
     mock_connect.assert_called_once_with(
         mock_chromium,
-        browser_config.browser.debug_port,
+        9223,
         max_retries=browser_config.network.retry_attempts,
         retry_delay=browser_config.network.retry_delay,
         timeout=browser_config.browser.timeout // 1000,

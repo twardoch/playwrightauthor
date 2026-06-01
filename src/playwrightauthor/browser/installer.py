@@ -5,13 +5,13 @@ import json
 import platform
 import shutil
 import stat
+import subprocess
 import time
 from pathlib import Path
 
 import requests
 
 from ..exceptions import BrowserInstallationError, NetworkError
-from ..utils.paths import install_dir
 
 _LKGV_URL = "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json"
 _KNOWN_GOOD_VERSIONS_URL = "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
@@ -312,66 +312,35 @@ def install_from_lkgv(
         BrowserInstallationError: If installation fails after all retries
         NetworkError: If network operations fail after all retries
     """
-    platform_key = _get_platform_key()
-    logger.info(f"Detected platform: {platform_key}")
-
-    install_path = install_dir()
-    install_path.mkdir(parents=True, exist_ok=True)
-    zip_path = install_path / "chrome.zip"
-
     last_error = None
+    browser_ref = f"chrome@{version}" if version else "chrome@stable"
+    command = ["npx", "--yes", "@puppeteer/browsers", "install", browser_ref]
 
     for attempt in range(max_retries):
         try:
-            logger.info(f"Installation attempt {attempt + 1}/{max_retries}")
-
-            # Fetch version data
-            if version:
-                logger.info(f"Installing specific Chrome version: {version}")
-                version_data = _fetch_specific_version_data(logger, version)
-                if not version_data:
-                    raise BrowserInstallationError(
-                        f"Chrome version {version} not found in known-good-versions. "
-                        f"Check {_KNOWN_GOOD_VERSIONS_URL} for available versions."
-                    )
-                downloads = version_data.get("downloads", {}).get("chrome", [])
-            else:
-                logger.info("Installing latest stable Chrome version")
-                data = _fetch_lkgv_data(logger)
-                downloads = data["channels"]["Stable"]["downloads"]["chrome"]
-
-            # Find download URL for our platform
-            url = next(
-                (item["url"] for item in downloads if item["platform"] == platform_key),
-                None,
+            logger.info(
+                f"Chrome for Testing installation attempt {attempt + 1}/{max_retries}: {' '.join(command)}"
             )
-
-            if not url:
+            result = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+            if result.returncode != 0:
                 raise BrowserInstallationError(
-                    f"No download URL found for platform {platform_key}"
+                    "Chrome for Testing installation failed via @puppeteer/browsers: "
+                    f"{result.stderr.strip() or result.stdout.strip()}"
                 )
-
-            # Download and extract
-            _download_with_progress(url, zip_path, logger)
-            _extract_archive(zip_path, install_path, logger)
-
-            logger.info("Chrome for Testing installation completed successfully")
-            return  # Success
-
-        except (NetworkError, BrowserInstallationError) as e:
+            logger.info(
+                "Chrome for Testing installation completed via @puppeteer/browsers"
+            )
+            return
+        except (OSError, subprocess.SubprocessError, BrowserInstallationError) as e:
             last_error = e
             if attempt < max_retries - 1:
                 logger.warning(f"Installation attempt {attempt + 1} failed: {e}")
                 logger.info(f"Retrying in {retry_delay} seconds...")
-
-                # Clean up partial files
-                if zip_path.exists():
-                    try:
-                        zip_path.unlink()
-                        logger.debug("Cleaned up partial download")
-                    except OSError:
-                        pass
-
                 time.sleep(retry_delay)
             else:
                 logger.error(f"All {max_retries} installation attempts failed")
