@@ -1,10 +1,36 @@
 # Work Progress
 
-## Current Iteration: Quality Round 4 Complete ✅ (2025-10-03)
+## Current Iteration: Selectable Browser Engine Support & macOS Codesign Fixes Complete ✅ (2026-06-01)
 
-### Status: EXCELLENT - Code Consistency & Type Safety Complete
+### Status: EXCELLENT - 100% Passing Tests, Type Safety, and Code Signing Resolution
 
-## Latest Update: Quality Round 4 - Consistency & Type Safety ✅
+### Accomplishments
+
+**Task 1: macOS Code Signature Invalid Crash Resolution** ✅
+- Implemented `_self_heal_macos_codesign` in `src/playwrightauthor/browser/launcher.py` executing ad-hoc signing (`codesign --force --deep --sign -`) and Gatekeeper quarantine removal (`xattr -cr`) on browser binaries before launch on macOS. This prevents `EXC_CRASH (SIGKILL (Code Signature Invalid))` on macOS / Apple Silicon environments.
+
+**Task 2: Playwright Sync API inside Asyncio Loop Fix** ✅
+- Added check for running asyncio event loop in `tests/test_integration.py`'s `test_browser_handles_missing_chrome` and proactively skipped when loop is present.
+
+**Task 3: Full Mypy Type Checking Resolution** ✅
+- Resolved 100% of Mypy warnings/errors:
+  - Added type annotations in `utils/html.py`.
+  - Added type casting for `BrowserState` returns in `state_manager.py`.
+  - Fixed variable type shadowing in `browser/finder.py`.
+  - Changed `config` type annotations across all adapters to `PlaywrightAuthorConfig` to align with the return value of `get_config()`.
+  - Typed callback parameter `on_crash` in `monitoring.py` to allow coroutine functions (`Callable[[], Any]`).
+  - Fixed parameter defaults in `__main__.py` and defined `valid_engines` locally.
+
+**Task 4: Publish Script Error Fix** ✅
+- Removed trailing `c` typo from `publish.sh`.
+
+### Test Results
+```
+84 passed, 24 skipped in test suite
+Type checking: 100% clean (0 errors)
+Code formatting: Ruff checks and format passing
+Example syntax: All examples syntax-checked and valid
+```
 
 **Date:** 2025-10-03 (Post Quality Round 3)
 

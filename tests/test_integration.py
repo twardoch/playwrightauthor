@@ -317,6 +317,13 @@ class TestErrorHandlingIntegration:
         self, mock_cached_path, mock_find, mock_process
     ):
         """Test behavior when Chrome is not found."""
+        # Skip if running inside an asyncio event loop to avoid Playwright Sync API restriction
+        try:
+            asyncio.get_running_loop()
+            pytest.skip("Skipping sync test inside running asyncio event loop")
+        except RuntimeError:
+            pass
+
         # Mock all Chrome detection mechanisms to return None
         mock_cached_path.return_value = None
         mock_find.return_value = None

@@ -524,7 +524,9 @@ class Cli:
         health_results = []
 
         # Helper to add results
-        def add_result(check_name: str, is_ok: bool, details: str, fix_cmd: str = None):
+        def add_result(
+            check_name: str, is_ok: bool, details: str, fix_cmd: str | None = None
+        ):
             nonlocal all_healthy
             if not is_ok:
                 all_healthy = False
@@ -1138,12 +1140,12 @@ class Cli:
         try:
             config = get_config()
             if engine:
-                from .config import VALID_ENGINES
+                valid_engines = ["chrome", "cloak"]
 
                 engine = engine.lower()
-                if engine not in VALID_ENGINES:
+                if engine not in valid_engines:
                     console.print(
-                        f"[red]Error: Invalid engine '{engine}'. Valid engines: {VALID_ENGINES}[/red]"
+                        f"[red]Error: Invalid engine '{engine}'. Valid engines: {valid_engines}[/red]"
                     )
                     sys.exit(1)
                 config.browser.engine = engine

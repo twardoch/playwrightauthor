@@ -102,7 +102,7 @@ class BrowserMonitor:
         self,
         debug_port: int,
         check_interval: float = 30.0,
-        on_crash: Callable[[], None] | None = None,
+        on_crash: Callable[[], Any] | None = None,
     ):
         """Initialize browser monitor.
 
@@ -251,7 +251,7 @@ class AsyncBrowserMonitor:
         self,
         debug_port: int,
         check_interval: float = 30.0,
-        on_crash: Callable[[], None] | None = None,
+        on_crash: Callable[[], Any] | None = None,
     ):
         """Initialize async browser monitor.
 

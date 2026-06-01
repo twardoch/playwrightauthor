@@ -86,8 +86,7 @@ def _get_macos_chrome_paths() -> Generator[Path, None, None]:
         / "Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
     ]
 
-    for app_path in user_app_paths:
-        yield app_path
+    yield from user_app_paths
 
 
 def find_chrome_executable(logger=None, use_cache: bool = True) -> Path | None:

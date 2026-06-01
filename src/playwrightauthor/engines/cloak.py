@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from playwright.async_api import Browser as AsyncBrowser
     from playwright.sync_api import Browser as SyncBrowser
 
-    from playwrightauthor.config import BrowserConfig
+    from playwrightauthor.config import PlaywrightAuthorConfig
 
 
 def _ensure_cloakbrowser_importable():
@@ -59,7 +59,7 @@ def _ensure_cloakbrowser_importable():
 
 
 def ensure_cloak_browser(
-    config: BrowserConfig,
+    config: PlaywrightAuthorConfig,
     verbose: bool = False,
     max_retries: int | None = None,
     profile: str = "default",
@@ -116,7 +116,7 @@ class CloakEngineAdapter(EngineAdapter):
 
     def __init__(
         self,
-        config: BrowserConfig,
+        config: PlaywrightAuthorConfig,
         profile: str,
         verbose: bool = False,
     ) -> None:
@@ -175,7 +175,7 @@ class AsyncCloakEngineAdapter(AsyncEngineAdapter):
 
     def __init__(
         self,
-        config: BrowserConfig,
+        config: PlaywrightAuthorConfig,
         profile: str,
         verbose: bool = False,
     ) -> None:

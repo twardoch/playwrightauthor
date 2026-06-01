@@ -10,7 +10,7 @@ across sessions.
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any, TypedDict, cast
 
 from loguru import logger
 
@@ -256,7 +256,7 @@ class StateManager:
         # Set current version
         state["version"] = self.CURRENT_VERSION
 
-        return state
+        return cast(BrowserState, state)
 
 
 # Singleton instance for easy access

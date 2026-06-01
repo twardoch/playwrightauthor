@@ -2,9 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+### Added
 
-### Changed
+- **Selectable Browser Engine Support:**
+  - Added support for selectable browser engines: `chrome` (Chrome for Testing) and `cloak` (stealth CloakBrowser client) via `BrowserConfig(engine="cloak")` or `PLAYWRIGHTAUTHOR_ENGINE=cloak`.
+  - Added polymorphic adapter architecture (`EngineAdapter` and `AsyncEngineAdapter`) supporting both sync and async modes.
+  - Implemented lazy loading of private `cloakbrowser` module.
+  - Updated process detection to correctly identify both Chrome for Testing and CloakBrowser (`chromium` / `cloakbrowser` / `chromium-` paths).
+  - Reorganized and flattened the `docs/` folder to a flat numbered format (`NN-*.md`) for `just-the-docs` integration matching `htmladapt`.
+
+### Fixed
+
+- **macOS Code Signing Self-Healing:**
+  - Implemented ad-hoc code signing (`codesign --force --deep --sign -`) and Gatekeeper quarantine attribute removal (`xattr -cr`) on browser startup for macOS/Apple Silicon targets to prevent `SIGKILL (Code Signature Invalid)` crashes.
+- **Test Suite Event Loop Issues:**
+  - Fixed sync playwright integration tests failing under asyncio loops by adding proactive event loop check and skipping.
+- **Type Checking (Mypy) 100% Resolution:**
+  - Fixed all mypy warning and type error issues across `src/playwrightauthor/` codebase (including config, HTML utils, and state manager annotations).
+- **Publish Script:**
+  - Fixed trailing typo in `publish.sh` causing `c: command not found` error.
 
 #### 🔧 Quality Round 4 - Code Consistency & Type Safety ✅
 

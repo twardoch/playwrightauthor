@@ -8,7 +8,7 @@ to resolve common issues. Each exception provides context about what went wrong
 and actionable steps to fix the problem.
 
 For more troubleshooting help, visit:
-https://github.com/twardoch/playwrightauthor/blob/main/docs/troubleshooting.md
+https://github.com/twardoch/playwrightauthor/blob/main/docs/06-auth-troubleshooting.md
 """
 
 
@@ -133,7 +133,7 @@ class BrowserInstallationError(BrowserManagerError):
             message,
             suggestion,
             command,
-            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/installation.md",
+            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/index.md",
         )
 
 
@@ -203,7 +203,7 @@ class BrowserLaunchError(BrowserManagerError):
             suggestion,
             command,
             did_you_mean,
-            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/troubleshooting.md#browser-launch-issues",
+            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/troubleshooting.md",
         )
 
 
@@ -218,7 +218,12 @@ class ProcessKillError(BrowserManagerError):
     - System resource constraints
     """
 
-    def __init__(self, message: str, suggestion: str = None, command: str = None):
+    def __init__(
+        self,
+        message: str,
+        suggestion: str | None = None,
+        command: str | None = None,
+    ):
         if not suggestion:
             suggestion = (
                 "Try manually closing Chrome windows first. If that fails, "
@@ -241,7 +246,12 @@ class NetworkError(PlaywrightAuthorError):
     - Server timeouts
     """
 
-    def __init__(self, message: str, suggestion: str = None, command: str = None):
+    def __init__(
+        self,
+        message: str,
+        suggestion: str | None = None,
+        command: str | None = None,
+    ):
         if not suggestion:
             suggestion = (
                 "Check your internet connection and firewall settings. "
@@ -265,7 +275,12 @@ class TimeoutError(PlaywrightAuthorError):
     - System under heavy load
     """
 
-    def __init__(self, message: str, suggestion: str = None, command: str = None):
+    def __init__(
+        self,
+        message: str,
+        suggestion: str | None = None,
+        command: str | None = None,
+    ):
         if not suggestion:
             suggestion = (
                 "Increase timeout values or check system performance. "
@@ -287,7 +302,12 @@ class ConfigurationError(PlaywrightAuthorError):
     - Malformed configuration files
     """
 
-    def __init__(self, message: str, suggestion: str = None, command: str = None):
+    def __init__(
+        self,
+        message: str,
+        suggestion: str | None = None,
+        command: str | None = None,
+    ):
         if not suggestion:
             suggestion = (
                 "Check your configuration file syntax and validate all settings. "
@@ -309,7 +329,12 @@ class AuthenticationError(PlaywrightAuthorError):
     - Service requires re-authentication
     """
 
-    def __init__(self, message: str, suggestion: str = None, command: str = None):
+    def __init__(
+        self,
+        message: str,
+        suggestion: str | None = None,
+        command: str | None = None,
+    ):
         if not suggestion:
             suggestion = (
                 "You may need to manually log in again. PlaywrightAuthor will "
@@ -334,8 +359,8 @@ class ConnectionError(PlaywrightAuthorError):
     def __init__(
         self,
         message: str,
-        suggestion: str = None,
-        command: str = None,
+        suggestion: str | None = None,
+        command: str | None = None,
         did_you_mean: list[str] | None = None,
     ):
         if "refused" in message.lower() or "connect" in message.lower():
@@ -366,7 +391,7 @@ class ConnectionError(PlaywrightAuthorError):
             suggestion,
             command,
             did_you_mean,
-            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/connection-issues.md",
+            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/06-auth-troubleshooting.md#issue-2-networkconnection-problems",
         )
 
 
@@ -384,9 +409,9 @@ class ProfileError(PlaywrightAuthorError):
     def __init__(
         self,
         message: str,
-        profile_name: str = None,
-        suggestion: str = None,
-        command: str = None,
+        profile_name: str | None = None,
+        suggestion: str | None = None,
+        command: str | None = None,
     ):
         if profile_name:
             if "not found" in message.lower() or "does not exist" in message.lower():
@@ -417,7 +442,7 @@ class ProfileError(PlaywrightAuthorError):
             message,
             suggestion,
             command,
-            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/profiles.md",
+            help_link="https://github.com/twardoch/playwrightauthor/blob/main/docs/02-auth-overview.md#profile-management",
         )
 
 
@@ -435,9 +460,9 @@ class CLIError(PlaywrightAuthorError):
     def __init__(
         self,
         message: str,
-        command_used: str = None,
-        suggestion: str = None,
-        command: str = None,
+        command_used: str | None = None,
+        suggestion: str | None = None,
+        command: str | None = None,
         did_you_mean: list[str] | None = None,
     ):
         # Auto-generate did_you_mean suggestions based on command

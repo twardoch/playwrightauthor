@@ -51,7 +51,7 @@ def html_to_markdown(
 
     # Clean up the markdown
     lines = markdown.split("\n")
-    cleaned_lines = []
+    cleaned_lines: list[str] = []
 
     for raw_line in lines:
         # Remove excessive whitespace

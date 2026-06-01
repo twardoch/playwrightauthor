@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from playwright.async_api import Browser as AsyncBrowser
     from playwright.sync_api import Browser as SyncBrowser
 
-    from playwrightauthor.config import BrowserConfig
+    from playwrightauthor.config import PlaywrightAuthorConfig
 
 
 class ChromeEngineAdapter(EngineAdapter):
@@ -31,7 +31,7 @@ class ChromeEngineAdapter(EngineAdapter):
 
     def __init__(
         self,
-        config: BrowserConfig,
+        config: PlaywrightAuthorConfig,
         profile: str,
         verbose: bool = False,
     ) -> None:
@@ -89,7 +89,7 @@ class AsyncChromeEngineAdapter(AsyncEngineAdapter):
 
     def __init__(
         self,
-        config: BrowserConfig,
+        config: PlaywrightAuthorConfig,
         profile: str,
         verbose: bool = False,
     ) -> None:

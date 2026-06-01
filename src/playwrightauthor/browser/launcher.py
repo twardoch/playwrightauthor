@@ -1,6 +1,7 @@
 # this_file: src/playwrightauthor/browser/launcher.py
 
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -8,6 +9,48 @@ import psutil
 
 from ..exceptions import BrowserLaunchError, TimeoutError
 from .process import wait_for_process_start
+
+
+def _self_heal_macos_codesign(browser_path: Path, logger) -> None:
+    """If running on macOS, ensure the browser bundle is codesigned and quarantine is removed."""
+    if sys.platform != "darwin":
+        return
+
+    # Find the .app bundle if exists, otherwise sign the executable directly
+    app_path = None
+    for parent in [browser_path] + list(browser_path.parents):
+        if parent.suffix == ".app":
+            app_path = parent
+            break
+
+    target_to_sign = app_path if app_path else browser_path
+    if not target_to_sign.exists():
+        return
+
+    try:
+        logger.info(f"Checking/ensuring macOS code signature on: {target_to_sign}")
+
+        # Remove quarantine flag
+        subprocess.run(
+            ["xattr", "-cr", str(target_to_sign)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+
+        # Force deep ad-hoc sign
+        res = subprocess.run(
+            ["codesign", "--force", "--deep", "--sign", "-", str(target_to_sign)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        if res.returncode == 0:
+            logger.info("macOS code signing completed successfully.")
+        else:
+            logger.warning(f"macOS codesign returned code {res.returncode}")
+    except Exception as e:
+        logger.warning(f"Failed to codesign/remove quarantine on macOS: {e}")
 
 
 def launch_chrome(
@@ -30,6 +73,9 @@ def launch_chrome(
         extra_args: Additional command line arguments to append
     """
     logger.info(f"Launching browser from: {browser_path}")
+
+    # Self-heal code signing on macOS to avoid SIGKILL (Code Signature Invalid)
+    _self_heal_macos_codesign(browser_path, logger)
 
     # Verify this is a supported browser (Chrome for Testing or CloakBrowser)
     browser_str = str(browser_path).lower()

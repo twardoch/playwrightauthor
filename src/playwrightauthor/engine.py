@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from playwright.async_api import Browser as AsyncBrowser
     from playwright.sync_api import Browser as SyncBrowser
 
-    from playwrightauthor.config import BrowserConfig
+    from playwrightauthor.config import PlaywrightAuthorConfig
 
 
 @runtime_checkable
@@ -66,7 +66,10 @@ class AsyncEngineAdapter(Protocol):
 
 
 def get_engine(
-    engine_name: str, config: BrowserConfig, profile: str, verbose: bool = False
+    engine_name: str,
+    config: PlaywrightAuthorConfig,
+    profile: str,
+    verbose: bool = False,
 ) -> EngineAdapter:
     """Get the engine adapter for the given engine name.
 
@@ -109,7 +112,10 @@ def get_engine(
 
 
 def get_engine_async(
-    engine_name: str, config: BrowserConfig, profile: str, verbose: bool = False
+    engine_name: str,
+    config: PlaywrightAuthorConfig,
+    profile: str,
+    verbose: bool = False,
 ) -> AsyncEngineAdapter:
     """Get the async engine adapter for the given engine name.
 

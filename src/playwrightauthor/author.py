@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from .browser.process import get_chrome_process
 from .config import get_config
 from .engine import get_engine, get_engine_async
+from .exceptions import BrowserManagerError
 from .lazy_imports import get_async_playwright, get_sync_playwright
 from .monitoring import AsyncBrowserMonitor, BrowserMonitor
 from .state_manager import get_state_manager
@@ -299,6 +300,8 @@ class Browser:
             engine = get_engine(
                 self.config.browser.engine, self.config, self.profile, self.verbose
             )
+            if not self.playwright:
+                raise BrowserManagerError("Playwright is not initialized")
             self.browser = engine.start(self.playwright.chromium)
 
             # Restart monitoring with new process
@@ -559,6 +562,8 @@ class AsyncBrowser:
             engine = get_engine_async(
                 self.config.browser.engine, self.config, self.profile, self.verbose
             )
+            if not self.playwright:
+                raise BrowserManagerError("Playwright is not initialized")
             self.browser = await engine.start_async(self.playwright.chromium)
 
             # Restart monitoring with new process
