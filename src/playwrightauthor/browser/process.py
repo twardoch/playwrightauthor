@@ -8,31 +8,32 @@ from ..exceptions import ProcessKillError, TimeoutError
 
 
 def get_chrome_process(port: int | None = None) -> psutil.Process | None:
-    """Find a running Chrome for Testing process, optionally filtered by debug port."""
+    """Find a running Chrome for Testing or CloakBrowser process, optionally filtered by debug port."""
     for proc in psutil.process_iter(["name", "cmdline", "exe"]):
         try:
             proc_name = proc.info["name"].lower()
-            # Check if it's a Chrome process (including main Chrome for Testing)
-            if "chrome" in proc_name and not any(
+            # Check if it's a Chrome/Chromium process
+            if ("chrome" in proc_name or "chromium" in proc_name) and not any(
                 helper in proc_name for helper in ["helper", "crashpad"]
             ):
-                # Try to get the executable path to verify it's Chrome for Testing
+                # Try to get the executable path to verify it's a supported browser
                 try:
                     exe_path = proc.info.get("exe", "") or ""
                     exe_lower = exe_path.lower()
 
-                    # Check if this is Chrome for Testing
-                    # Look for "chrome for testing" in path or our install directory patterns
-                    is_chrome_for_testing = (
+                    # Check if this is Chrome for Testing or CloakBrowser
+                    is_valid_browser = (
                         "chrome for testing" in exe_lower
                         or "chrome-mac-" in exe_lower
                         or "chrome-win" in exe_lower
                         or "chrome-linux" in exe_lower
+                        or "cloakbrowser" in exe_lower
+                        or "chromium-" in exe_lower
                     )
 
-                    # If we're not looking for a specific port, only return Chrome for Testing
+                    # If we're not looking for a specific port, only return a valid browser
                     if port is None:
-                        if is_chrome_for_testing:
+                        if is_valid_browser:
                             return proc
                     else:
                         # Check for the debug port in command line
@@ -40,8 +41,8 @@ def get_chrome_process(port: int | None = None) -> psutil.Process | None:
                             f"--remote-debugging-port={port}" in arg
                             for arg in proc.info["cmdline"]
                         ):
-                            # Only return if it's Chrome for Testing
-                            if is_chrome_for_testing:
+                            # Only return if it's a valid browser
+                            if is_valid_browser:
                                 return proc
                 except (AttributeError, TypeError):
                     # If we can't get exe path, skip this process

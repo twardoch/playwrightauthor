@@ -26,7 +26,7 @@ class LazyModule:
             module_name: Name of the module to import lazily.
         """
         self._module_name = module_name
-        self._module = None
+        self._module: Any = None
 
     def _load(self) -> Any:
         """Load the module if not already loaded."""

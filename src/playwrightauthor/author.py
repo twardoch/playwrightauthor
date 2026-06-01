@@ -10,9 +10,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from .browser.process import get_chrome_process
-from .browser_manager import ensure_browser
 from .config import get_config
-from .connection import async_connect_with_retry, connect_with_retry
+from .engine import get_engine, get_engine_async
 from .lazy_imports import get_async_playwright, get_sync_playwright
 from .monitoring import AsyncBrowserMonitor, BrowserMonitor
 from .state_manager import get_state_manager
@@ -142,26 +141,17 @@ class Browser:
             ```
         """
         self.logger.info(
-            f"Starting sync browser session with profile '{self.profile}'..."
+            f"Starting sync browser session with profile '{self.profile}' using engine '{self.config.browser.engine}'..."
         )
-        ensure_browser(self.verbose, profile=self.profile)
-
         # Use lazy loading for Playwright
         sync_playwright = get_sync_playwright()
         self.playwright = sync_playwright.start()
 
-        # Connect to browser using configured port with health checks and retry logic
-        debug_port = self.config.browser.debug_port
-        max_retries = self.config.network.retry_attempts
-        retry_delay = self.config.network.retry_delay
-
-        self.browser = connect_with_retry(
-            self.playwright.chromium,
-            debug_port,
-            max_retries=max_retries,
-            retry_delay=retry_delay,
-            timeout=self.config.browser.timeout // 1000,  # Convert ms to seconds
+        # Connect to browser using engine adapter
+        engine = get_engine(
+            self.config.browser.engine, self.config, self.profile, self.verbose
         )
+        self.browser = engine.start(self.playwright.chromium)
 
         # Update profile last used time
         profile_data = self.state_manager.get_profile(self.profile)
@@ -305,21 +295,11 @@ class Browser:
                 except Exception as e:
                     self.logger.debug(f"Error closing crashed browser: {e}")
 
-            # Re-ensure browser is running
-            ensure_browser(self.verbose, profile=self.profile)
-
-            # Reconnect to browser
-            debug_port = self.config.browser.debug_port
-            max_retries = self.config.network.retry_attempts
-            retry_delay = self.config.network.retry_delay
-
-            self.browser = connect_with_retry(
-                self.playwright.chromium,
-                debug_port,
-                max_retries=max_retries,
-                retry_delay=retry_delay,
-                timeout=self.config.browser.timeout // 1000,
+            # Reconnect using engine adapter
+            engine = get_engine(
+                self.config.browser.engine, self.config, self.profile, self.verbose
             )
+            self.browser = engine.start(self.playwright.chromium)
 
             # Restart monitoring with new process
             if self.monitor:
@@ -471,26 +451,17 @@ class AsyncBrowser:
             ```
         """
         self.logger.info(
-            f"Starting async browser session with profile '{self.profile}'..."
+            f"Starting async browser session with profile '{self.profile}' using engine '{self.config.browser.engine}'..."
         )
-        ensure_browser(self.verbose, profile=self.profile)
-
         # Use lazy loading for Playwright
         async_playwright = get_async_playwright()
         self.playwright = await async_playwright.start()
 
-        # Connect to browser using configured port with health checks and retry logic
-        debug_port = self.config.browser.debug_port
-        max_retries = self.config.network.retry_attempts
-        retry_delay = self.config.network.retry_delay
-
-        self.browser = await async_connect_with_retry(
-            self.playwright.chromium,
-            debug_port,
-            max_retries=max_retries,
-            retry_delay=retry_delay,
-            timeout=self.config.browser.timeout // 1000,  # Convert ms to seconds
+        # Connect to browser using async engine adapter
+        engine = get_engine_async(
+            self.config.browser.engine, self.config, self.profile, self.verbose
         )
+        self.browser = await engine.start_async(self.playwright.chromium)
 
         # Update profile last used time
         profile_data = self.state_manager.get_profile(self.profile)
@@ -584,21 +555,11 @@ class AsyncBrowser:
                 except Exception as e:
                     self.logger.debug(f"Error closing crashed browser: {e}")
 
-            # Re-ensure browser is running (sync call)
-            ensure_browser(self.verbose, profile=self.profile)
-
-            # Reconnect to browser
-            debug_port = self.config.browser.debug_port
-            max_retries = self.config.network.retry_attempts
-            retry_delay = self.config.network.retry_delay
-
-            self.browser = await async_connect_with_retry(
-                self.playwright.chromium,
-                debug_port,
-                max_retries=max_retries,
-                retry_delay=retry_delay,
-                timeout=self.config.browser.timeout // 1000,
+            # Reconnect using async engine adapter
+            engine = get_engine_async(
+                self.config.browser.engine, self.config, self.profile, self.verbose
             )
+            self.browser = await engine.start_async(self.playwright.chromium)
 
             # Restart monitoring with new process
             if self.monitor:

@@ -1,4 +1,11 @@
+---
+layout: default
+title: Memory Management
+nav_order: 17
+---
+
 # Memory Management Guide
+<!-- this_file: docs/16-performance-memory.md -->
 
 This guide explains how to manage memory effectively when using PlaywrightAuthor for browser automation.
 
@@ -650,7 +657,7 @@ finally:
 
 ## Additional Resources
 
-- [Performance Optimization](index.md)
-- [Connection Pooling](connection-pooling.md)
-- [Resource Management](../architecture/components.md#resource-management)
+- [Performance Optimization](15-performance-overview.md)
+- [Connection Pooling](17-performance-pooling.md)
+- [Resource Management](09-architecture-components.md#resource-management)
 - [Chrome Memory Profiling](https://developer.chrome.com/docs/devtools/memory-problems/)

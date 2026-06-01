@@ -1,4 +1,11 @@
+---
+layout: default
+title: Authentication Workflows
+nav_order: 3
+---
+
 # Authentication Workflows
+<!-- this_file: docs/02-auth-overview.md -->
 
 PlaywrightAuthor's key feature is maintaining persistent authentication sessions. This section provides practical guides for authenticating with common services.
 
@@ -15,9 +22,9 @@ When using PlaywrightAuthor with a service that requires authentication:
 
 ### Popular Services
 
-- **[Gmail/Google](gmail.md)** – Handle 2FA, app passwords, and workspace accounts  
-- **[GitHub](github.md)** – Personal access tokens and OAuth apps  
-- **[LinkedIn](linkedin.md)** – Professional networking automation  
+- **[Gmail/Google](03-auth-gmail.md)** – Handle 2FA, app passwords, and workspace accounts  
+- **[GitHub](04-auth-github.md)** – Personal access tokens and OAuth apps  
+- **[LinkedIn](05-auth-linkedin.md)** – Professional networking automation  
 - **[Microsoft/Office 365](microsoft.md)** – Enterprise authentication  
 - **[Facebook](facebook.md)** – Social media automation  
 - **[Twitter/X](twitter.md)** – API alternatives  
@@ -91,7 +98,7 @@ with Browser(profile="personal") as browser:
 
 ## Troubleshooting
 
-See the [Troubleshooting Guide](troubleshooting.md) for help with:
+See the [Troubleshooting Guide](06-auth-troubleshooting.md) for help with:
 
 - Cookie and session problems  
 - JavaScript errors  

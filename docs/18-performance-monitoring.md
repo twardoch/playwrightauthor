@@ -1,4 +1,11 @@
+---
+layout: default
+title: Performance Monitoring
+nav_order: 19
+---
+
 # Performance Monitoring Guide
+<!-- this_file: docs/18-performance-monitoring.md -->
 
 This guide covers monitoring strategies for PlaywrightAuthor, including metrics collection, alerting, debugging, and production monitoring.
 
@@ -958,8 +965,8 @@ with Browser() as browser:
 
 ## Additional Resources
 
-- [Performance Optimization](index.md)
-- [Memory Management](memory-management.md)
-- [Production Monitoring](../architecture/components.md#monitoring-system)
+- [Performance Optimization](15-performance-overview.md)
+- [Memory Management](16-performance-memory.md)
+- [Production Monitoring](09-architecture-components.md#monitoring-system)
 - [Prometheus Best Practices](https://prometheus.io/docs/practices/)
 - [OpenTelemetry Documentation](https://opentelemetry.io/docs/)

@@ -1,4 +1,11 @@
+---
+layout: default
+title: Gmail/Google Authentication
+nav_order: 4
+---
+
 # Gmail/Google Authentication Guide
+<!-- this_file: docs/03-auth-gmail.md -->
 
 This guide shows how to authenticate with Gmail and Google services using PlaywrightAuthor.
 
@@ -235,4 +242,4 @@ playwrightauthor profile import work --input work-profile.zip
 - [Google Account Security](https://myaccount.google.com/security)
 - [App Passwords Guide](https://support.google.com/accounts/answer/185833)
 - [Google Workspace Admin](https://admin.google.com)
-- [PlaywrightAuthor Troubleshooting](troubleshooting.md)
+- [PlaywrightAuthor Troubleshooting](06-auth-troubleshooting.md)

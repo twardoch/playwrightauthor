@@ -1,4 +1,3 @@
-
 __marimo__/
 __pycache__/
 __pypackages__/
@@ -49,7 +48,6 @@ __pypackages__/
 *.spec
 *$py.class
 /site
-uv.lock
 build/
 celerybeat-schedule
 celerybeat.pid
@@ -80,11 +78,13 @@ nosetests.xml
 parts/
 pip-delete-this-directory.txt
 pip-log.txt
+private/
 profile_default/
 sdist/
 share/python-wheels/
 src/playwrightauthor/_version.py
 target/
+uv.lock
 var/
 venv.bak/
 venv/

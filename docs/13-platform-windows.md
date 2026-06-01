@@ -1,4 +1,11 @@
+---
+layout: default
+title: Windows Guide
+nav_order: 14
+---
+
 # Windows Platform Guide
+<!-- this_file: docs/13-platform-windows.md -->
 
 This guide covers Windows-specific setup, configuration, and troubleshooting for PlaywrightAuthor.
 

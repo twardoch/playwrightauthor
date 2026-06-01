@@ -1,4 +1,11 @@
+---
+layout: default
+title: Browser Lifecycle
+nav_order: 9
+---
+
 # Browser Lifecycle Management
+<!-- this_file: docs/08-architecture-lifecycle.md -->
 
 This document details how PlaywrightAuthor manages the Chrome browser lifecycle from installation to connection management.
 
@@ -447,7 +454,7 @@ state_config = {
 
 ## Additional Resources
 
-- [Component Details](components.md)
-- [Error Handling](error-handling.md)
-- [Performance Guide](../performance/index.md)
-- [Configuration Reference](../../api/config.md)
+- [Component Details](09-architecture-components.md)
+- [Error Handling](10-architecture-errors.md)
+- [Performance Guide](15-performance-overview.md)
+- [Home Page](index.md)

@@ -1,4 +1,11 @@
+---
+layout: default
+title: Performance Guides Overview
+nav_order: 16
+---
+
 # Performance Optimization Guide
+<!-- this_file: docs/15-performance-overview.md -->
 
 This guide covers strategies for optimizing PlaywrightAuthor performance, managing resources efficiently, and debugging performance issues.
 
@@ -707,8 +714,8 @@ detector.find_leaks()
 
 ## Additional Resources
 
-- [Browser Architecture](../architecture/browser-lifecycle.md)
-- [Memory Management](memory-management.md)
-- [Connection Pooling](connection-pooling.md)
-- [Monitoring Guide](monitoring.md)
+- [Browser Architecture](08-architecture-lifecycle.md)
+- [Memory Management](16-performance-memory.md)
+- [Connection Pooling](17-performance-pooling.md)
+- [Monitoring Guide](18-performance-monitoring.md)
 - [Chrome DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/)

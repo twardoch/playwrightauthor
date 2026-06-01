@@ -1,4 +1,11 @@
+---
+layout: default
+title: macOS Guide
+nav_order: 13
+---
+
 # macOS Platform Guide
+<!-- this_file: docs/12-platform-macos.md -->
 
 This guide explains how to set up, configure, and troubleshoot PlaywrightAuthor on macOS.
 

@@ -1,4 +1,11 @@
+---
+layout: default
+title: Authentication Troubleshooting
+nav_order: 7
+---
+
 # Authentication Troubleshooting Guide
+<!-- this_file: docs/06-auth-troubleshooting.md -->
 
 This guide helps you diagnose and fix authentication issues with PlaywrightAuthor.
 
@@ -426,7 +433,7 @@ If you're still experiencing issues:
 
 ## Additional Resources
 
-- [Platform-Specific Guides](../platforms/index.md)
-- [Performance Optimization](../performance/optimization.md)
-- [Security Best Practices](../security/index.md)
-- [API Reference](../../api/index.md)
+- [Platform-Specific Guides](11-platform-overview.md)
+- [Performance Optimization](15-performance-overview.md)
+- [Security Architecture](07-architecture-overview.md#security-architecture)
+- [Home Page](index.md)

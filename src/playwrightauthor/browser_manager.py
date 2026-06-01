@@ -55,6 +55,11 @@ def launch_browser(
 
     # Load configuration
     config = get_config()
+    if config.browser.engine == "cloak":
+        from .engines.cloak import ensure_cloak_browser
+
+        return ensure_cloak_browser(config, verbose, max_retries, profile)
+
     debug_port = config.browser.debug_port
 
     # Use configured retry attempts if not specified
@@ -199,6 +204,11 @@ def ensure_browser(
 
     # Load configuration
     config = get_config()
+    if config.browser.engine == "cloak":
+        from .engines.cloak import ensure_cloak_browser
+
+        return ensure_cloak_browser(config, verbose, max_retries, profile)
+
     debug_port = config.browser.debug_port
 
     # Use configured retry attempts if not specified

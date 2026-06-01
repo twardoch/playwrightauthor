@@ -1,34 +1,45 @@
+---
+layout: default
+title: Home
+nav_order: 1
+---
+
 # PlaywrightAuthor Documentation
+<!-- this_file: docs/index.md -->
 
 Master browser automation with persistent authentication.
 
 ## Documentation Structure
 
-### [Authentication Workflows](auth/index.md)
-Step-by-step guides for authenticating with popular services:
-- [Gmail/Google Authentication](auth/gmail.md)
-- [GitHub Authentication](auth/github.md)
-- [LinkedIn Authentication](auth/linkedin.md)
-- [Troubleshooting Authentication](auth/troubleshooting.md)
+### 1. Browser Engines
+- **[Selectable Browser Engines](01-browser-engines.md)** - Switching between Chrome for Testing and CloakBrowser
 
-### [Architecture](architecture/index.md)
-Understanding PlaywrightAuthor's internals:
-- [Browser Lifecycle Management](architecture/browser-lifecycle.md)
-- [Component Architecture](architecture/components.md)
-- [Error Handling & Recovery](architecture/error-handling.md)
+### 2. Authentication Workflows
+- **[Authentication Workflows Overview](02-auth-overview.md)** - Maintaining persistent authentication sessions
+- **[Gmail/Google Authentication](03-auth-gmail.md)** - Handling 2FA and Workspace accounts
+- **[GitHub Authentication](04-auth-github.md)** - Access tokens, OAuth authorization, and MFA
+- **[LinkedIn Authentication](05-auth-linkedin.md)** - Scraping and automation with anti-bot handling
+- **[Troubleshooting Authentication](06-auth-troubleshooting.md)** - Diagnosing cookie and session problems
 
-### [Platform-Specific Guides](platforms/index.md)
-Setup and optimization for each platform:
-- [macOS Guide](platforms/macos.md) - M1/Intel, permissions, Homebrew
-- [Windows Guide](platforms/windows.md) - UAC, antivirus, PowerShell
-- [Linux Guide](platforms/linux.md) - Distributions, Docker, dependencies
+### 3. Architecture Deep Dive
+- **[Architecture Overview](07-architecture-overview.md)** - Component layout and sequence diagrams
+- **[Browser Lifecycle Management](08-architecture-lifecycle.md)** - Automated binary discovery, installation, and launch
+- **[Component Details](09-architecture-components.md)** - API modules, state, and browser managers
+- **[Error Handling & Recovery](10-architecture-errors.md)** - Resiliency logic and exceptions
 
-### [Performance](performance/index.md)
-Optimization and best practices:
-- [Resource Optimization](performance/optimization.md)
-- [Memory Management](performance/memory.md)
-- [Connection Pooling](performance/connection-pooling.md)
-- [Monitoring & Debugging](performance/monitoring.md)
+### 4. Platform Guides
+- **[Platform-Specific Guides Overview](11-platform-overview.md)** - Multi-platform support summary
+- **[macOS Guide](12-platform-macos.md)** - Universal binaries, Accessibility permissions, Homebrew
+- **[Windows Guide](13-platform-windows.md)** - PowerShell, Defender, and UAC elevation
+- **[Linux Guide](14-platform-linux.md)** - Dependencies, Alpine, Docker containers
+
+### 5. Performance Optimization
+- **[Performance Optimization Overview](15-performance-overview.md)** - Latency, CPU and scaling benchmarks
+- **[Memory Management](16-performance-memory.md)** - Resource blocking, leak checks, and memory status
+- **[Connection Pooling](17-performance-pooling.md)** - Browser process queueing and reuse
+- **[Performance Monitoring](18-performance-monitoring.md)** - Real-time metrics and tracing
+
+---
 
 ## Quick Start
 
@@ -50,14 +61,7 @@ with Browser() as browser:
 
 ## Getting Help
 
-- **Installation Issues**: [Troubleshooting guide](auth/troubleshooting.md)
-- **Platform-Specific Problems**: [Platform guides](platforms/index.md)
-- **Performance Issues**: [Optimization strategies](performance/optimization.md)
+- **Installation/Auth Issues**: [Troubleshooting guide](06-auth-troubleshooting.md)
+- **Platform-Specific Problems**: [Platform guides](11-platform-overview.md)
+- **Performance Optimization**: [Optimization strategies](15-performance-overview.md)
 - **Bug Reports**: [GitHub Issues](https://github.com/twardoch/playwrightauthor/issues)
-
-## Common Use Cases
-
-1. **Automated Testing** - Reuse authenticated sessions for faster test runs
-2. **Web Scraping** - Stay logged in across scraping jobs
-3. **Process Automation** - Automate tasks that require login
-4. **Multi-Account Management** - Switch between different authenticated profiles

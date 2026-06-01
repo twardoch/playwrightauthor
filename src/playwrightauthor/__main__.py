@@ -79,9 +79,16 @@ class Cli:
         logger = configure_logger(verbose)
         logger.info("Checking browser status...")
         try:
+            config = get_config()
             browser_path, data_dir = ensure_browser(verbose=verbose)
-            console.print("[green]Browser is ready.[/green]")
-            console.print(f"  - Path: {browser_path}")
+            engine_display = (
+                "CloakBrowser"
+                if config.browser.engine == "cloak"
+                else "Chrome for Testing"
+            )
+            console.print(f"[green]Browser ({engine_display}) is ready.[/green]")
+            if browser_path:
+                console.print(f"  - Path: {browser_path}")
             console.print(f"  - User Data: {data_dir}")
         except BrowserManagerError as e:
             console.print(f"[red]Error: {e}[/red]")
@@ -1065,14 +1072,20 @@ class Cli:
                 console.print(f"[dim]{traceback.format_exc()}[/dim]")
             sys.exit(1)
 
-    def run(self, verbose: bool = False, profile: str = "default"):
+    def run(
+        self,
+        verbose: bool = False,
+        profile: str = "default",
+        engine: str | None = None,
+    ):
         """
-        Launch Chrome for Testing in CDP debug mode and exit.
+        Launch the browser in CDP debug mode and exit.
 
-        This command starts Chrome for Testing with remote debugging enabled on port 9222
-        and then exits immediately, leaving the browser running in the background. The browser
-        always runs in debug mode. Other scripts using PlaywrightAuthor will automatically
-        connect to this browser instance instead of launching their own.
+        This command starts Chrome for Testing (or CloakBrowser) with remote debugging enabled
+        on port 9222 (or configured port) and then exits immediately, leaving the browser
+        running in the background. The browser always runs in debug mode. Other scripts
+        using PlaywrightAuthor will automatically connect to this browser instance instead of
+        launching their own.
 
         The browser will remain open until you close it manually. All your authentication
         sessions and cookies will be preserved between script runs as long as the browser
@@ -1083,16 +1096,18 @@ class Cli:
                 connection diagnostics. Useful for troubleshooting. Defaults to False.
             profile (str, optional): Browser profile to use. Different profiles maintain
                 separate authentication sessions and browser data. Defaults to "default".
+            engine (str, optional): Browser engine to use ("chrome" or "cloak"). If not
+                specified, uses the default from configuration.
 
         Usage Examples:
             # Launch browser with default profile
             playwrightauthor run
 
-            # Launch with verbose logging
-            playwrightauthor run --verbose
+            # Launch with CloakBrowser engine
+            playwrightauthor run --engine cloak
 
-            # Launch with a specific profile (e.g., work account)
-            playwrightauthor run --profile work
+            # Launch with a specific profile using CloakBrowser
+            playwrightauthor run --profile work --engine cloak
 
         Workflow Example:
             1. Launch browser: playwrightauthor run
@@ -1121,17 +1136,33 @@ class Cli:
         configure_logger(True)  # Always run in verbose/debug mode
 
         try:
+            config = get_config()
+            if engine:
+                from .config import VALID_ENGINES
+
+                engine = engine.lower()
+                if engine not in VALID_ENGINES:
+                    console.print(
+                        f"[red]Error: Invalid engine '{engine}'. Valid engines: {VALID_ENGINES}[/red]"
+                    )
+                    sys.exit(1)
+                config.browser.engine = engine
+
+            engine_display = (
+                "CloakBrowser"
+                if config.browser.engine == "cloak"
+                else "Chrome for Testing"
+            )
             console.print(
-                "[bold blue]Launching Chrome for Testing in CDP debug mode...[/bold blue]"
+                f"[bold blue]Launching {engine_display} in CDP debug mode...[/bold blue]"
             )
             console.print(f"[dim]Profile: {profile}[/dim]")
-            console.print("[dim]Debug port: 9222[/dim]")
+            console.print(f"[dim]Debug port: {config.browser.debug_port}[/dim]")
             console.print("[dim]Debug mode: ENABLED[/dim]\n")
 
             # Launch browser (don't just ensure it's running)
             from .browser.process import get_chrome_process
 
-            config = get_config()
             was_already_running = (
                 get_chrome_process(config.browser.debug_port) is not None
             )
@@ -1142,7 +1173,7 @@ class Cli:
 
             if was_already_running:
                 console.print(
-                    "[yellow]✓ Chrome for Testing is already running![/yellow]"
+                    f"[yellow]✓ {engine_display} is already running![/yellow]"
                 )
             else:
                 console.print("[green]✓ Browser launched successfully![/green]")
@@ -1169,6 +1200,9 @@ class Cli:
 
                 console.print(f"[dim]{traceback.format_exc()}[/dim]")
             sys.exit(1)
+
+    # Alias browse to run
+    browse = run
 
 
 def main() -> None:

@@ -1,4 +1,11 @@
+---
+layout: default
+title: Connection Pooling
+nav_order: 18
+---
+
 # Connection Pooling Guide
+<!-- this_file: docs/17-performance-pooling.md -->
 
 This guide covers connection pooling strategies for PlaywrightAuthor to improve performance and resource efficiency when managing multiple browser instances.
 
@@ -929,7 +936,7 @@ class WarmBrowserPool(BrowserPool):
 
 ## Additional Resources
 
-- [Performance Optimization](index.md)
-- [Memory Management](memory-management.md)
-- [Browser Architecture](../architecture/browser-lifecycle.md)
-- [Monitoring Guide](monitoring.md)
+- [Performance Optimization](15-performance-overview.md)
+- [Memory Management](16-performance-memory.md)
+- [Browser Architecture](08-architecture-lifecycle.md)
+- [Monitoring Guide](18-performance-monitoring.md)

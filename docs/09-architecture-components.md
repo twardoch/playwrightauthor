@@ -1,4 +1,11 @@
+---
+layout: default
+title: Components
+nav_order: 10
+---
+
 # Component Architecture
+<!-- this_file: docs/09-architecture-components.md -->
 
 This document describes the components that make up PlaywrightAuthor's architecture.
 
@@ -691,8 +698,7 @@ Each profile maintains separate:
 
 ## Additional Resources
 
-- [Browser Lifecycle](browser-lifecycle.md)
-- [Error Handling](error-handling.md)
-- [API Reference](../../api/index.md)
-- [Configuration Guide](../configuration/index.md)
-- [Performance Tuning](../performance/optimization.md)
+- [Browser Lifecycle](08-architecture-lifecycle.md)
+- [Error Handling](10-architecture-errors.md)
+- [Performance Tuning](15-performance-overview.md)
+- [Home Page](index.md)

@@ -296,7 +296,7 @@ class TestErrorHandlingIntegration:
                 page = browser.new_page()
 
                 # Try to navigate to an invalid URL
-                with pytest.raises(Exception):
+                with pytest.raises(Exception):  # noqa: B017
                     page.goto(
                         "https://this-domain-definitely-does-not-exist-12345.com",
                         timeout=5000,

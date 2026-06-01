@@ -23,10 +23,10 @@ class PlaywrightAuthorError(Exception):
     def __init__(
         self,
         message: str,
-        suggestion: str = None,
-        command: str = None,
+        suggestion: str | None = None,
+        command: str | None = None,
         did_you_mean: list[str] | None = None,
-        help_link: str = None,
+        help_link: str | None = None,
     ):
         """
         Initialize the exception with helpful context.
@@ -90,8 +90,8 @@ class BrowserInstallationError(BrowserManagerError):
     def __init__(
         self,
         message: str,
-        suggestion: str = None,
-        command: str = None,
+        suggestion: str | None = None,
+        command: str | None = None,
         did_you_mean: list[str] | None = None,
     ):
         # Enhance error message based on common patterns
@@ -151,8 +151,8 @@ class BrowserLaunchError(BrowserManagerError):
     def __init__(
         self,
         message: str,
-        suggestion: str = None,
-        command: str = None,
+        suggestion: str | None = None,
+        command: str | None = None,
         did_you_mean: list[str] | None = None,
     ):
         # Provide specific guidance based on error patterns

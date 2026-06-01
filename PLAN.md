@@ -31,3 +31,17 @@ Make PlaywrightAuthor exclusively use Chrome for Testing due to Google's CDP res
 ### Semantic Versioning
 - [ ] Note: Already using hatch-vcs for git-based versioning
 - [ ] Document release process and version tagging strategy
+
+## Selectable Browser Engine Support (Chrome & CloakBrowser)
+
+### Goal
+Implement selectable browser engines so users can use either Chrome for Testing (default) or CloakBrowser (for enhanced stealth/anti-bot protection) by setting `engine` in `BrowserConfig` or using the `PLAYWRIGHTAUTHOR_ENGINE` env variable.
+
+### Tasks
+- Update `src/playwrightauthor/browser/process.py` to correctly detect both Chrome for Testing and CloakBrowser (`chromium` / `cloakbrowser` / `chromium-` paths).
+- Update `src/playwrightauthor/browser/launcher.py` to allow CloakBrowser's binary paths and accept optional extra launch arguments.
+- Refactor `src/playwrightauthor/author.py` to delegate the launch and connection steps to the corresponding engine adapter.
+- Implement the `CloakEngineAdapter` in `src/playwrightauthor/engines/cloak.py` with lazy loading of the private `cloakbrowser` package.
+- Write tests for both Chrome and Cloak engine adapters.
+- Add CLI support for the `--engine` option and display engine information in `status` and `diagnose` commands.
+

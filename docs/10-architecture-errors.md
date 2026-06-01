@@ -1,4 +1,11 @@
+---
+layout: default
+title: Error Handling & Recovery
+nav_order: 11
+---
+
 # Error Handling & Recovery
+<!-- this_file: docs/10-architecture-errors.md -->
 
 This document details PlaywrightAuthor's error handling system, recovery mechanisms, and user guidance features.
 
@@ -712,8 +719,8 @@ class ErrorHandlingConfig:
 
 ## Additional Resources
 
-- [Component Architecture](components.md)
-- [Browser Lifecycle](browser-lifecycle.md)
-- [Monitoring System](monitoring.md)
-- [Troubleshooting Guide](../auth/troubleshooting.md)
-- [API Reference](../../api/exceptions.md)
+- [Component Architecture](09-architecture-components.md)
+- [Browser Lifecycle](08-architecture-lifecycle.md)
+- [Monitoring System](18-performance-monitoring.md)
+- [Troubleshooting Guide](06-auth-troubleshooting.md)
+- [Home Page](index.md)

@@ -1,22 +1,29 @@
+---
+layout: default
+title: Platform Guides Overview
+nav_order: 12
+---
+
 # Platform-Specific Guides
+<!-- this_file: docs/11-platform-overview.md -->
 
 PlaywrightAuthor works across Windows, macOS, and Linux. Each platform has its quirks.
 
 ## Choose Your Platform
 
-### [macOS Guide](macos.md)
+### [macOS Guide](12-platform-macos.md)
 - M1 vs Intel setup
 - Security permissions
 - Homebrew notes
 - Gatekeeper workarounds
 
-### [Windows Guide](windows.md)
+### [Windows Guide](13-platform-windows.md)
 - UAC settings
 - Antivirus exceptions
 - PowerShell policies
 - Windows Defender tweaks
 
-### [Linux Guide](linux.md)
+### [Linux Guide](14-platform-linux.md)
 - Distribution-specific steps
 - Docker use
 - Desktop environments
@@ -171,7 +178,7 @@ with Browser(
 
 ## Resources
 
-- [Installation Guide](../installation.md)
-- [Troubleshooting](../auth/troubleshooting.md)
-- [Performance Tips](../performance/optimization.md)
-- [Docker Deployment](../deployment/docker.md)
+- [Troubleshooting](06-auth-troubleshooting.md)
+- [Performance Tips](15-performance-overview.md)
+- [Docker Support](14-platform-linux.md#docker-support)
+- [Home Page](index.md)

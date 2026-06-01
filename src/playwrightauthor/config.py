@@ -108,6 +108,7 @@ class BrowserConfig:
         ... )
     """
 
+    engine: str = "chrome"
     debug_port: int = 9222
     headless: bool = False
     timeout: int = 30000  # milliseconds
@@ -713,6 +714,9 @@ class ConfigManager:
         if chrome_version := os.getenv(f"{self.ENV_PREFIX}CHROME_VERSION"):
             config.browser.chrome_version = chrome_version
 
+        if engine := os.getenv(f"{self.ENV_PREFIX}ENGINE"):
+            config.browser.engine = engine.lower()
+
         # Network settings
         if proxy := os.getenv(f"{self.ENV_PREFIX}PROXY"):
             config.network.proxy = proxy
@@ -763,6 +767,10 @@ class ConfigManager:
         Raises:
             ValueError: If configuration is invalid.
         """
+        # Validate engine
+        if config.browser.engine not in ["chrome", "cloak"]:
+            raise ValueError(f"Invalid engine: {config.browser.engine}")
+
         # Validate port range
         if not 1 <= config.browser.debug_port <= 65535:
             raise ValueError(f"Invalid debug port: {config.browser.debug_port}")
@@ -816,6 +824,7 @@ class ConfigManager:
 
         # Browser section
         browser_dict: dict[str, Any] = {
+            "engine": config.browser.engine,
             "debug_port": config.browser.debug_port,
             "headless": config.browser.headless,
             "timeout": config.browser.timeout,

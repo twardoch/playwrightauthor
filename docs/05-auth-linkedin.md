@@ -1,4 +1,11 @@
+---
+layout: default
+title: LinkedIn Authentication
+nav_order: 6
+---
+
 # LinkedIn Authentication Guide
+<!-- this_file: docs/05-auth-linkedin.md -->
 
 This guide covers authenticating with LinkedIn using PlaywrightAuthor for professional networking automation, lead generation, and content management.
 
@@ -368,5 +375,4 @@ def search_and_connect(search_query: str, max_connections: int = 10):
 - [LinkedIn User Agreement](https://www.linkedin.com/legal/user-agreement)
 - [LinkedIn API Documentation](https://docs.microsoft.com/en-us/linkedin/)
 - [LinkedIn Help Center](https://www.linkedin.com/help/linkedin)
-- [PlaywrightAuthor Rate Limiting Guide](../performance/rate-limiting.md)
-- [Ethical Automation Guidelines](../best-practices/ethics.md)
+- [PlaywrightAuthor Performance Guide](15-performance-overview.md)

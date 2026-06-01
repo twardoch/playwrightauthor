@@ -1,0 +1,120 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1779738716699,
+  "projectRoot": "/Users/adam/Developer/vcs3/github.twardoch/pub/playwrightauthor",
+  "techStack": {
+    "languages": [
+      {
+        "name": "Python",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "pyproject.toml"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "pytest",
+        "version": null,
+        "category": "testing"
+      }
+    ],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": "pytest",
+    "lintCommand": "ruff check",
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "examples",
+      "scripts",
+      "src",
+      "tests"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 3,
+      "lastAccessed": 1779738716692,
+      "keyFiles": [
+        "index.md"
+      ]
+    },
+    "examples": {
+      "path": "examples",
+      "purpose": "Example code",
+      "fileCount": 8,
+      "lastAccessed": 1779738716693,
+      "keyFiles": [
+        "README.md",
+        "example_adaptive_timing.py",
+        "example_extraction_fallbacks.py",
+        "example_html_to_markdown.py",
+        "example_scroll_infinite.py"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 2,
+      "lastAccessed": 1779738716693,
+      "keyFiles": [
+        "check_accessibility.py",
+        "check_links.py"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 1,
+      "lastAccessed": 1779738716693,
+      "keyFiles": []
+    },
+    "src_docs": {
+      "path": "src_docs",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1779738716694,
+      "keyFiles": [
+        "mkdocs.yml"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 10,
+      "lastAccessed": 1779738716694,
+      "keyFiles": [
+        "test_author.py",
+        "test_benchmark.py",
+        "test_doctests.py",
+        "test_helpers_extraction.py",
+        "test_helpers_interaction.py"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}

@@ -1,4 +1,11 @@
+---
+layout: default
+title: Linux Guide
+nav_order: 15
+---
+
 # Linux Platform Guide
+<!-- this_file: docs/14-platform-linux.md -->
 
 This guide covers Linux-specific setup, configuration, and troubleshooting for PlaywrightAuthor across various distributions.
 

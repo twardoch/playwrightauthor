@@ -27,6 +27,7 @@ dependencies = [
     "prompt_toolkit>=3.0.0",
     "html2text>=2025.4.15",
     "tomli-w>=1.2.0",
+    "httpx>=0.28.1",
 ]
 
 [project.urls]
@@ -82,6 +83,7 @@ line-ending = "auto"
 known-first-party = ["playwrightauthor"]
 
 [tool.pytest.ini_options]
+norecursedirs = ["private", ".venv", "node_modules", "dist"]
 markers = [
     "asyncio: marks tests as async (using pytest-asyncio)",
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",

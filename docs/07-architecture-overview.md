@@ -1,4 +1,11 @@
+---
+layout: default
+title: Architecture Overview
+nav_order: 8
+---
+
 # PlaywrightAuthor Architecture
+<!-- this_file: docs/07-architecture-overview.md -->
 
 This section describes PlaywrightAuthor's internal architecture, component design, and system flows.
 
@@ -56,28 +63,28 @@ graph TB
 
 ## Core Components
 
-### [Browser Lifecycle Management](browser-lifecycle.md)
+### [Browser Lifecycle Management](08-architecture-lifecycle.md)
 How PlaywrightAuthor manages Chrome instances:
 - Installation and discovery
 - Process management
 - Connection handling
 - Session persistence
 
-### [Component Architecture](components.md)
+### [Component Architecture](09-architecture-components.md)
 Component breakdown:
 - Author classes (Browser/AsyncBrowser)
 - Configuration system
 - State management
 - Browser management modules
 
-### [Error Handling & Recovery](error-handling.md)
+### [Error Handling & Recovery](10-architecture-errors.md)
 Failure handling mechanisms:
 - Exception hierarchy
 - Retry logic
 - User guidance
 - Crash recovery
 
-### [Monitoring & Metrics](monitoring.md)
+### [Monitoring & Metrics](18-performance-monitoring.md)
 Production monitoring features:
 - Health checks
 - Performance metrics
@@ -299,8 +306,8 @@ sequenceDiagram
 
 ## Additional Resources
 
-- [Component Details](components.md)
-- [Browser Lifecycle](browser-lifecycle.md)
-- [Error Handling](error-handling.md)
-- [Performance Guide](../performance/index.md)
-- [API Reference](../../api/index.md)
+- [Component Details](09-architecture-components.md)
+- [Browser Lifecycle](08-architecture-lifecycle.md)
+- [Error Handling](10-architecture-errors.md)
+- [Performance Guide](15-performance-overview.md)
+- [Home Page](index.md)

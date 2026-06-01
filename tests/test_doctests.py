@@ -59,21 +59,21 @@ def test_config_doctests():
 
 
 def test_cli_doctests():
-    """Test doctests in cli.py module."""
-    import playwrightauthor.cli
+    """Test doctests in __main__.py module."""
+    import playwrightauthor.__main__ as cli
 
     failure_count, test_count = doctest.testmod(
-        playwrightauthor.cli,
+        cli,
         verbose=True,
         optionflags=doctest.ELLIPSIS
         | doctest.NORMALIZE_WHITESPACE
         | doctest.IGNORE_EXCEPTION_DETAIL,
     )
 
-    print(f"cli.py: {test_count - failure_count}/{test_count} doctests passed")
+    print(f"__main__.py: {test_count - failure_count}/{test_count} doctests passed")
 
     # For now, just report - don't fail tests
-    # assert failure_count == 0, f"{failure_count} doctests failed in cli.py"
+    # assert failure_count == 0, f"{failure_count} doctests failed in __main__.py"
 
 
 def test_repl_engine_doctests():

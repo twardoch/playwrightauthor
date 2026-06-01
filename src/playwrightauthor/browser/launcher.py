@@ -11,36 +11,37 @@ from .process import wait_for_process_start
 
 
 def launch_chrome(
-    browser_path: Path, data_dir: Path, port: int, logger, timeout: int = 30
+    browser_path: Path,
+    data_dir: Path,
+    port: int,
+    logger,
+    timeout: int = 30,
+    extra_args: list[str] | None = None,
 ) -> psutil.Process:
     """
-    Launch Chrome for Testing executable as a detached process with verification.
+    Launch Chrome/Chromium executable as a detached process with verification.
 
     Args:
-        browser_path: Path to Chrome for Testing executable
+        browser_path: Path to browser executable
         data_dir: User data directory path
         port: Remote debugging port
         logger: Logger instance
         timeout: Maximum time to wait for launch
-
-    Returns:
-        psutil.Process: The Chrome process that was launched
-
-    Raises:
-        BrowserLaunchError: If launch fails or if not Chrome for Testing
-        TimeoutError: If launch times out
+        extra_args: Additional command line arguments to append
     """
-    logger.info(f"Launching Chrome for Testing from: {browser_path}")
+    logger.info(f"Launching browser from: {browser_path}")
 
-    # Verify this is Chrome for Testing by checking the executable name/path
+    # Verify this is a supported browser (Chrome for Testing or CloakBrowser)
     browser_str = str(browser_path).lower()
-    if "chrome for testing" not in browser_str and "chrome-" not in browser_str:
-        # On macOS, the app bundle contains "Chrome for Testing"
-        # On Windows/Linux, our install directory uses chrome-win64/chrome-linux64
+    if (
+        "chrome for testing" not in browser_str
+        and "chrome-" not in browser_str
+        and "cloakbrowser" not in browser_str
+        and "chromium" not in browser_str
+    ):
         raise BrowserLaunchError(
-            f"Invalid Chrome executable: {browser_path}\n"
-            "PlaywrightAuthor requires Chrome for Testing, not regular Chrome.\n"
-            "Regular Chrome no longer supports CDP automation with user profiles."
+            f"Invalid browser executable: {browser_path}\n"
+            "PlaywrightAuthor requires Chrome for Testing or CloakBrowser."
         )
 
     # Prepare launch command with additional stability flags
@@ -54,6 +55,8 @@ def launch_chrome(
         "--disable-backgrounding-occluded-windows",
         "--disable-renderer-backgrounding",
     ]
+    if extra_args:
+        command.extend(extra_args)
 
     try:
         # Launch process
@@ -102,30 +105,28 @@ def launch_chrome_with_retry(
     logger,
     max_retries: int = 3,
     retry_delay: int = 2,
+    extra_args: list[str] | None = None,
 ) -> psutil.Process:
     """
-    Launch Chrome for Testing with retry logic.
+    Launch browser with retry logic.
 
     Args:
-        browser_path: Path to Chrome for Testing executable
+        browser_path: Path to browser executable
         data_dir: User data directory path
         port: Remote debugging port
         logger: Logger instance
         max_retries: Maximum number of retry attempts
         retry_delay: Delay between retries in seconds
-
-    Returns:
-        psutil.Process: The Chrome process that was launched
-
-    Raises:
-        BrowserLaunchError: If all retry attempts fail or if not Chrome for Testing
+        extra_args: Additional command line arguments to append
     """
     last_error = None
 
     for attempt in range(max_retries):
         try:
-            logger.info(f"Chrome launch attempt {attempt + 1}/{max_retries}")
-            chrome_proc = launch_chrome(browser_path, data_dir, port, logger)
+            logger.info(f"Browser launch attempt {attempt + 1}/{max_retries}")
+            chrome_proc = launch_chrome(
+                browser_path, data_dir, port, logger, extra_args=extra_args
+            )
             return chrome_proc  # Success - return the process
 
         except (BrowserLaunchError, TimeoutError) as e:
@@ -139,5 +140,5 @@ def launch_chrome_with_retry(
                 logger.error(f"All {max_retries} launch attempts failed")
 
     raise BrowserLaunchError(
-        f"Failed to launch Chrome after {max_retries} attempts. Last error: {last_error}"
+        f"Failed to launch browser after {max_retries} attempts. Last error: {last_error}"
     ) from last_error

@@ -1,4 +1,11 @@
+---
+layout: default
+title: GitHub Authentication
+nav_order: 5
+---
+
 # GitHub Authentication Guide
+<!-- this_file: docs/04-auth-github.md -->
 
 This guide shows how to authenticate with GitHub using PlaywrightAuthor for automation, API access, and CI/CD workflows.
 
