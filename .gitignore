@@ -89,3 +89,6 @@ var/
 venv.bak/
 venv/
 wheels/
+# Downloaded Chrome for Testing (never commit)
+chrome/
+*.app/

@@ -26,6 +26,14 @@ npx @puppeteer/browsers install chrome@stable
 
 The package uses Chrome for Testing, not a normal Chrome user profile. Multiple profiles can run at the same time because each profile receives a stable CDP debug port.
 
+## First sign-in (once per profile)
+
+```bash
+playwrightauthor run --profile google-primary --service Gemini
+```
+
+A visible Chrome window opens. Sign in. The session is saved to the profile directory and reused on every subsequent script run.
+
 ## CLI
 
 ```bash
@@ -65,7 +73,13 @@ bundle exec jekyll serve
 ## Development
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 uv run ruff check --fix src tests
-PYTHONDONTWRITEBYTECODE=1 uv run ruff format src tests
-PYTHONDONTWRITEBYTECODE=1 uv run pytest
+uv run ruff check --fix src tests
+uv run ruff format src tests
+uvx hatch test          # runs offline in < 1 s, no Chrome needed
+```
+
+Run only the slow browser-integration tests (requires Chrome):
+
+```bash
+uv run pytest -m slow
 ```

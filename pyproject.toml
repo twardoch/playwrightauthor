@@ -50,8 +50,12 @@ packages = ["src/playwrightauthor"]
 [dependency-groups]
 dev = [
     "pytest",
+    "pytest-mock",
+    "pytest-timeout",
+    "pytest-anyio",
     "ruff",
     "mypy",
+    "types-requests",
 ]
 
 [tool.ruff]
@@ -89,4 +93,12 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "benchmark: marks tests as benchmark tests (requires pytest-benchmark)",
     "integration: marks tests as integration tests",
+    "real_browser: marks tests that require a live Chrome browser",
 ]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["_version\\.py"]

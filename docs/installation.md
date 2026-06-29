@@ -7,68 +7,124 @@ nav_order: 2
 
 # Installation
 
-## Requirements
+## Prerequisites
 
-- Python 3.12 or newer.
-- Node.js with `npx`.
-- Microsoft Playwright Python package, installed as a PlaywrightAuthor dependency.
-- Chrome for Testing installed through `@puppeteer/browsers` or discoverable in the Puppeteer cache.
+You need three things before PlaywrightAuthor can work:
 
-## Install The Package
+| Requirement | Why | Minimum version |
+|---|---|---|
+| **Python** | Runs your automation scripts | 3.12 |
+| **Node.js** (`npx`) | Installs Chrome for Testing | Any recent LTS |
+| **Chrome for Testing** | The browser PlaywrightAuthor controls | Stable channel |
 
-In an application project:
+> **Why "Chrome for Testing" and not my regular Chrome?**
+> Regular Chrome has restrictions that make it unreliable for persistent CDP
+> automation. Chrome for Testing is an identical build — same rendering engine,
+> same JavaScript — but distributed specifically for automated use.  It lives in
+> its own folder and never interferes with your everyday browser.
+
+---
+
+## Step 1 — Install the Python package
+
+In your project:
 
 ```bash
 uv add playwrightauthor
 ```
 
-For local development in this repository:
+Without `uv`, using pip:
 
 ```bash
-uv sync
-uv run playwrightauthor --help
+pip install playwrightauthor
 ```
 
-## Install Chrome For Testing
+---
+
+## Step 2 — Install Chrome for Testing
+
+### Option A — via Puppeteer browsers CLI (recommended)
 
 ```bash
 npx @puppeteer/browsers install chrome@stable
 ```
 
-PlaywrightAuthor looks for Chrome for Testing in the Puppeteer cache before falling back to other supported locations. If no executable is found, it can call the same Puppeteer browser installer internally.
+This downloads Chrome for Testing into `~/.cache/puppeteer/`.
+PlaywrightAuthor looks there first, so it finds the browser automatically.
 
-{: .note }
-Chrome for Testing is used instead of a regular Chrome user profile because current Chrome profile restrictions make regular user-profile CDP automation unreliable for this use case.
+### Option B — let PlaywrightAuthor install it for you
 
-## Verify A Profile
+If `npx` is not available, run any PlaywrightAuthor command and it will
+attempt to install Chrome itself:
+
+```bash
+playwrightauthor status
+```
+
+---
+
+## Step 3 — Verify the installation
 
 ```bash
 playwrightauthor status --profile google-primary
 ```
 
-Expected output includes:
+Expected output:
 
-- the selected profile name;
-- the resolved debug port;
-- the Chrome executable path;
-- the profile user data directory.
-
-## First Browser Launch
-
-```bash
-playwrightauthor run --profile google-primary --service Gemini
+```
+Profile: google-primary
+Debug Port: 9223
+Chrome: /Users/you/.cache/puppeteer/chrome/…/Google Chrome for Testing
+Data dir: /Users/you/Library/Caches/playwrightauthor/profiles/google-primary
 ```
 
-When the visible browser opens, complete the sign-in, consent, captcha, or other manual step. The session persists in that profile.
+If `Chrome:` shows `None`, Chrome for Testing was not found — re-run Step 2.
 
-## Use From Python
+---
+
+## Step 4 — First sign-in (one time per profile)
+
+```bash
+playwrightauthor run --profile google-primary --service Gmail
+```
+
+A visible Chrome window opens. Sign in as you would normally. When you are
+done, you can close the window or leave it running — PlaywrightAuthor will
+reconnect to it on the next script run.
+
+You only need to do this once per profile. The session is saved in the profile
+directory and reused every time.
+
+---
+
+## Step 5 — Run your first script
 
 ```python
 from playwrightauthor import Browser
 
-with Browser(profile="google-primary", service="Gemini") as browser:
+with Browser(profile="google-primary", service="Gmail") as browser:
     page = browser.get_page()
-    page.goto("https://gemini.google.com/")
+    page.goto("https://mail.google.com/")
+    print(page.title())
 ```
 
-`get_page()` reuses an existing page/context when possible, which preserves the signed-in browser session.
+If the title starts with "Inbox", you are authenticated and ready to automate.
+
+---
+
+## Development installation (for contributors)
+
+```bash
+git clone https://github.com/twardoch/playwrightauthor
+cd playwrightauthor
+uv sync
+uv run playwrightauthor --help
+```
+
+Run the test suite:
+
+```bash
+uvx hatch test
+```
+
+The test suite runs offline in under one second — no Chrome required.

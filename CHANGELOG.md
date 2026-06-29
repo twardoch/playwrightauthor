@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- `tests/conftest.py`: autouse fixture that mocks Playwright startup,
+  Chrome engine `ensure_browser`, CloakBrowser engine, and the Puppeteer
+  installer subprocess. The full test suite now completes in under 1 second
+  with no Chrome installation required.
+- `pytest-timeout` (30 s per test), `pytest-mock`, `pytest-anyio`, and
+  `types-requests` added to the `[dependency-groups] dev` table.
+- `[tool.mypy]` configuration block in `pyproject.toml`.
+- `real_browser` pytest marker for tests that genuinely require a live Chrome.
+- Beginner-friendly rewrite of `docs/index.md` and `docs/installation.md`
+  explaining authenticated-browser automation without assuming prior knowledge
+  of CDP, Playwright internals, or browser profiles.
+- `README.md` gains "First sign-in" section and offline-test development note.
+
+### Changed
+
+- Test suite runtime: 132 s → 0.27 s (offline, no Chrome needed).
+- `README.md` development commands updated to use `uvx hatch test`.
+
 ### Changed
 
 - Replaced the stale numbered documentation set with a practical Just the Docs site covering current Chrome for Testing installation, profile management, CLI usage, Python API, architecture, and troubleshooting.
