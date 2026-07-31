@@ -19,6 +19,11 @@ All notable changes to this project will be documented in this file.
   of CDP, Playwright internals, or browser profiles.
 - `README.md` gains "First sign-in" section and offline-test development note.
 
+### Fixed
+
+- **Publish Script Tag Verification:**
+  - Updated `publish.sh` to check if HEAD has an exact version tag after running `gitnextver`. If HEAD is untagged (e.g. when `gitnextver` skips tagging clean working trees despite pending commits), `publish.sh` automatically calculates and creates the next version tag (`v1.0.X`) and pushes it to origin. This prevents `hatch-vcs` from generating local version identifiers (`.dev1+g...`) which are rejected by PyPI during `uv publish`.
+
 ### Changed
 
 - Test suite runtime: 132 s → 0.27 s (offline, no Chrome needed).

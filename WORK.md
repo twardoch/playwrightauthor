@@ -27,6 +27,9 @@
 **Task 5: Pyproject.toml Configuration Migration** ✅
 - Migrated dev-dependencies from deprecated `[tool.uv]` to PEP 735 compliant `[dependency-groups]`.
 
+**Task 6: PyPI Local Version Identifier / Publish Script Tag Resolution** ✅
+- Fixed `publish.sh` by adding automatic tag verification and tag creation for HEAD when `gitnextver` skips tagging clean working trees despite untagged commits. Guarantees clean semantic version tags (`v1.0.X`) prior to `hatch build` and `uv publish`, eliminating PyPI 400 rejection errors caused by `.dev1+g...` local version strings.
+
 ### Test Results
 ```
 84 passed, 24 skipped in test suite

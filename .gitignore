@@ -3,6 +3,7 @@ __pycache__/
 __pypackages__/
 .abstra/
 .cache
+.codegraph/
 .coverage
 .coverage.*
 .cursorignore
