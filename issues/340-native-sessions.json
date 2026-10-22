@@ -1,0 +1,42 @@
+{
+  "checked_at": "2026-10-22T12:13:25.906495+00:00",
+  "platform": "darwin",
+  "engines": [
+    {
+      "engine": "chrome",
+      "version": "150.0.7871.24",
+      "sync_to_async_restart_persistence": true,
+      "same_profile_exclusion": true,
+      "other_profile_cookie_and_shutdown_isolation": true,
+      "independent_task_pages": true
+    },
+    {
+      "engine": "chromium",
+      "version": "148.0.7778.96",
+      "sync_to_async_restart_persistence": true,
+      "same_profile_exclusion": true,
+      "other_profile_cookie_and_shutdown_isolation": true,
+      "independent_task_pages": true
+    },
+    {
+      "engine": "firefox",
+      "version": "150.0.2",
+      "sync_to_async_restart_persistence": true,
+      "same_profile_exclusion": true,
+      "other_profile_cookie_and_shutdown_isolation": true,
+      "independent_task_pages": true
+    }
+  ],
+  "crashed_owner_lease_recovered": true,
+  "samples": 94,
+  "observation_errors": [],
+  "focus_unchanged": true,
+  "no_visible_test_browser_windows": true,
+  "scope": "disposable local-origin session acceptance only",
+  "not_verified": [
+    "real service/provider authorization",
+    "Poe balance/update parity",
+    "Intel hardware",
+    "typing target and Spaces"
+  ]
+}

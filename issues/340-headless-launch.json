@@ -1,0 +1,18 @@
+{
+  "scope": "legacy launcher only; disposable unauthenticated profile",
+  "sync_navigation_screenshot": true,
+  "async_new_tab_navigation": true,
+  "checked_at": "2026-10-22T11:55:44.754027+00:00",
+  "browser_version": "150.0.7871.24",
+  "focus_unchanged": true,
+  "no_visible_cft_windows": true,
+  "observation_errors": [],
+  "samples": 29,
+  "owned_process_stopped": true,
+  "not_verified": [
+    "Poe login/balance/update",
+    "profile leases",
+    "Intel hardware",
+    "typing target and Spaces"
+  ]
+}

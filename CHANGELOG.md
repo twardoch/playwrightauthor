@@ -1,8 +1,146 @@
+# this_file: CHANGELOG.md
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+### Issue 340 — final verification scope (2026-10-22)
+
+- PA340-6: Complete the user-selected live verification and direct review gate.
+  The headed incremental fallback exits successfully: 492 valid unique bots,
+  473 scraped prices, 19 undisclosed rates, no scraping failures or missing bot
+  information. Catalogue discovery removed eight IDs and added three between
+  runs; this includes removal of the headless timeout ID. All 470 previously
+  priced bots still present retain their scraped pricing unchanged. The three
+  added bots have prices. Temporary verification output preserves the original
+  dataset; no site deployment or package publication is performed.
+
+
+- Final direct regression: PlaywrightAuthor 159 passed / 24 skipped; Poe 228
+  passed. Seven new PlaywrightAuthor modules and five Poe integration modules
+  pass targeted type checks. Pricing JavaScript tests pass; all 31 browser
+  examples skip without their explicit live opt-in.
+- Full headless Poe verification saved 497 valid unique bot records: 476 scraped
+  prices, 20 undisclosed rates and one rendering timeout. The three-bot headless
+  sample updated two bots and repeated the timeout for `glm-5.3-zai`.
+- The user selected traditional headed fallback on sample failure, then commit
+  and push. The fallback uses the complete headless catalogue as input to a
+  normal incremental update, retrying its 21 entries without scraped prices.
+  Full forced headed/headless parity and unmeasured provider/hardware coverage
+  remain separate follow-up work; no universal browser/provider claim is made.
+
+
+### Issue 340 — controlled macOS attention evidence (2026-10-22)
+
+- Add an isolated macOS verification script that observes the frontmost app,
+  focused accessibility object, on-screen browser windows and supported Workspace
+  active-Space notifications without reading text or sending keystrokes.
+- With the user leaving an iTerm AXTextArea stationary, 190 observations kept the
+  same focused object and app, with no new browser windows or Space notifications
+  during real CfT/Chromium/Firefox adapter tests. Earlier uncontrolled FontLab
+  focused-object changes are retained without assigning a cause.
+- Actual text delivery, Stage Manager layout, other hardware and provider-matrix
+  acceptance remain separate; full update/parity gates are not marked complete.
+
+
+### Issue 340 — cancellation and ownership review fixes (2026-10-22)
+
+- Keep the profile lease while an option-preparation thread finishes after async
+  cancellation, including optional-engine device writes. Cleanup and startup now
+  share the same cancellation-preserving owned-task wait; a regression reproduces
+  the previous premature lease release and passes after the fix.
+- Session status/stop reports profile_in_use for a browser outside CLI ownership
+  and leaves it alone. Malformed/stale owner tokens cannot trigger stop requests.
+
+### Issue 340 — optional engines and foreground session CLI (2026-10-22)
+
+- PA340-4: Add optional Camoufox 0.5.8 with its compatible Playwright constraint,
+  separate profile namespace and private persistent generated device config.
+  Real macOS arm64 sync-to-async headless restart cookies and sampled device
+  characteristics pass; interactive-mode/provider acceptance remains in PA340-6.
+  Optional Cloak native context and restart-cookie smoke passes separately.
+  Explicitly reject Edge/WebKit/Lightpanda as unimplemented session backends.
+- PA340-5: Add session run/login/status/stop with engine/profile/mode controls,
+  foreground ownership and cooperative token-scoped stop requests. Status never
+  launches a browser; stop never kills a process. Real Chromium run/status/stop
+  subprocess test passes and removes its owner record on shutdown.
+- Generic auto mode requires a caller-supplied protected account URL and selector;
+  fresh responses and visible markers determine auth, while unprobed manual login
+  remains unknown. CLI failures are structured and return nonzero status.
+- Explicit login suppresses extra modal notices and preserves the browser's manual
+  redirects/MFA flow. Live provider behavior and full noninterference remain open.
+
+
+### Prevent test-run dialog loops (2026-10-22)
+
+- Default pytest discovery now targets the offline tests directory. Live browser
+  examples require --run-browser-examples, including when selected explicitly.
+- Unit tests intercept the native-dialog entry point; notification-content tests
+  can still replace that mock. The interrupted root run accidentally collected
+  live examples and displayed repeated pytest-default notices.
+
+
+### Issue 340 — verified profile ownership and context sessions (2026-10-22)
+
+- Add `BrowserSession` / `AsyncBrowserSession`: owned persistent contexts,
+  independent task tabs, explicit engine/profile/mode, optional browser handle,
+  caller-provided authorization probes and `AUTH_REQUIRED` without automatic UI.
+- Native Chrome for Testing, real Chromium (`channel="chromium"`) and patched
+  Firefox use isolated engine/account directories. Legacy CDP APIs keep their
+  defaults and existing Chrome profiles; no implicit profile migration occurs.
+- Hold native OS-backed `filelock` leases through browser/driver cleanup; reject
+  concurrent writers with `PROFILE_BUSY`. Async cancellation waits for cleanup
+  before releasing the lease. Nested sync profiles share a Playwright driver
+  while contexts and shutdown remain independent.
+- Serialize legacy launches; require exact executable/profile/mode for CDP
+  attachment. Reject unverified occupied ports and already-open profile paths
+  without terminating their processes. Cloak uses its own profile directory and
+  one consistently derived port for launch and connection. Remove duplicate
+  ensure/launch implementation. Optional Cloak runtime remains unverified.
+- Verification: 137 tests pass, 24 skip; focused new-module coverage is 92.14%
+  (34 tests). Changed-file Ruff and targeted new-module mypy pass. Full-tree
+  mypy still reports 17 existing errors; no broad type-clean claim is made.
+- Real Apple Silicon tests pass on CfT 150.0.7871.24, Chromium 148.0.7778.96 and
+  Firefox 150.0.2: sync-to-async restart retains persistent cookies/localStorage,
+  one profile excludes concurrent writers, other profiles isolate cookies and
+  shutdown, and one closed tab leaves another usable. A killed process's lease
+  is reclaimed by the OS. Latest 94 focus/window samples pass; the preceding
+  run passed 96. This proves disposable local-origin behaviour only.
+- Wheel and sdist build with local test version `0.0.0`; clean wheel imports and
+  API construction pass. Sdist previously included `.omc` runtime records; an
+  explicit content selection excludes them and private/local runtime data.
+  Payload audit compares shipped session modules byte-for-byte with source.
+- PA340-2 and PA340-3 move from PLAN/TODO into this verified record. Native engine
+  portions of PA340-4 are verified; Camoufox/optional Cloak, CLI, Poe integration,
+  real provider login and remaining runtime/focus gates stay open. See
+  `issues/340-session-verification.md` and the recorded JSON evidence.
+
+### Issue 340 — verified legacy launch repairs (2026-10-22)
+
+- Forward effective headless/custom arguments from both Chrome launch entrypoints
+  and adapters without mutating the configured argument list.
+- Suppress interactive dialogs for headless sync/async sessions and CLI runs;
+  preserve visible-session prompts. CLI launch receives its effective config.
+- Add the missing awaitable legacy `AsyncBrowser.get_page()` helper, matching
+  existing-context/regular-page reuse and creating pages when necessary.
+- Remove startup's arbitrary Chrome-process termination and automatic macOS
+  quarantine removal/ad-hoc re-signing. Bind CDP to loopback explicitly.
+- Verification: regression tests first failed, then passed; complete Hatch suite
+  with local test version `0.0.0`: 103 passed, 24 skipped. Changed-file Ruff checks
+  pass. Full-tree mypy still reports 17 errors (including legacy dynamic page
+  helpers); type checking is not claimed clean.
+- Disposable Apple Silicon CfT 150.0.7871.24 smoke checks real sync/async CDP,
+  navigation, tabs, screenshot and owned-process shutdown. Latest run: 29 samples,
+  unchanged frontmost app and zero visible CfT windows. An earlier run observed a
+  focus change; this is preliminary smoke evidence, not completed focus/provider
+  acceptance. Reproduce with `scripts/verify_headless_launch.py`; evidence in
+  `issues/340-headless-launch.json`.
+- PA340-1 code repairs moved from PLAN/TODO. Safe attachment/profile leases,
+  context sessions, engine support, Poe integration and complete runtime gates
+  remain open there. Existing headed processes are not yet checked for mode
+  compatibility before attachment.
 
 ### Added
 

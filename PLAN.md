@@ -1,3 +1,79 @@
+# this_file: PLAN.md
+
+## Issue 340: decision and acceptance contract — 2026-10-22
+
+Scope: run authenticated automation without interrupting macOS work, with explicit
+human login and persistent identities shared between interactive and headless runs.
+
+### Analysis of the three reports
+
+Report 1 (lines 1–379) proposes Camoufox first and offscreen/windowless headed
+Chromium. Its unconditional OAuth and Cloudflare success claims are unsupported;
+offscreen placement and background tabs do not prove absence of focus changes.
+Report 2 (380–698) correctly identifies destructive process discovery, dialogs,
+missing async page helpers, profile locking and login interruption. Its hidden
+LSUIElement app-copy/watchdog, automatic headed escalation, global headless default,
+user-agent spoofing and mock keychain proposals add risk and are not adopted.
+Report 3 (699–929) provides the strongest route: additive context-based sessions,
+true headless Chrome, native Chromium/Firefox, explicit login and ownership checks.
+Adopt that architecture while preserving legacy Browser/AsyncBrowser defaults.
+
+Use existing Playwright persistent contexts, psutil and standard OS locking rather
+than a custom browser framework. Chrome for Testing remains primary. Native
+Chromium and Firefox are supported alternatives; Cloak keeps compatibility.
+Camoufox stays optional with its own profile and compatibility tests. Edge/WebKit
+and Lightpanda are evaluated separately; do not advertise Lightpanda for OAuth or
+screenshots. Reject unsupported capabilities explicitly. Hidden/background modes
+are deferred: true headless is the only default promising no visible UI.
+
+Official API references consulted:
+- https://developer.chrome.com/docs/automation-and-testing/headless
+- https://playwright.dev/python/docs/api/class-browsertype
+- https://playwright.dev/python/docs/auth
+
+Authentication is a separate service-level decision, never inferred merely from
+cookie names. Auto mode returns AUTH_REQUIRED without opening a window. Human
+login must preserve redirects, popups, OTP and MFA; provider rejection is reported,
+never bypassed. Profiles are engine/account-specific and never normal browser data.
+
+### Ownership decision after implementation probes
+
+New BrowserSession/AsyncBrowserSession use native persistent contexts for CfT
+as well as Chromium and Firefox. This is the simpler safe route identified for
+review in the first checkpoint: Playwright owns the browser lifetime and closes
+it with the context, eliminating a new detached-process registry/refcount scheme.
+Legacy Browser/AsyncBrowser keep CDP, with exact executable/profile/mode checks
+and serialized startup. New profiles use profiles/<engine>/<identity>; Chrome's
+legacy profiles remain in place. Nothing is automatically copied or migrated.
+This preserves the full context/session goal while reducing custom lifecycle code.
+
+### Verification gates
+
+Offline tests prove argument propagation, prompts, ownership, locks, teardown,
+page isolation, error codes and cancellation. Real browser tests must separately
+prove persistence after restart, matching profile/mode, simultaneous jobs and
+unrelated-process survival. macOS acceptance samples frontmost application and
+visible browser windows across cold launch, navigation, new tab and shutdown.
+Poe acceptance requires a fresh signed-in probe, balance and the user-selected live update sample;
+provider/architecture matrix results must record observed failures and unavailable
+hardware honestly. Mocks and a generic website cannot prove those gates.
+
+Do not publish or migrate profiles implicitly. Move only freshly verified work
+from the following implementation list into CHANGELOG.md; retain outstanding live
+gates until evidence exists. Preserve earlier unrelated plans below.
+
+### Final acceptance selected by the user (2026-10-22)
+
+Use a small live headless pricing sample, including recovery of the full batch's
+single rendering timeout. Run a traditional headed fallback only if that sample
+fails. Complete direct regression, package, persistence, isolation and macOS
+attention checks, then commit and push both repositories. Full headed/headless
+parity, additional provider methods, Intel hardware, typed-text delivery and Stage
+Manager remain documented follow-up coverage rather than inferred successes.
+Verified issue 340 implementation tasks are recorded in CHANGELOG.md.
+
+---
+
 # Development Plan for PlaywrightAuthor
 
 ## Chrome for Testing Exclusivity & Session Reuse ✅ COMPLETED (2025-08-05)

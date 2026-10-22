@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-10-22T13:34:32.258724+00:00",
+  "platform": "Darwin arm64",
+  "child_returncode": 0,
+  "samples": 199,
+  "baseline_frontmost": "com.fontlab.fontlab9",
+  "frontmost_changes": [],
+  "accessibility_already_trusted": true,
+  "baseline_focused_role": "AXSplitGroup",
+  "baseline_focus_error": 0,
+  "focus_query_errors": [],
+  "focused_object_unchanged": false,
+  "focus_change_samples": 187,
+  "new_browser_window_ids": [],
+  "space_observer_self_test": true,
+  "runtime_space_change_notifications": 0,
+  "space_observer_registration_removed": true,
+  "not_verified": [
+    "actual text typing",
+    "Stage Manager layout",
+    "other hardware",
+    "provider authorization"
+  ]
+}

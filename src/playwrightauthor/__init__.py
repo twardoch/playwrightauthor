@@ -2,10 +2,11 @@
 # /// script
 # dependencies = []
 # ///
-# this_file: playwrightauthor/__init__.py
+# this_file: src/playwrightauthor/__init__.py
 
 """Public re-exports for library consumers."""
 
 from .author import AsyncBrowser, Browser
+from .sessions import AsyncBrowserSession, BrowserSession
 
-__all__ = ["Browser", "AsyncBrowser"]
+__all__ = ["Browser", "AsyncBrowser", "BrowserSession", "AsyncBrowserSession"]

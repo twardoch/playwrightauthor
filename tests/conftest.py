@@ -86,3 +86,11 @@ def _no_real_browser():
         ),
     ):
         yield
+
+
+@pytest.fixture(autouse=True)
+def _no_real_dialog(monkeypatch):
+    """No unit test may show native UI; notice-content tests override this mock."""
+    monkeypatch.setattr(
+        "playwrightauthor.dialognano.dialog", MagicMock(return_value=True)
+    )

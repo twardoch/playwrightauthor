@@ -38,7 +38,7 @@ def get_chrome_process(port: int | None = None) -> psutil.Process | None:
                     else:
                         # Check for the debug port in command line
                         if any(
-                            f"--remote-debugging-port={port}" in arg
+                            f"--remote-debugging-port={port}" == arg
                             for arg in proc.info["cmdline"]
                         ):
                             # Only return if it's a valid browser

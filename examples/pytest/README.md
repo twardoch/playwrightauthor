@@ -51,3 +51,8 @@ pytest -m "performance"
 3. **Error Recovery**: Implement error handling and cleanup
 4. **Timeouts**: Set appropriate timeouts for network operations
 5. **Parallel Safe**: Ensure tests can run in parallel without conflicts
+## Explicit live-browser opt-in
+
+The root test run uses the offline tests directory. To run these live-browser
+examples explicitly, use `pytest examples/pytest --run-browser-examples`.
+Without that flag the examples skip before browser fixtures run.

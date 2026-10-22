@@ -5,6 +5,12 @@ This file documents the dependencies used in `playwrightauthor` and the rational
 
 ## Core Runtime Dependencies
 
+- **filelock >=3.20**
+  - **Purpose:** Exclusive per-profile leases and serialized legacy launch checks.
+  - **Rationale:** Uses native OS locking on macOS/Unix/Windows, released on process
+    death; avoids custom stale-PID or marker-file recovery. The new session API
+    holds the lease until browser cleanup completes, including cancellation.
+
 - **playwright**
   - **Purpose:** Core browser automation protocol. Used to control Chromium/Chrome for Testing and browser contexts.
   - **Rationale:** Standard, highly reliable modern browser automation library backed by Microsoft.
@@ -62,3 +68,14 @@ This file documents the dependencies used in `playwrightauthor` and the rational
 - **mypy**
   - **Purpose:** Static type checking.
   - **Rationale:** Ensures type-safety compliance across the 100% type-hinted codebase.
+
+### Optional Camoufox session engine
+
+`playwrightauthor[camoufox]` pins Camoufox 0.5.8, whose dependency requires
+Playwright <1.63 (tested 1.62.0). Install its binary explicitly with
+`python -m camoufox fetch`. Profiles retain generated device config privately
+in device.json; new package versions require a compatible or new profile.
+
+The macOS-only attention verification script declares PyObjC Cocoa and
+ApplicationServices 12.2.2 as isolated script dependencies. They observe native
+focus/window/Spaces state and are not runtime package requirements.

@@ -1,3 +1,4 @@
+# this_file: pyproject.toml
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
@@ -28,7 +29,11 @@ dependencies = [
     "html2text>=2025.4.15",
     "tomli-w>=1.2.0",
     "httpx>=0.28.1",
+    "filelock>=3.20",
 ]
+
+[project.optional-dependencies]
+camoufox = ["camoufox==0.5.8"]
 
 [project.urls]
 "Homepage" = "https://github.com/twardoch/playwrightauthor"
@@ -46,6 +51,15 @@ write_to = "src/playwrightauthor/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/playwrightauthor"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src", "/tests", "/examples", "/docs",
+    "/scripts/verify_headless_launch.py", "/scripts/verify_sessions.py",
+    "/scripts/verify_optional_engines.py", "/scripts/verify_macos_attention.py",
+    "/README.md", "/LICENSE", "/CHANGELOG.md", "/DEPENDENCIES.md",
+    "/pyproject.toml", "/test.sh",
+]
 
 [dependency-groups]
 dev = [
@@ -87,6 +101,7 @@ line-ending = "auto"
 known-first-party = ["playwrightauthor"]
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 norecursedirs = ["private", ".venv", "node_modules", "dist"]
 markers = [
     "asyncio: marks tests as async (using pytest-asyncio)",

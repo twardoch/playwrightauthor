@@ -21,6 +21,14 @@ from playwrightauthor.engine import (
     AsyncEngineAdapter,
     EngineAdapter,
 )
+from playwrightauthor.profiles import (
+    ProfileLease,
+    reject_running_profile,
+    require_free_debug_port,
+    validate_attachment,
+    validate_profile,
+)
+from playwrightauthor.state_manager import get_state_manager
 from playwrightauthor.utils.logger import configure as configure_logger
 from playwrightauthor.utils.paths import data_dir as get_data_dir
 
@@ -64,18 +72,41 @@ def ensure_cloak_browser(
     max_retries: int | None = None,
     profile: str = "default",
 ) -> tuple[str, str]:
+    """Serialize Cloak launch with its engine-specific profile lease."""
+    validate_profile(profile)
+    with ProfileLease(get_data_dir() / "profiles" / "cloak" / profile):
+        return _ensure_cloak_browser(config, verbose, max_retries, profile)
+
+
+def _ensure_cloak_browser(
+    config: PlaywrightAuthorConfig,
+    verbose: bool = False,
+    max_retries: int | None = None,
+    profile: str = "default",
+) -> tuple[str, str]:
     """Ensure CloakBrowser is downloaded, running and ready to connect."""
     logger_instance = configure_logger(verbose)
-    debug_port = config.browser.debug_port
+    validate_profile(profile)
+    debug_port = get_state_manager().get_profile_debug_port(
+        profile, config.browser.debug_port
+    )
 
     # 1. Check if CloakBrowser/Chromium is already running on the debug port
     existing_proc = get_chrome_process(debug_port)
-    profile_data_dir = get_data_dir() / "profiles" / profile
+    profile_data_dir = get_data_dir() / "profiles" / "cloak" / profile
     profile_data_dir.mkdir(parents=True, exist_ok=True)
 
     if existing_proc:
+        cloakbrowser = _ensure_cloakbrowser_importable()
+        binary_path = Path(cloakbrowser.download.ensure_binary())
+        validate_attachment(
+            existing_proc, profile_data_dir, binary_path, config.browser.headless
+        )
         logger_instance.info(f"CloakBrowser is already running on port {debug_port}")
         return "", str(profile_data_dir)
+
+    require_free_debug_port(debug_port)
+    reject_running_profile(profile_data_dir)
 
     # 2. Get binary path of CloakBrowser (using its downloader)
     cloakbrowser = _ensure_cloakbrowser_importable()
@@ -149,7 +180,9 @@ class CloakEngineAdapter(EngineAdapter):
             Playwright Browser instance connected over CDP.
         """
         self.ensure_browser()
-        debug_port = self.config.browser.debug_port
+        debug_port = get_state_manager().get_profile_debug_port(
+            self.profile, self.config.browser.debug_port
+        )
         max_retries = self.config.network.retry_attempts
         retry_delay = self.config.network.retry_delay
         timeout = self.config.browser.timeout // 1000
@@ -208,7 +241,9 @@ class AsyncCloakEngineAdapter(AsyncEngineAdapter):
             Async Playwright Browser instance connected over CDP.
         """
         await self.ensure_browser_async()
-        debug_port = self.config.browser.debug_port
+        debug_port = get_state_manager().get_profile_debug_port(
+            self.profile, self.config.browser.debug_port
+        )
         max_retries = self.config.network.retry_attempts
         retry_delay = self.config.network.retry_delay
         timeout = self.config.browser.timeout // 1000

@@ -1,3 +1,11 @@
+# this_file: TODO.md
+
+## Issue 340
+
+Verified tasks moved to CHANGELOG.md. Additional matrix coverage is recorded in PLAN.md.
+
+---
+
 # TODO
 
 ## Selectable Browser Engine Support (Chrome for Testing + Optional CloakBrowser)
@@ -17,7 +25,6 @@
 
 ## Future Work
 
-- [ ] Persistent context API for CloakBrowser engine (deferred to v1 follow-up)
 - [ ] use `uvx gitnextver` to commit+push+tag 
 - [ ] Pre-commit hooks with `ruff`, `mypy`, `bandit` security scanning
 - [ ] Automated semantic versioning based on git tags (already using hatch-vcs)

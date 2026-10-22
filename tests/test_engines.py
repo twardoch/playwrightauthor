@@ -22,8 +22,13 @@ from playwrightauthor.engines.cloak import (
 
 
 @pytest.fixture
-def browser_config():
+def browser_config(monkeypatch):
     """Mock config."""
+    state = MagicMock()
+    state.get_profile_debug_port.return_value = 9333
+    monkeypatch.setattr(
+        "playwrightauthor.engines.cloak.get_state_manager", lambda: state
+    )
     return PlaywrightAuthorConfig()
 
 
@@ -79,7 +84,9 @@ def test_chrome_engine_adapter_start(
 
     adapter.start(mock_chromium)
 
-    mock_ensure.assert_called_once_with(verbose=True, profile="test_profile")
+    mock_ensure.assert_called_once_with(
+        verbose=True, profile="test_profile", config=browser_config
+    )
     mock_state_manager.return_value.get_profile_debug_port.assert_called_once_with(
         "test_profile", browser_config.browser.debug_port
     )
@@ -106,7 +113,9 @@ async def test_async_chrome_engine_adapter_start(
 
     await adapter.start_async(mock_chromium)
 
-    mock_ensure.assert_called_once_with(verbose=True, profile="test_profile")
+    mock_ensure.assert_called_once_with(
+        verbose=True, profile="test_profile", config=browser_config
+    )
     mock_state_manager.return_value.get_profile_debug_port.assert_called_once_with(
         "test_profile", browser_config.browser.debug_port
     )
@@ -133,7 +142,7 @@ def test_cloak_engine_adapter_start(mock_connect, mock_ensure, browser_config):
     )
     mock_connect.assert_called_once_with(
         mock_chromium,
-        browser_config.browser.debug_port,
+        9333,
         max_retries=browser_config.network.retry_attempts,
         retry_delay=browser_config.network.retry_delay,
         timeout=browser_config.browser.timeout // 1000,
@@ -157,7 +166,7 @@ async def test_async_cloak_engine_adapter_start(
     )
     mock_connect.assert_called_once_with(
         mock_chromium,
-        browser_config.browser.debug_port,
+        9333,
         max_retries=browser_config.network.retry_attempts,
         retry_delay=browser_config.network.retry_delay,
         timeout=browser_config.browser.timeout // 1000,

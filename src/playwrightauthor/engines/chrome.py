@@ -52,6 +52,7 @@ class ChromeEngineAdapter(EngineAdapter):
         ensure_browser(
             verbose=self.verbose,
             profile=self.profile,
+            config=self.config,
         )
 
     def start(self, playwright_chromium) -> SyncBrowser:
@@ -112,6 +113,7 @@ class AsyncChromeEngineAdapter(AsyncEngineAdapter):
         ensure_browser(
             verbose=self.verbose,
             profile=self.profile,
+            config=self.config,
         )
 
     async def start_async(self, playwright_chromium) -> AsyncBrowser:

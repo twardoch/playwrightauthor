@@ -220,6 +220,8 @@ class Browser:
 
     def _notify_interactive_task(self) -> bool:
         """Show the user-facing interactive-task dialog for this browser session."""
+        if self.config.browser.headless:
+            return False
         return notify_interactive_task(
             task=self.task,
             profile=self.profile,
@@ -513,11 +515,26 @@ class AsyncBrowser:
         if self.config.monitoring.enabled:
             await self._start_monitoring()
 
+        # Match the legacy sync helper while keeping Playwright's async contract.
+        async def get_page():
+            """Reuse a regular page in the persistent context, or create one."""
+            contexts = self.browser.contexts
+            if not contexts:
+                return await self.browser.new_page()
+            context = contexts[0]
+            for page in context.pages:
+                if not page.url.startswith("chrome-extension://"):
+                    return page
+            return await context.new_page()
+
+        self.browser.get_page = get_page
         self.logger.info("Async browser session started.")
         return self.browser
 
     def _notify_interactive_task(self) -> bool:
         """Show the user-facing interactive-task dialog for this browser session."""
+        if self.config.browser.headless:
+            return False
         return notify_interactive_task(
             task=self.task,
             profile=self.profile,

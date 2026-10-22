@@ -1,0 +1,11 @@
+{
+  "local_test_version": "1.0.23+issue340",
+  "all_production_module_bytes_match_wheel": true,
+  "production_modules_checked": 40,
+  "sdist_smoke_scripts_match_source": true,
+  "smoke_scripts_checked": 4,
+  "private_runtime_paths_excluded": true,
+  "wheel_sha256": "a45787f7aee4e4c08a9c9559cc1cc0d7931e64a356984997ca6f4cf5fd848c48",
+  "sdist_sha256": "337c1a135ef62878244ec8986ff4b44886fb603ac23d0b79465627880dcce9c5",
+  "scope": "local paired build; no publication"
+}

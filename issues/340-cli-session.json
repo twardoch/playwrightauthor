@@ -1,0 +1,7 @@
+{
+  "real_process_run_status_stop": true,
+  "owned_profile_cleanup": true,
+  "engine": "chromium",
+  "mode": "headless",
+  "service_auth_verified": false
+}

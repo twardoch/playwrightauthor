@@ -8,6 +8,7 @@
 
 import io
 import json
+import shlex
 import shutil
 import sys
 from difflib import get_close_matches
@@ -42,6 +43,64 @@ class Cli:
         playwrightauthor diagnose           # Run system diagnostics
         playwrightauthor repl               # Start interactive REPL
     """
+
+    def session(
+        self,
+        action: str = "run",
+        url: str = "about:blank",
+        engine: str = "chrome",
+        profile: str = "default",
+        mode: str = "headless",
+        hold_seconds: float | None = None,
+        executable_path: str | None = None,
+        profile_root: str | None = None,
+        auth_url: str | None = None,
+        auth_selector: str | None = None,
+    ) -> None:
+        """Run/login/status/stop for an owned foreground context; emits JSON."""
+        from .session_cli import command
+
+        if action == "login":
+            stop_command = [
+                "playwrightauthor",
+                "session",
+                "stop",
+                f"--engine={engine}",
+                f"--profile={profile}",
+            ]
+            if profile_root:
+                stop_command.append(f"--profile-root={profile_root}")
+            Console(stderr=True).print(
+                "Complete manual login in the browser. To finish early: "
+                + shlex.join(stop_command),
+                markup=False,
+            )
+        try:
+            result = command(
+                action,
+                url,
+                engine,
+                profile,
+                mode,
+                hold_seconds,
+                executable_path,
+                profile_root,
+                auth_url,
+                auth_selector,
+            )
+        except Exception as error:
+            Console(stderr=True).print_json(
+                data={
+                    "error": {
+                        "code": getattr(error, "code", "SESSION_COMMAND_FAILED"),
+                        "message": str(error) or type(error).__name__,
+                    }
+                }
+            )
+            raise SystemExit(
+                3 if getattr(error, "code", None) == "AUTH_REQUIRED" else 1
+            ) from error
+        Console().print_json(data=result)
 
     def status(
         self, verbose: bool = False, profile: str = "default", format: str = "table"
@@ -1207,13 +1266,14 @@ class Cli:
             console.print(f"[dim]Debug port: {debug_port}[/dim]")
             console.print("[dim]Debug mode: ENABLED[/dim]\n")
 
-            notify_interactive_task(
-                task=task
-                or "Use this browser profile for any required sign-in, consent, captcha, or manual check.",
-                profile=profile,
-                service=service,
-                suppress=suppress_dialog,
-            )
+            if not config.browser.headless:
+                notify_interactive_task(
+                    task=task
+                    or "Use this browser profile for any required sign-in, consent, captcha, or manual check.",
+                    profile=profile,
+                    service=service,
+                    suppress=suppress_dialog,
+                )
 
             # Launch browser (don't just ensure it's running)
             from .browser.process import get_chrome_process
@@ -1221,7 +1281,7 @@ class Cli:
             was_already_running = get_chrome_process(debug_port) is not None
 
             browser_path, data_dir = launch_browser(
-                verbose=True, profile=profile
+                verbose=True, profile=profile, config=config
             )  # Always verbose
 
             if was_already_running:

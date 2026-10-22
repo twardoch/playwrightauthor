@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# examples/pytest/conftest.py
+# this_file: examples/pytest/conftest.py
 
 """
 Pytest configuration and fixtures for PlaywrightAuthor integration.
@@ -10,10 +10,25 @@ proper setup, teardown, and error handling.
 
 import asyncio
 from contextlib import contextmanager
+from pathlib import Path
 
 import pytest
 
 from playwrightauthor import AsyncBrowser, Browser
+
+
+def pytest_addoption(parser):
+    """Require an explicit flag before examples may launch live browsers."""
+    parser.addoption("--run-browser-examples", action="store_true", default=False)
+
+
+def pytest_collection_modifyitems(config, items):
+    """Skip live examples before any browser fixtures can run."""
+    if not config.getoption("--run-browser-examples"):
+        skip = pytest.mark.skip(reason="Live examples require --run-browser-examples")
+        for item in items:
+            if str(item.path).startswith(str(Path(__file__).parent)):
+                item.add_marker(skip)
 
 
 def pytest_configure(config):
