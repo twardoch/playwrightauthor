@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### No sign-in dialog when the browser is already open (2026-11-11)
+
+- `Browser`, `AsyncBrowser` and `playwrightauthor browse`/`run` no longer show
+  the "this task needs your browser" dialog when a browser for the profile is
+  already listening on its debug port; the user already has the window. The
+  dialog still appears before a fresh visible launch.
+- Fixed `UnboundLocalError` risk in the CLI launch path: a function-local
+  import of `get_chrome_process` shadowed the module-level name.
+- Tests: running vs not-running notification for both wrappers and the CLI
+  (164 passed, 24 skipped).
+
 ### Issue 340 — final verification scope (2026-10-22)
 
 - PA340-6: Complete the user-selected live verification and direct review gate.

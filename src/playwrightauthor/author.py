@@ -19,6 +19,16 @@ from .monitoring import AsyncBrowserMonitor, BrowserMonitor
 from .state_manager import get_state_manager
 from .utils.logger import configure as configure_logger
 
+
+def profile_browser_running(state_manager, profile: str, base_port: int) -> bool:
+    """True when a browser already listens on ``profile``'s debug port.
+
+    Used to skip the interactive-task dialog: it exists to tell the user a
+    window is about to open, which is noise when that window is already open.
+    """
+    port = state_manager.get_profile_debug_port(profile, base_port)
+    return get_chrome_process(port) is not None
+
 if TYPE_CHECKING:
     from playwright.async_api import Browser as AsyncPlaywrightBrowser
     from playwright.async_api import Playwright as AsyncPlaywright
@@ -221,6 +231,14 @@ class Browser:
     def _notify_interactive_task(self) -> bool:
         """Show the user-facing interactive-task dialog for this browser session."""
         if self.config.browser.headless:
+            return False
+        if profile_browser_running(
+            self.state_manager, self.profile, self.config.browser.debug_port
+        ):
+            # The user already has this profile's window; nothing to open or explain.
+            self.logger.debug(
+                f"Browser for profile '{self.profile}' already running; no dialog."
+            )
             return False
         return notify_interactive_task(
             task=self.task,
@@ -534,6 +552,14 @@ class AsyncBrowser:
     def _notify_interactive_task(self) -> bool:
         """Show the user-facing interactive-task dialog for this browser session."""
         if self.config.browser.headless:
+            return False
+        if profile_browser_running(
+            self.state_manager, self.profile, self.config.browser.debug_port
+        ):
+            # The user already has this profile's window; nothing to open or explain.
+            self.logger.debug(
+                f"Browser for profile '{self.profile}' already running; no dialog."
+            )
             return False
         return notify_interactive_task(
             task=self.task,

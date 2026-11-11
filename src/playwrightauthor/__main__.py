@@ -18,6 +18,7 @@ import tomli_w
 from rich.console import Console
 from rich.table import Table
 
+from .browser.process import get_chrome_process
 from .browser_manager import ensure_browser, launch_browser
 from .config import get_config, save_config
 from .connection import check_connection_health
@@ -1266,7 +1267,7 @@ class Cli:
             console.print(f"[dim]Debug port: {debug_port}[/dim]")
             console.print("[dim]Debug mode: ENABLED[/dim]\n")
 
-            if not config.browser.headless:
+            if not config.browser.headless and get_chrome_process(debug_port) is None:
                 notify_interactive_task(
                     task=task
                     or "Use this browser profile for any required sign-in, consent, captcha, or manual check.",
@@ -1276,8 +1277,6 @@ class Cli:
                 )
 
             # Launch browser (don't just ensure it's running)
-            from .browser.process import get_chrome_process
-
             was_already_running = get_chrome_process(debug_port) is not None
 
             browser_path, data_dir = launch_browser(

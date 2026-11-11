@@ -131,9 +131,51 @@ def test_cli_run_notifies_only_for_visible_mode(headless):
             return_value=("chrome", "profile"),
         ) as launch,
         patch("playwrightauthor.__main__.notify_interactive_task") as notify,
-        patch("playwrightauthor.browser.process.get_chrome_process", return_value=None),
+        patch("playwrightauthor.__main__.get_chrome_process", return_value=None),
     ):
         state.return_value.get_profile_debug_port.return_value = 9229
         Cli().run(profile="policy")
     assert notify.call_count == (0 if headless else 1)
     assert launch.call_args.kwargs["config"] is config
+
+
+def test_cli_run_when_browser_already_running_then_no_dialog():
+    from playwrightauthor.__main__ import Cli
+
+    config = PlaywrightAuthorConfig()
+    config.browser.headless = False
+    with (
+        patch("playwrightauthor.__main__.get_config", return_value=config),
+        patch("playwrightauthor.__main__.get_state_manager") as state,
+        patch(
+            "playwrightauthor.__main__.launch_browser",
+            return_value=("chrome", "profile"),
+        ),
+        patch("playwrightauthor.__main__.notify_interactive_task") as notify,
+        patch(
+            "playwrightauthor.__main__.get_chrome_process", return_value=MagicMock()
+        ),
+    ):
+        state.return_value.get_profile_debug_port.return_value = 9229
+        Cli().run(profile="policy")
+    notify.assert_not_called()
+
+
+@pytest.mark.parametrize("wrapper", [Browser, AsyncBrowser])
+@pytest.mark.parametrize("running", [True, False])
+def test_visible_session_notifies_only_when_browser_not_running(wrapper, running):
+    instance = wrapper()
+    instance.config = PlaywrightAuthorConfig()
+    instance.config.browser.headless = False
+    with (
+        patch("playwrightauthor.author.notify_interactive_task", return_value=True) as notify,
+        patch(
+            "playwrightauthor.author.get_chrome_process",
+            return_value=MagicMock() if running else None,
+        ),
+        patch.object(instance.state_manager, "get_profile_debug_port", return_value=9333),
+    ):
+        instance._notify_interactive_task()
+    assert notify.call_count == (0 if running else 1), (
+        "Dialog must be skipped when the profile's browser is already open"
+    )
