@@ -93,3 +93,4 @@ wheels/
 # Downloaded Chrome for Testing (never commit)
 chrome/
 *.app/
+src/playwrightauthor/__version__.py

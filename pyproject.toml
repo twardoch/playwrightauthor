@@ -117,3 +117,6 @@ warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
 exclude = ["_version\\.py"]
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/playwrightauthor/__version__.py"

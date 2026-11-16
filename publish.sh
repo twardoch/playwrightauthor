@@ -1,18 +1,38 @@
 #!/usr/bin/env bash
 # this_file: publish.sh
-set -e
+#
+# Release playwrightauthor: asks GitHub Actions (.github/workflows/release.yml) to
+# create the tag, build, cut a GitHub release, then publish to PyPI through
+# Trusted Publishing. No PyPI token is needed locally.
+#
+# Usage: ./publish.sh            # next patch after the latest vX.Y.Z tag
+#        ./publish.sh v1.4.0     # explicit tag
+# The tag is made on the HEAD of the remote default branch, so push first.
 
-llms . "*.txt"
-uvx hatch clean
-gitnextver .
+set -euo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
 
-# Ensure HEAD has an exact version tag so hatch-vcs generates a clean version (no local/dev identifier like +g...)
-if ! git describe --tags --exact-match HEAD >/dev/null 2>&1; then
-    NEXT_TAG=$(python3 -c "import git, re; repo=git.Repo('.'); tags=[t.name for t in repo.tags]; version_tags=[tuple(map(int, m.groups())) for t in tags if (m:=re.match(r'^v?(\d+)\.(\d+)\.(\d+)$', t))]; latest=max(version_tags, default=(1,0,-1)); print(f'v{latest[0]}.{latest[1]}.{latest[2]+1}')")
-    echo "[i] HEAD is untagged. Auto-tagging HEAD as ${NEXT_TAG}..."
-    git tag "${NEXT_TAG}"
-    git push origin "${NEXT_TAG}"
+REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
+BRANCH="$(gh repo view --json defaultBranchRef -q .defaultBranchRef.name)"
+git fetch -q --tags origin
+
+TAG="${1:-}"
+if [[ -z "$TAG" ]]; then
+  last="$(git tag -l 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)"
+  IFS=. read -r major minor patch <<<"${last#v}"
+  TAG="v${major:-0}.${minor:-0}.$((${patch:-0} + 1))"
+fi
+if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "error: '$TAG' is not a vMAJOR.MINOR.PATCH tag" >&2
+  exit 1
 fi
 
-uvx hatch build
-uv publish
+if [[ "$(git rev-parse HEAD)" != "$(git rev-parse "origin/$BRANCH")" ]]; then
+  echo "warning: local HEAD differs from origin/$BRANCH; the release is cut from origin/$BRANCH" >&2
+fi
+
+echo "Releasing $REPO $TAG from $BRANCH"
+gh workflow run release.yml -R "$REPO" --ref "$BRANCH" -f tag="$TAG"
+sleep 5
+gh run list -R "$REPO" --workflow release.yml -L 1
+echo "Follow it with: gh run watch -R $REPO"
