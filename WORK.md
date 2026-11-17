@@ -1,3 +1,209 @@
+# this_file: WORK.md
+
+## Issue 340: authoritative continuation checkpoint — 2026-10-22
+
+This turn made progress: optional Camoufox sessions and foreground session CLI
+implemented; PA340-4/5 moved to PWA CHANGELOG. Review reproduced and fixed an
+async startup cancellation race, unowned-profile status and custom-root stop hints.
+PWA regression: 159 pass/24 skip; VCP: 228 pass. Targeted mypy/Ruff pass.
+Real CLI run/status/stop passes; paired installed wheel async native smoke passes;
+optional installed-wheel Cloak/Camoufox sync-to-async restart/device smoke passes.
+Clean-wheel Playwright 1.64 focus recheck passes 122 samples; earlier failure kept.
+
+One long-running job is still active: exec session 30649, full forced live Poe
+update using poe-primary/CfT and POE_API_KEY loaded only from authorized ~/.env.
+Poll this same handle; do not restart it because a poll expires. Latest observed:
+246 info updates, 231 numeric-pricing updates, 15 unavailable numeric rates out
+of 497 requested bots. Output is temporary under the system tempfile directory
+(poe340-live-update- prefix; exact path is recorded on completion).
+Log: /tmp/340-live-update.log. Results file issues/340-live-update.json is written
+only after terminal success and original dataset hash verification. No full-run
+completion/parity claim yet.
+
+Remaining current-issue tasks: PA340-6 and VCP340-5, including full update audit,
+headed comparison, provider/hardware/typing/Spaces matrix and final acceptance.
+No visible test browsers should open without explicit coordination after the
+user-reported dialog loop; default tests and examples gating are fixed.
+Goal/ledger remain active. The code-review skill stub points to unavailable MCP
+content; direct review is documented in playwrightauthor/issues/340-direct-review.md.
+
+
+## Issue 340: direct review fixes — 2026-10-22
+
+Direct review reproduced and fixed async option-thread cancellation releasing a
+profile lease before profile writes finished; shared shielded task cleanup now
+holds ownership until work ends. Session status/stop reports active unowned
+profiles without touching them (live poe-primary returns profile_in_use).
+The code-review SKILL.md is only a stub referring to get_skill_content; no such
+MCP tool is available. Review is being performed directly; do not claim that
+unavailable methodology was loaded. Full clean-wheel fixture focus recheck passes
+122 samples on Playwright 1.64.0; earlier 114-sample failure remains retained.
+
+
+## Issue 340: optional engines and CLI implemented — 2026-10-22
+
+PA340-4/5 moved to CHANGELOG after focused/type checks and real optional-engine
+and cross-process CLI evidence. PA340-6 remains open for full acceptance/review.
+CLI session run/login/status/stop owns native contexts, emits structured results,
+and uses private cooperative stop tokens with PID-create-time validation.
+Real Chromium child run/status/stop passed; no external process is killed.
+Current unit suite result is in /tmp/340-pwa-session-cli-final.log.
+Camoufox 0.5.8 requires Playwright <1.63; real optional smoke uses 1.62.0.
+Provider/interactive-mode device checks are not claimed from headless fixtures.
+Poe full update handle 30649 remains live; last observed 133 info updates,
+128 pricing updates and five unavailable numeric rates, not a full-run result.
+
+
+## User-reported dialog loop — 2026-10-22
+
+Stopped root pytest process 27222 (exit 130); no osascript/dialog process remained.
+Root discovery had collected examples/pytest live fixtures, repeatedly opening
+pytest-default notices. Added default testpaths=tests, explicit opt-in gating for
+31 live examples, and an offline native-dialog mock with regression coverage.
+Explicit examples run now skips all 31 without launching browsers. Root suite
+rerun passes 142 tests/24 skips in 0.91s; log /tmp/340-pwa-no-dialog-tests.log.
+Camoufox optional adapter has been implemented and passed real sync-to-async
+restart-cookie/device persistence; focused 21 tests and targeted mypy pass.
+PA340-4 still pending final docs/capability/build checks; PA340-5 CLI remains open.
+Full Poe forced update remains running in handle 30649, log /tmp/340-live-update.log.
+
+
+## Issue 340: optional-engine investigation — 2026-10-22
+
+Isolated environment /tmp/poe340-optional-engines has Camoufox 0.5.8,
+CloakBrowser 0.6.3 and Playwright 1.62.0. Camoufox currently requires
+Playwright <1.63; the separate paired clean install uses 1.64.0.
+Cloak native BrowserSession headless restart-cookie smoke passes using the
+installed 145.0.7632.109.2 binary. Camoufox 156.0.1-beta.36 was explicitly fetched.
+Its official persistent-context wrapper and native launch_options both pass
+restart cookies on intercepted example.com; cached generated config keeps the
+sampled UA/core-count/screen characteristics stable. The initial fixture.invalid
+cookie test failed even immediately after add_cookies; the valid-origin followup
+passed through both Playwright and document.cookie. No provider auth was tested.
+Evidence: issues/340-optional-engines.json. Camoufox is NOT integrated into the
+session API yet; no PA340-4 completion claim. All optional smoke processes ended.
+
+
+## Issue 340: Poe integration checkpoint — 2026-10-22
+
+This turn made substantive progress: VCP340-1/2/3/4 implemented and moved to VCP
+CHANGELOG after local verification. The original whole goal remains active.
+PWA optional engines/CLI/final gates and VCP340-5 are still open.
+
+Poe now uses one session per pool identity and separate job tabs, explicit engine/
+profile/mode controls, headless auto authorization with a matching login command,
+passive interactive login and scoped private HTTP exports. Cookie injection into
+browser contexts was removed. Pool stop cancellation releases its owned session.
+Explicit setup verifies/installs CfT without opening a browser. HTTP export/cache
+is engine/profile-scoped; old unscoped files and browser profiles are retained.
+
+Verification: 228 Python regression tests, 18 JavaScript checks, 14 vendor tests
+pass; vendor 100%. New-module focused coverage is 91.81% (38 tests). Changed-file F/I lint
+and targeted mypy pass with paired PWA on MYPYPATH. Real macOS arm64 CfT/Chromium/
+Firefox pass adapter/pool/probe checks with intercepted fixture service responses,
+including job cancellation and unauthenticated auto rejection. Source-environment focus/window
+run passes 109 samples (earlier 105/108). A clean-wheel Playwright 1.64 run
+passed three-engine behavior but failed focus stability across 114 samples;
+no browser windows were visible. Its cause remains unresolved. Live anonymous Chromium Poe settings probe
+returns AUTH_REQUIRED; no credentials or interactive login were used.
+Evidence: virginia-clemm-poe/issues/340-poe-verification.md and adjacent JSON files.
+
+VCP environment uses the paired editable PWA checkout, not published 1.0.23.
+Use `.venv/bin/python` for its tests; unqualified uv run can resync the old package.
+Paired wheel tests use local-only PWA 1.0.23+issue340 and VCP 0.0.0; no publication.
+An initial VCP sdist included .omc/work records; explicit source selection fixes
+that. Final paired build/payload/clean-install checks are recorded in the audit.
+
+The user selected poe-primary with Chrome for Testing and completed manual
+login. The initial observer timed out because Poe moved points to the subscription
+tab and changed the account UI. Current selectors are corrected; a fresh headless
+probe, scoped export, browser restart and normal balance --refresh all succeed.
+Account values are omitted from issues/340-live-signed-in.json. POE_API_KEY is
+loaded only into the live-update child from the user-authorized ~/.env.
+Full forced update is running against temporary output; original dataset is
+hash-checked for preservation. Latest observed progress: 40 bot-info updates,
+39 pricing updates and one pricing extraction failure; not a full-run result. Process handle 30649; log /tmp/340-live-update.log.
+Do not claim full-update success until that handle terminates and output is audited. Independent remaining work:
+PWA optional Camoufox/Cloak compatibility and capability decisions, session CLI
+run/login/status/stop, then full signed-in provider/balance/update/hardware gates
+and direct cleanup/code review. Intel/typing/Spaces and the earlier unexplained
+legacy focus anomaly remain unresolved. Native goal and OMC G001 stay active.
+
+## Issue 340: context-session checkpoint — 2026-10-22
+
+This turn made substantive progress: implemented and tested profile leases,
+legacy CDP identity checks, additive sync/async context sessions and native
+Chrome/Chromium/Firefox support. PA340-2/3 moved to PlaywrightAuthor CHANGELOG.
+Poe's runtime adapter is still unchanged; its five issue tasks remain open.
+
+Fresh evidence: 137 PWA tests pass/24 skip; 34 focused tests yield 92.14% new-module
+coverage. Changed-file Ruff and targeted new-module mypy pass. Full-tree mypy
+still reports 17 existing errors. Real macOS arm64 runs pass all three native
+engines for browser restart persistence, same-profile exclusion, different-profile
+cookie/shutdown isolation, task-tab independence and OS lease recovery after an
+owner is killed. Latest focus/window runs pass 96 and 94 samples. Evidence:
+`playwrightauthor/issues/340-native-sessions.json` and the session-verification
+report (paths relative to the multi-repo workspace).
+
+Native persistent contexts were selected for new CfT sessions as well as native
+Chromium/Firefox because they own browser teardown directly; legacy APIs retain
+CDP. New profiles are engine-specific and no old identity is migrated. Async
+shutdown is shielded until resource cleanup finishes; nested sync contexts share
+one driver per thread. Startup rejects unverified occupied debug ports and live
+profile writers instead of launching into their identity. A real smoke initially
+caught nested sync-driver use and a session-cookie test assumption; both were
+corrected and rerun. See verification report for exact limitations.
+
+Build/clean-install and byte-level wheel audit pass using local version 0.0.0.
+An initial sdist included .omc records; explicit source selection now excludes
+local runtime data. New dependency filelock uses OS locks (installed 4.2.4,
+minimum 3.20). No artifact published, no existing profile copied, no git command.
+
+Next: complete optional-engine compatibility/capability decisions and session
+CLI (PA340-4/5), then migrate Poe's adapter/pool/settings/login/cookie paths using
+the local PWA checkout. All real provider/Poe, Intel, typing/Spaces acceptance
+and final whole-goal reviews remain open. The earlier legacy focus anomaly is
+still unexplained. OMC G001 remains in progress; native goal remains active.
+
+## Issue 340 checkpoint — 2026-10-22
+
+The previous goal turn produced substantive progress: all three reports analyzed,
+both PLAN/TODO pairs written, legacy launch defects fixed with red/green tests.
+PA340-1's verified code repairs moved to PlaywrightAuthor CHANGELOG. Poe has no
+runtime integration changes yet. Native active goal remains active; OMC ledger
+`.omc/ultragoal/plans/issue-340` records G001 in progress because full
+noninterference acceptance is not established.
+
+Fresh verification:
+- PlaywrightAuthor Hatch: 103 passed, 24 skipped with local version override.
+- Changed-source/test/smoke Ruff checks pass; full-tree mypy reports 17 errors.
+- Poe `./test.sh`: 190 Python, 18 JavaScript, 14 vendor tests pass; vendor 100%.
+- Poe Hatch: tests pass; total coverage 56.52% fails unchanged 85% threshold.
+- Real macOS arm64 CfT 150.0.7871.24 disposable-profile smoke passes actual sync
+  and async CDP/navigation, new tabs, screenshot and owned-process shutdown.
+  Latest 29 focus/window samples pass; preceding successful run had 32 samples.
+  First run detected a focus change without retaining the changed application;
+  subsequent passes do not resolve that observation or prove Spaces/typing state.
+  Evidence: playwrightauthor/issues/340-headless-launch.json. No real provider
+  login, Poe balance/update, Firefox/Camoufox or Intel acceptance has run.
+
+Next: PA340-2 exact profile/engine/mode attachment checks and OS-released leases;
+then PA340-3 context session API and failure/cancellation cleanup. Inspect native
+persistent-context launch versus managed CDP ownership before selecting the
+simplest safe implementation. Keep existing Browser/AsyncBrowser defaults.
+Use docs and tests before API changes, and integrate Poe against the local
+PlaywrightAuthor checkout (not the older published dependency). No package added
+in this checkpoint; no release/push/profile migration performed.
+
+# this_file: WORK.md
+
+## Issue 340 — 2026-10-22
+
+Analysis and implementation sequence recorded in PLAN.md and TODO.md. Initial
+`uvx hatch test` cannot build either checkout because VCS version metadata is
+unavailable. Repeating with SETUPTOOLS_SCM_PRETEND_VERSION=0.0.0 for local tests.
+No live provider or macOS focus acceptance has passed yet.
+
 # Work Progress
 
 ## Current Iteration: Selectable Browser Engine Support & macOS Codesign Fixes Complete ✅ (2026-06-01)
@@ -372,3 +578,11 @@ python scrape_linkedin_feed.py
 ```
 
 **Status**: Chrome for Testing exclusivity is fully implemented with comprehensive session reuse workflow. PlaywrightAuthor now provides enterprise-grade browser automation with persistent authentication sessions.
+
+## Final delivery checkpoint — 2026-10-22
+
+Fresh suites: PWA 159 passed/24 skipped; Poe 228 passed. Headless full output has 497 valid unique bots, 476 prices, 20 undisclosed and one timeout. Three-bot sample repeated that timeout and succeeded on two other bots. Per explicit user steering, full headed fallback now runs in owned session 91773; no extra modal. Commit/push authorized for both repos; preserve unrelated deletion and private logs.
+
+Headed incremental fallback 54047 finished exit 0: 492 valid bots, 473 prices, 19 undisclosed, zero scrape failures, zero missing info. Discovery removed eight IDs including glm-5.3-zai and added three; 470 shared priced records retain exact scraped payloads. Safe summary committed separately from private raw paths. Final package audit and commit/push follow.
+
+Delivery complete: commits pushed and independently matched to remote main: f530e7cc5284042424888c6c3a7fc4bd97ac70c2. Private logs/raw reports and unrelated files remain local.
